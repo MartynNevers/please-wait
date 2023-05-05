@@ -9,7 +9,7 @@
 	<Company>Esdet</Company>
 	<Description>PleaseWait is a C# DSL for synchronizing asynchronous operations</Description>
 	<PackageProjectUrl>https://github.com/MartynNevers/please-wait</PackageProjectUrl>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
 	<RepositoryUrl>https://github.com/MartynNevers/please-wait</RepositoryUrl>
 	<PackageTags>testing;test-automation;ui-automation;integration-testing;unit-testing</PackageTags>
 	<PackageLicenseFile>LICENSE</PackageLicenseFile>
