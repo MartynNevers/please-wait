@@ -1,0 +1,12 @@
+# NOTE: Requires **VS2019 16.3** or later
+
+# Rules for StyleCop.Analyzers
+# Description: Code analysis rules for StyleCop.Analyzers.
+
+# Code files
+[*.{cs,vb}]
+
+
+# Ignored Rules
+# Disabled to skip checking auto-generated XML comments in .csproj files
+dotnet_diagnostic.SA0001.severity = none
