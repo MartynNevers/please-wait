@@ -25,7 +25,7 @@ namespace PleaseWait.Tests
         public void WhenConditionPassesThenExitSuccessfullyTest()
         {
             var r = new Ref<string>("Monday");
-            _ = this.UpdateValue(2, r, "Tuesday");
+            _ = UpdateValue(2, r, "Tuesday");
             PleaseWait.AtMost(5, TimeUnit.SECONDS).Until(() => r.Value.Equals("Tuesday"));
             Assert.That(r.Value, Is.EqualTo("Tuesday"));
         }
@@ -34,7 +34,7 @@ namespace PleaseWait.Tests
         public void GivenConditionThatIsUnattainableWhenTimeoutOccursThenThrowExceptionTest()
         {
             var r = new Ref<string>("Tuesday");
-            _ = this.UpdateValue(2, r, "Wednesday");
+            _ = UpdateValue(2, r, "Wednesday");
 
             try
             {
@@ -50,7 +50,7 @@ namespace PleaseWait.Tests
         public void GivenConditionThatIsOnlyAttainableAfterTimeoutWhenTimeoutOccursThenThrowExceptionTest()
         {
             var r = new Ref<string>("Wednesday");
-            _ = this.UpdateValue(5, r, "Thursday");
+            _ = UpdateValue(5, r, "Thursday");
 
             try
             {
@@ -66,7 +66,7 @@ namespace PleaseWait.Tests
         public void GivenThrowsIsFalseWhenTimeoutOccursThenExitGracefullyTest()
         {
             var r = new Ref<string>("Thursday");
-            _ = this.UpdateValue(5, r, "Friday");
+            _ = UpdateValue(5, r, "Friday");
             PleaseWait.AtMost(2, TimeUnit.SECONDS).AndThrows(false).Until(() => r.Value.Equals("Friday"));
             Assert.That(r.Value, Is.EqualTo("Thursday"));
         }
@@ -75,7 +75,7 @@ namespace PleaseWait.Tests
         public void GivenPollingRateIs500MsWhenConditionPassesThenExitSuccessfullyTest()
         {
             var r = new Ref<string>("Friday");
-            _ = this.UpdateValue(2, r, "Saturday");
+            _ = UpdateValue(2, r, "Saturday");
             PleaseWait.AtMost(5, TimeUnit.SECONDS).WithPollingRate(500, TimeUnit.MILLIS).Until(() => r.Value.Equals("Saturday"));
             Assert.That(r.Value, Is.EqualTo("Saturday"));
         }
@@ -85,7 +85,7 @@ namespace PleaseWait.Tests
         {
             var toggle = false;
             var r = new Ref<string>("Saturday");
-            _ = this.UpdateValue(5, r, "Sunday");
+            _ = UpdateValue(5, r, "Sunday");
             PleaseWait.AtMost(2, TimeUnit.SECONDS).AndThrows(false).Until(() => r.Value.Equals("Sunday"), () => toggle = true);
             Assert.IsTrue(toggle);
         }
@@ -96,7 +96,7 @@ namespace PleaseWait.Tests
             var toggle = false;
             var i = 0;
             var r = new Ref<string>("Sunday");
-            _ = this.UpdateValue(2, r, "Monday");
+            _ = UpdateValue(2, r, "Monday");
 
             var actions = new List<Action>()
             {
@@ -113,7 +113,7 @@ namespace PleaseWait.Tests
         public void WhenConditionThrowsExceptionThenExceptionIsSwallowedTest()
         {
             var r = new Ref<int>(0);
-            PleaseWait.AtMost(1, TimeUnit.SECONDS).WithPollingRate(50, TimeUnit.MILLIS).Until(() => this.IncrementValueWithExceptions(r, 5).Value.Equals(5));
+            PleaseWait.AtMost(1, TimeUnit.SECONDS).WithPollingRate(50, TimeUnit.MILLIS).Until(() => IncrementValueWithExceptions(r, 5).Value.Equals(5));
             Assert.That(r.Value, Is.EqualTo(5));
         }
 
@@ -121,11 +121,11 @@ namespace PleaseWait.Tests
         public void WhenActionThrowsExceptionThenExceptionIsSwallowedTest()
         {
             var r = new Ref<int>(0);
-            PleaseWait.AtMost(5, TimeUnit.SECONDS).AndThrows(false).Until(() => false, () => this.IncrementValueWithExceptions(r, 2));
+            PleaseWait.AtMost(5, TimeUnit.SECONDS).AndThrows(false).Until(() => false, () => IncrementValueWithExceptions(r, 2));
             Assert.That(r.Value, Is.EqualTo(2));
         }
 
-        private async Task UpdateValue(double seconds, Ref<string> r, string value)
+        private static async Task UpdateValue(double seconds, Ref<string> r, string value)
         {
             await Task.Run(() =>
             {
@@ -134,7 +134,7 @@ namespace PleaseWait.Tests
             });
         }
 
-        private Ref<int> IncrementValueWithExceptions(Ref<int> r, int iterations)
+        private static Ref<int> IncrementValueWithExceptions(Ref<int> r, int iterations)
         {
             if (r.Value < iterations)
             {
