@@ -109,6 +109,22 @@ namespace PleaseWait.Tests
             Assert.That(i, Is.GreaterThan(0));
         }
 
+        [Test]
+        public void WhenConditionThrowsExceptionThenExceptionIsSwallowedTest()
+        {
+            var r = new Ref<int>(0);
+            PleaseWait.AtMost(1, TimeUnit.SECONDS).WithPollingRate(50, TimeUnit.MILLIS).Until(() => this.IncrementValueWithExceptions(r, 5).Value.Equals(5));
+            Assert.That(r.Value, Is.EqualTo(5));
+        }
+
+        [Test]
+        public void WhenActionThrowsExceptionThenExceptionIsSwallowedTest()
+        {
+            var r = new Ref<int>(0);
+            PleaseWait.AtMost(5, TimeUnit.SECONDS).AndThrows(false).Until(() => false, () => this.IncrementValueWithExceptions(r, 2));
+            Assert.That(r.Value, Is.EqualTo(2));
+        }
+
         private async Task UpdateValue(double seconds, Ref<string> r, string value)
         {
             await Task.Run(() =>
@@ -116,6 +132,17 @@ namespace PleaseWait.Tests
                 Task.Delay(TimeSpan.FromSeconds(seconds)).Wait();
                 r.Value = value;
             });
+        }
+
+        private Ref<int> IncrementValueWithExceptions(Ref<int> r, int iterations)
+        {
+            if (r.Value < iterations)
+            {
+                r.Value++;
+                throw new Exception();
+            }
+
+            return r;
         }
     }
 }
