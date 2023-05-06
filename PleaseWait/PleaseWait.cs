@@ -53,7 +53,7 @@ namespace PleaseWait
         {
             var pleaseWait = new PleaseWait()
             {
-                Timeout = PleaseWait.ConvertToTimeSpan(value, timeUnit),
+                Timeout = ConvertToTimeSpan(value, timeUnit),
             };
 
             return pleaseWait;
@@ -61,7 +61,7 @@ namespace PleaseWait
 
         public PleaseWait WithPollingRate(double value, TimeUnit timeUnit)
         {
-            this.PollingRate = PleaseWait.ConvertToTimeSpan(value, timeUnit);
+            this.PollingRate = ConvertToTimeSpan(value, timeUnit);
             return this;
         }
 
