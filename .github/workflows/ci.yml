@@ -45,10 +45,13 @@ jobs:
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v1.2.0
 
-      - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
+      - name: Setup .NET SDK ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
+
+      - name: List .NET SDKs
+        run: dotnet --list-sdks
 
       - name: Restore project dependencies
         run: dotnet restore
