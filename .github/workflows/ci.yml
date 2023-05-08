@@ -73,9 +73,9 @@ jobs:
         run: dotnet test /p:Configuration=$BUILD_CONFIG --framework ${{ matrix.framework }} --no-restore --no-build --verbosity normal
 
       - name: Rebuild
-        if: startsWith(github.ref, 'refs/heads/release') && contains(matrix.dotnet-version, '7.0.x')
+        if: startsWith(github.ref, 'refs/heads/release') && contains(matrix.framework, 'net7.0')
         run: dotnet build --configuration $BUILD_CONFIG -p:Version=$BUILD_VERSION --no-restore
 
       - name: Publish
-        if: startsWith(github.ref, 'refs/heads/release') && contains(matrix.dotnet-version, '7.0.x')
+        if: startsWith(github.ref, 'refs/heads/release') && contains(matrix.framework, 'net7.0')
         run: nuget push **\*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGET_API_KEY}}
