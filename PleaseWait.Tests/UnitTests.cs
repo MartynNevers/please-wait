@@ -16,6 +16,9 @@
 
 namespace PleaseWait.Tests
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NUnit.Framework;
 
     [Parallelizable(scope: ParallelScope.All)]
