@@ -50,8 +50,11 @@ jobs:
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
 
-      - name: List .NET SDKs
+      - name: List installed .NET SDKs
         run: dotnet --list-sdks
+
+      - name: Version of .NET SDK used by dotnet commands
+        run: dotnet --version
 
       - name: Restore project dependencies
         run: dotnet restore
