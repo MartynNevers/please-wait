@@ -66,10 +66,10 @@ jobs:
       - name: Restore project dependencies
         run: dotnet restore
 
-      - name: Build  (${{ matrix.framework }})
+      - name: Build (${{ matrix.framework }})
         run: dotnet build --configuration $BUILD_CONFIG -p:Version=$BUILD_VERSION --framework ${{ matrix.framework }} --no-restore
 
-      - name: Run tests  (${{ matrix.framework }})
+      - name: Run tests (${{ matrix.framework }})
         run: dotnet test /p:Configuration=$BUILD_CONFIG --framework ${{ matrix.framework }} --no-restore --no-build --verbosity normal
 
       - name: Rebuild
