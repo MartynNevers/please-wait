@@ -76,6 +76,16 @@ jobs:
         if: startsWith(github.ref, 'refs/heads/release') && contains(matrix.framework, 'net7.0')
         run: dotnet build --configuration $BUILD_CONFIG -p:Version=$BUILD_VERSION --no-restore
 
-      - name: Publish
+      - name: Ensure NuGet package is generated
+        if: startsWith(github.ref, 'refs/heads/release') && contains(matrix.framework, 'net7.0')
+        run: |
+          FILE=./PleaseWait/bin/$BUILD_CONFIG/PleaseWait.$BUILD_VERSION.nupkg
+          if compgen -G $FILE > /dev/null; then
+            echo "$FILE exists."
+          else
+            exit 1;
+          fi
+
+      - name: Publish NuGet package
         if: startsWith(github.ref, 'refs/heads/release') && contains(matrix.framework, 'net7.0')
         run: nuget push **\*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGET_API_KEY}}
