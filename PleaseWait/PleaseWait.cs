@@ -47,7 +47,7 @@ namespace PleaseWait
             set;
         }
 
-        = TimeSpan.FromSeconds(1);
+        = TimeSpan.FromMilliseconds(200);
 
         public static PleaseWait AtMost(double value, TimeUnit timeUnit)
         {
