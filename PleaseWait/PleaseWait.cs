@@ -73,25 +73,25 @@ namespace PleaseWait
 
         public void Until(Func<bool> condition)
         {
-            this.Until(condition, actions: null);
+            this.Until(condition, prereqs: null);
         }
 
-        public void Until(Func<bool> condition, Action action)
+        public void Until(Func<bool> condition, Action prereq)
         {
-            IList<Action>? actions = null;
+            IList<Action>? prereqs = null;
 
-            if (action != null)
+            if (prereq != null)
             {
-                actions = new List<Action>
+                prereqs = new List<Action>
                 {
-                    action,
+                    prereq,
                 };
             }
 
-            this.Until(condition, actions);
+            this.Until(condition, prereqs);
         }
 
-        public void Until(Func<bool> condition, IList<Action>? actions)
+        public void Until(Func<bool> condition, IList<Action>? prereqs)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -99,13 +99,13 @@ namespace PleaseWait
             var outcome = false;
             while (outcome == false && stopwatch.Elapsed < this.Timeout)
             {
-                if (actions != null)
+                if (prereqs != null)
                 {
-                    foreach (var action in actions)
+                    foreach (var prereq in prereqs)
                     {
                         try
                         {
-                            action.Invoke();
+                            prereq.Invoke();
                         }
                         catch (Exception)
                         {

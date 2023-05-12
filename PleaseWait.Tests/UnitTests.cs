@@ -84,7 +84,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WhenSingleActionIsProvidedThenActionIsInvokedTest()
+        public void WhenSinglePrerequisiteIsProvidedThenPrerequisiteIsInvokedTest()
         {
             var toggle = false;
             var r = new Ref<string>("Saturday");
@@ -94,20 +94,20 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WhenMultipleActionsAreProvidedThenActionsAreInvokedTest()
+        public void WhenMultiplePrerequisitesAreProvidedThenPrerequisitesAreInvokedTest()
         {
             var toggle = false;
             var i = 0;
             var r = new Ref<string>("Sunday");
             _ = UpdateValue(2, r, "Monday");
 
-            var actions = new List<Action>()
+            var prereqs = new List<Action>()
             {
                 () => toggle = true,
                 () => i++,
             };
 
-            PleaseWait.AtMost(5, TimeUnit.SECONDS).Until(() => r.Value.Equals("Monday"), actions);
+            PleaseWait.AtMost(5, TimeUnit.SECONDS).Until(() => r.Value.Equals("Monday"), prereqs);
             Assert.IsTrue(toggle);
             Assert.That(i, Is.GreaterThan(0));
         }
@@ -121,7 +121,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WhenActionThrowsExceptionThenExceptionIsSwallowedTest()
+        public void WhenPrerequisiteThrowsExceptionThenExceptionIsSwallowedTest()
         {
             var r = new Ref<int>(0);
             PleaseWait.AtMost(5, TimeUnit.SECONDS).AndThrows(false).Until(() => false, () => IncrementValueWithExceptions(r, 2));
