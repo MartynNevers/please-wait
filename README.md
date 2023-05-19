@@ -3,6 +3,18 @@
 
 Testing asynchronous systems is not an easy task and is obscured by details such as handling threads, timeouts and concurrency. `PleaseWait` is a lightweight DSL that allows you to express the expectations of an asynchronous system in a straightforward manner by waiting for conditions to occur. For example:
 
-```
-PleaseWait.AtMost(10, TimeUnit.SECONDS).Until(() => driver.FindElement(By.Id("UserName")).Displayed);
+```csharp
+using static PleaseWait;
+using static TimeUnit;
+
+[Test]
+public void DemonstratePleaseWait()
+{
+	var orange = new Orange();
+	_ = orange.PeelFastAsync();
+	
+	// PleaseWait lets you wait until the asynchronous operation completes:
+	Wait().AtMost(10, SECONDS).Until(() => orange.IsPeeled);
+	...
+}
 ```

@@ -1,4 +1,4 @@
-﻿// <copyright file="Ref.cs" company="Esdet">
+﻿// <copyright file="Defaults.cs" company="Esdet">
 // Copyright 2023 the original author or authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,19 +14,23 @@
 // limitations under the License.
 // </copyright>
 
-namespace PleaseWait.Tests
+namespace PleaseWait
 {
-    public class Ref<T>
-    {
-        public Ref(T value)
-        {
-            this.Value = value;
-        }
+    using System;
 
-        public T Value
+    internal class Defaults
+    {
+        public const bool ShouldFailSilently = false;
+        public const bool ShouldIgnoreExceptions = true;
+        public static readonly TimeSpan Timeout;
+        public static readonly TimeSpan PollDelay;
+        public static readonly TimeSpan PollInterval;
+
+        static Defaults()
         {
-            get;
-            set;
+            Timeout = TimeSpan.FromSeconds(10);
+            PollDelay = TimeSpan.FromMilliseconds(100);
+            PollInterval = TimeSpan.FromMilliseconds(100);
         }
     }
 }

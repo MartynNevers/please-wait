@@ -33,65 +33,119 @@ namespace PleaseWait
             set;
         }
 
-        private bool Throws
+        = Defaults.Timeout;
+
+        private TimeSpan PollDelay
         {
             get;
             set;
         }
 
-        = true;
+        = Defaults.PollDelay;
 
-        private TimeSpan PollingRate
+        private TimeSpan PollInterval
         {
             get;
             set;
         }
 
-        = TimeSpan.FromMilliseconds(200);
+        = Defaults.PollInterval;
 
-        public static PleaseWait AtMost(double value, TimeUnit timeUnit)
+        private bool ShouldIgnoreExceptions
         {
-            var pleaseWait = new PleaseWait()
-            {
-                Timeout = ConvertToTimeSpan(value, timeUnit),
-            };
-
-            return pleaseWait;
+            get;
+            set;
         }
 
-        public PleaseWait WithPollingRate(double value, TimeUnit timeUnit)
+        = Defaults.ShouldIgnoreExceptions;
+
+        private bool ShouldFailSilently
         {
-            this.PollingRate = ConvertToTimeSpan(value, timeUnit);
+            get;
+            set;
+        }
+
+        = Defaults.ShouldFailSilently;
+
+        private IList<Action>? Prereqs
+        {
+            get;
+            set;
+        }
+
+        public static PleaseWait Wait()
+        {
+            return new PleaseWait();
+        }
+
+        public PleaseWait AtMost(double value, TimeUnit timeUnit)
+        {
+            this.Timeout = new TimeConstraint(value, timeUnit).GetTimeSpan();
             return this;
         }
 
-        public PleaseWait AndThrows(bool throws)
+        public PleaseWait AtMost(TimeSpan timeSpan)
         {
-            this.Throws = throws;
+            this.Timeout = timeSpan;
             return this;
         }
 
-        public void Until(Func<bool> condition)
+        public PleaseWait WithPollDelay(double value, TimeUnit timeUnit)
         {
-            this.Until(condition, prereqs: null);
+            this.PollDelay = new TimeConstraint(value, timeUnit).GetTimeSpan();
+            return this;
         }
 
-        public void Until(Func<bool> condition, Action prereq)
+        public PleaseWait WithPollDelay(TimeSpan timeSpan)
         {
-            IList<Action>? prereqs = null;
+            this.PollDelay = timeSpan;
+            return this;
+        }
 
+        public PleaseWait WithPollInterval(double value, TimeUnit timeUnit)
+        {
+            this.PollInterval = new TimeConstraint(value, timeUnit).GetTimeSpan();
+            return this;
+        }
+
+        public PleaseWait WithPollInterval(TimeSpan timeSpan)
+        {
+            this.PollInterval = timeSpan;
+            return this;
+        }
+
+        public PleaseWait IgnoreExceptions(bool ignoreExceptions = true)
+        {
+            this.ShouldIgnoreExceptions = ignoreExceptions;
+            return this;
+        }
+
+        public PleaseWait FailSilently(bool failSilently = true)
+        {
+            this.ShouldFailSilently = failSilently;
+            return this;
+        }
+
+        public PleaseWait WithPrereq(Action prereq)
+        {
             if (prereq != null)
             {
-                prereqs = new List<Action>
+                this.Prereqs = new List<Action>
                 {
                     prereq,
                 };
             }
 
-            this.Until(condition, prereqs);
+            return this;
         }
 
-        public void Until(Func<bool> condition, IList<Action>? prereqs)
+        public PleaseWait WithPrereqs(IList<Action>? prereqs)
+        {
+            this.Prereqs = prereqs;
+            return this;
+        }
+
+        public void Until(Func<bool> condition)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -99,20 +153,8 @@ namespace PleaseWait
             var outcome = false;
             while (outcome == false && stopwatch.Elapsed < this.Timeout)
             {
-                if (prereqs != null)
-                {
-                    foreach (var prereq in prereqs)
-                    {
-                        try
-                        {
-                            prereq.Invoke();
-                        }
-                        catch (Exception)
-                        {
-                            // Swallow exception
-                        }
-                    }
-                }
+                this.InvokePrereqs();
+                Thread.Sleep(this.PollDelay);
 
                 try
                 {
@@ -120,32 +162,43 @@ namespace PleaseWait
                 }
                 catch (Exception)
                 {
-                    // Swallow exception
+                    if (!this.ShouldIgnoreExceptions)
+                    {
+                        throw;
+                    }
                 }
 
-                Thread.Sleep(this.PollingRate);
+                Thread.Sleep(this.PollInterval);
             }
 
             if (outcome == false && stopwatch.Elapsed > this.Timeout)
             {
-                if (this.Throws)
+                if (!this.ShouldFailSilently)
                 {
-                    throw new TimeoutException($"PleaseWait timed out after {this.Timeout.Days}d {this.Timeout.Hours}h {this.Timeout.Minutes}m {this.Timeout.Seconds}s {this.Timeout.Milliseconds}ms");
+                    throw new TimeoutException($"PleaseWait timed out after {this.Timeout}");
                 }
             }
         }
 
-        private static TimeSpan ConvertToTimeSpan(double value, TimeUnit timeUnit)
+        private void InvokePrereqs()
         {
-            return timeUnit switch
+            if (this.Prereqs != null)
             {
-                TimeUnit.MILLIS => TimeSpan.FromMilliseconds(value),
-                TimeUnit.SECONDS => TimeSpan.FromSeconds(value),
-                TimeUnit.MINUTES => TimeSpan.FromMinutes(value),
-                TimeUnit.HOURS => TimeSpan.FromHours(value),
-                TimeUnit.DAYS => TimeSpan.FromDays(value),
-                _ => throw new NotImplementedException(),
-            };
+                foreach (var prereq in this.Prereqs)
+                {
+                    try
+                    {
+                        prereq.Invoke();
+                    }
+                    catch (Exception)
+                    {
+                        if (!this.ShouldIgnoreExceptions)
+                        {
+                            throw;
+                        }
+                    }
+                }
+            }
         }
     }
 }

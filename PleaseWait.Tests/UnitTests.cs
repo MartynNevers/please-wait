@@ -18,79 +18,111 @@ namespace PleaseWait.Tests
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading.Tasks;
     using NUnit.Framework;
+    using static PleaseWait;
+    using static TimeUnit;
 
     [Parallelizable(scope: ParallelScope.All)]
     public class UnitTests
     {
         [Test]
+        public void WhenInstanceIsCreatedThenPropertiesAreSetToTheirDefaultsTest()
+        {
+            var wait = Wait();
+            var shouldFailSilently = wait.GetPropertyValue<bool>("ShouldFailSilently");
+            var shouldIgnoreExceptions = wait.GetPropertyValue<bool>("ShouldIgnoreExceptions");
+            var timeout = wait.GetPropertyValue<TimeSpan>("Timeout");
+            var pollDelay = wait.GetPropertyValue<TimeSpan>("PollDelay");
+            var pollInterval = wait.GetPropertyValue<TimeSpan>("PollInterval");
+            var prereqs = wait.GetPropertyValue<IList<Action>>("Prereqs");
+            Assert.That(shouldFailSilently, Is.False);
+            Assert.That(shouldIgnoreExceptions, Is.True);
+            Assert.That(timeout.TotalSeconds, Is.EqualTo(10));
+            Assert.That(pollDelay.TotalMilliseconds, Is.EqualTo(100));
+            Assert.That(pollInterval.TotalMilliseconds, Is.EqualTo(100));
+            Assert.Null(prereqs);
+        }
+
+        [Test]
         public void WhenConditionPassesThenExitSuccessfullyTest()
         {
-            var r = new Ref<string>("Monday");
-            _ = UpdateValue(2, r, "Tuesday");
-            PleaseWait.AtMost(5, TimeUnit.SECONDS).Until(() => r.Value.Equals("Tuesday"));
-            Assert.That(r.Value, Is.EqualTo("Tuesday"));
+            var orange = new Orange();
+            _ = orange.PeelAsync(2);
+            Wait().Until(() => orange.IsPeeled);
+            Assert.That(orange.IsPeeled, Is.True);
         }
 
         [Test]
         public void GivenConditionThatIsUnattainableWhenTimeoutOccursThenThrowExceptionTest()
         {
-            var r = new Ref<string>("Tuesday");
-            _ = UpdateValue(2, r, "Wednesday");
-
-            try
-            {
-                PleaseWait.AtMost(5, TimeUnit.SECONDS).Until(() => r.Value.Equals("Thursday"));
-            }
-            catch (TimeoutException timeoutException)
-            {
-                Assert.That(timeoutException.Message, Is.EqualTo("PleaseWait timed out after 0d 0h 0m 5s 0ms"));
-            }
+            var orange = new Orange();
+            var wait = Wait().AtMost(5, SECONDS);
+            var ex = Assert.Throws<TimeoutException>(() => wait.Until(() => orange.IsPeeled));
+            Assert.That(ex.Message, Is.EqualTo("PleaseWait timed out after 00:00:05"));
         }
 
         [Test]
         public void GivenConditionThatIsOnlyAttainableAfterTimeoutWhenTimeoutOccursThenThrowExceptionTest()
         {
-            var r = new Ref<string>("Wednesday");
-            _ = UpdateValue(5, r, "Thursday");
-
-            try
-            {
-                PleaseWait.AtMost(2, TimeUnit.SECONDS).Until(() => r.Value.Equals("Thursday"));
-            }
-            catch (TimeoutException timeoutException)
-            {
-                Assert.That(timeoutException.Message, Is.EqualTo("PleaseWait timed out after 0d 0h 0m 2s 0ms"));
-            }
+            var orange = new Orange();
+            var wait = Wait().AtMost(2, SECONDS);
+            _ = orange.PeelAsync(5);
+            var ex = Assert.Throws<TimeoutException>(() => wait.Until(() => orange.IsPeeled));
+            Assert.That(ex.Message, Is.EqualTo("PleaseWait timed out after 00:00:02"));
         }
 
         [Test]
-        public void GivenThrowsIsFalseWhenTimeoutOccursThenExitGracefullyTest()
+        public void GivenFailSilentlyIsTrueWhenTimeoutOccursThenExitGracefullyTest()
         {
-            var r = new Ref<string>("Thursday");
-            _ = UpdateValue(5, r, "Friday");
-            PleaseWait.AtMost(2, TimeUnit.SECONDS).AndThrows(false).Until(() => r.Value.Equals("Friday"));
-            Assert.That(r.Value, Is.EqualTo("Thursday"));
+            var orange = new Orange();
+            _ = orange.PeelAsync(5);
+            Wait()
+                .AtMost(2, SECONDS)
+                .FailSilently()
+                .Until(() => orange.IsPeeled);
+
+            Assert.That(orange.IsPeeled, Is.False);
         }
 
         [Test]
-        public void GivenPollingRateIs500MsWhenConditionPassesThenExitSuccessfullyTest()
+        public void GivenPollDelayIs800MsWhenConditionPassesThenExitSuccessfullyTest()
         {
-            var r = new Ref<string>("Friday");
-            _ = UpdateValue(2, r, "Saturday");
-            PleaseWait.AtMost(5, TimeUnit.SECONDS).WithPollingRate(500, TimeUnit.MILLIS).Until(() => r.Value.Equals("Saturday"));
-            Assert.That(r.Value, Is.EqualTo("Saturday"));
+            var orange = new Orange();
+            _ = orange.PeelAsync(2);
+            Wait()
+                .AtMost(5, SECONDS)
+                .WithPollDelay(800, MILLIS)
+                .Until(() => orange.IsPeeled);
+
+            Assert.That(orange.IsPeeled, Is.True);
+        }
+
+        [Test]
+        public void GivenPollIntervalIs400MsWhenConditionPassesThenExitSuccessfullyTest()
+        {
+            var orange = new Orange();
+            _ = orange.PeelAsync(2);
+            Wait()
+                .AtMost(5, SECONDS)
+                .WithPollInterval(400, MILLIS)
+                .Until(() => orange.IsPeeled);
+
+            Assert.That(orange.IsPeeled, Is.True);
         }
 
         [Test]
         public void WhenSinglePrerequisiteIsProvidedThenPrerequisiteIsInvokedTest()
         {
             var toggle = false;
-            var r = new Ref<string>("Saturday");
-            _ = UpdateValue(5, r, "Sunday");
-            PleaseWait.AtMost(2, TimeUnit.SECONDS).AndThrows(false).Until(() => r.Value.Equals("Sunday"), () => toggle = true);
-            Assert.IsTrue(toggle);
+            var orange = new Orange();
+            _ = orange.PeelAsync(5);
+            Wait()
+                .AtMost(2, SECONDS)
+                .WithPrereq(() => toggle = true)
+                .FailSilently()
+                .Until(() => orange.IsPeeled);
+
+            Assert.That(toggle, Is.True);
         }
 
         [Test]
@@ -98,54 +130,89 @@ namespace PleaseWait.Tests
         {
             var toggle = false;
             var i = 0;
-            var r = new Ref<string>("Sunday");
-            _ = UpdateValue(2, r, "Monday");
-
+            var orange = new Orange();
             var prereqs = new List<Action>()
             {
                 () => toggle = true,
                 () => i++,
             };
 
-            PleaseWait.AtMost(5, TimeUnit.SECONDS).Until(() => r.Value.Equals("Monday"), prereqs);
+            _ = orange.PeelAsync(2);
+            Wait()
+                .AtMost(5, SECONDS)
+                .WithPrereqs(prereqs)
+                .Until(() => orange.IsPeeled);
+
             Assert.IsTrue(toggle);
             Assert.That(i, Is.GreaterThan(0));
         }
 
         [Test]
+        public void GivenTimeConstraintsAreSetUsingTimeSpansWhenConditionPassesThenExitSuccessfullyTest()
+        {
+            var orange = new Orange();
+            _ = orange.PeelAsync(2);
+            Wait()
+                .AtMost(TimeSpan.FromSeconds(5))
+                .WithPollDelay(TimeSpan.FromMilliseconds(150))
+                .WithPollInterval(TimeSpan.FromMilliseconds(150))
+                .Until(() => orange.IsPeeled);
+
+            Assert.That(orange.IsPeeled, Is.True);
+        }
+
+        [Test]
         public void WhenConditionThrowsExceptionThenExceptionIsSwallowedTest()
         {
-            var r = new Ref<int>(0);
-            PleaseWait.AtMost(1, TimeUnit.SECONDS).WithPollingRate(50, TimeUnit.MILLIS).Until(() => IncrementValueWithExceptions(r, 5).Value.Equals(5));
-            Assert.That(r.Value, Is.EqualTo(5));
+            var orange = new Orange();
+            Wait()
+                .AtMost(5, SECONDS)
+                .WithPollDelay(50, MILLIS)
+                .WithPollInterval(50, MILLIS)
+                .Until(() => orange.CountSegments() > 8);
+
+            Assert.That(orange.CountSegments(), Is.GreaterThan(8).And.LessThan(12));
         }
 
         [Test]
         public void WhenPrerequisiteThrowsExceptionThenExceptionIsSwallowedTest()
         {
-            var r = new Ref<int>(0);
-            PleaseWait.AtMost(5, TimeUnit.SECONDS).AndThrows(false).Until(() => false, () => IncrementValueWithExceptions(r, 2));
-            Assert.That(r.Value, Is.EqualTo(2));
+            var orange = new Orange();
+            Wait()
+                .AtMost(5, SECONDS)
+                .WithPrereq(() => orange.CountSegments())
+                .FailSilently()
+                .Until(() => false);
+
+            Assert.That(orange.CountSegments(), Is.GreaterThan(8).And.LessThan(12));
         }
 
-        private static async Task UpdateValue(double seconds, Ref<string> r, string value)
+        [Test]
+        public void GivenIgnoreExceptionsIsFalseWhenConditionThrowsExceptionThenExceptionIsThrownTest()
         {
-            await Task.Run(() =>
-            {
-                Task.Delay(TimeSpan.FromSeconds(seconds)).Wait();
-                r.Value = value;
-            });
+            var orange = new Orange();
+            var wait = Wait()
+                .AtMost(1, SECONDS)
+                .WithPollDelay(50, MILLIS)
+                .WithPollInterval(50, MILLIS)
+                .IgnoreExceptions(false);
+
+            var ex = Assert.Throws<InvalidOperationException>(() => wait.Until(() => orange.CountSegments() > 8));
+            Assert.That(ex.Message, Is.EqualTo("Try again"));
         }
 
-        private static Ref<int> IncrementValueWithExceptions(Ref<int> r, int iterations)
+        [Test]
+        public void GivenIgnoreExceptionsIsFalseWhenPrerequisiteThrowsExceptionThenExceptionIsThrownTest()
         {
-            if (r.Value < iterations)
-            {
-                r.Value++;
-                throw new Exception();
-            }
+            var orange = new Orange();
+            var wait = Wait()
+                .AtMost(5, SECONDS)
+                .WithPrereq(() => orange.CountSegments())
+                .IgnoreExceptions(false)
+                .FailSilently();
 
-            return r;
+            var ex = Assert.Throws<InvalidOperationException>(() => wait.Until(() => false));
+            Assert.That(ex.Message, Is.EqualTo("Try again"));
         }
     }
 }
