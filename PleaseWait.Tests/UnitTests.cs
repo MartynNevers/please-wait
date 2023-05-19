@@ -44,6 +44,28 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        public void WhenExtremeTimeUnitsAreUsedThenTimeConstraintsAreAppropriatelySetTest()
+        {
+            var wait = Wait()
+                .AtMost(1, DAYS)
+                .WithPollDelay(2, HOURS)
+                .WithPollInterval(3, MINUTES);
+
+            var timeout = wait.GetPropertyValue<TimeSpan>("Timeout");
+            var pollDelay = wait.GetPropertyValue<TimeSpan>("PollDelay");
+            var pollInterval = wait.GetPropertyValue<TimeSpan>("PollInterval");
+            Assert.That(timeout.TotalDays, Is.EqualTo(1));
+            Assert.That(pollDelay.TotalHours, Is.EqualTo(2));
+            Assert.That(pollInterval.TotalMinutes, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void WhenInvalidTimeUnitIsUsedThenThrowExceptionTest()
+        {
+            Assert.Throws<NotImplementedException>(() => Wait().AtMost(10, (TimeUnit)5));
+        }
+
+        [Test]
         public void WhenConditionPassesThenExitSuccessfullyTest()
         {
             var orange = new Orange();
