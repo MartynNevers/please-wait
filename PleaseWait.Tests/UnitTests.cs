@@ -19,8 +19,8 @@ namespace PleaseWait.Tests
     using System;
     using System.Collections.Generic;
     using NUnit.Framework;
-    using static PleaseWait;
-    using static TimeUnit;
+    using static PleaseWait.Dsl;
+    using static PleaseWait.TimeUnit;
 
     [Parallelizable(scope: ParallelScope.All)]
     public class UnitTests

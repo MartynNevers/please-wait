@@ -1,4 +1,4 @@
-﻿// <copyright file="PleaseWait.cs" company="Esdet">
+﻿// <copyright file="Dsl.cs" company="Esdet">
 // Copyright 2023 the original author or authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,9 +21,9 @@ namespace PleaseWait
     using System.Diagnostics;
     using System.Threading;
 
-    public class PleaseWait
+    public class Dsl
     {
-        private PleaseWait()
+        private Dsl()
         {
         }
 
@@ -73,60 +73,60 @@ namespace PleaseWait
             set;
         }
 
-        public static PleaseWait Wait()
+        public static Dsl Wait()
         {
-            return new PleaseWait();
+            return new Dsl();
         }
 
-        public PleaseWait AtMost(double value, TimeUnit timeUnit)
+        public Dsl AtMost(double value, TimeUnit timeUnit)
         {
             this.Timeout = new TimeConstraint(value, timeUnit).GetTimeSpan();
             return this;
         }
 
-        public PleaseWait AtMost(TimeSpan timeSpan)
+        public Dsl AtMost(TimeSpan timeSpan)
         {
             this.Timeout = timeSpan;
             return this;
         }
 
-        public PleaseWait WithPollDelay(double value, TimeUnit timeUnit)
+        public Dsl WithPollDelay(double value, TimeUnit timeUnit)
         {
             this.PollDelay = new TimeConstraint(value, timeUnit).GetTimeSpan();
             return this;
         }
 
-        public PleaseWait WithPollDelay(TimeSpan timeSpan)
+        public Dsl WithPollDelay(TimeSpan timeSpan)
         {
             this.PollDelay = timeSpan;
             return this;
         }
 
-        public PleaseWait WithPollInterval(double value, TimeUnit timeUnit)
+        public Dsl WithPollInterval(double value, TimeUnit timeUnit)
         {
             this.PollInterval = new TimeConstraint(value, timeUnit).GetTimeSpan();
             return this;
         }
 
-        public PleaseWait WithPollInterval(TimeSpan timeSpan)
+        public Dsl WithPollInterval(TimeSpan timeSpan)
         {
             this.PollInterval = timeSpan;
             return this;
         }
 
-        public PleaseWait IgnoreExceptions(bool ignoreExceptions = true)
+        public Dsl IgnoreExceptions(bool ignoreExceptions = true)
         {
             this.ShouldIgnoreExceptions = ignoreExceptions;
             return this;
         }
 
-        public PleaseWait FailSilently(bool failSilently = true)
+        public Dsl FailSilently(bool failSilently = true)
         {
             this.ShouldFailSilently = failSilently;
             return this;
         }
 
-        public PleaseWait WithPrereq(Action prereq)
+        public Dsl WithPrereq(Action prereq)
         {
             if (prereq != null)
             {
@@ -139,7 +139,7 @@ namespace PleaseWait
             return this;
         }
 
-        public PleaseWait WithPrereqs(IList<Action>? prereqs)
+        public Dsl WithPrereqs(IList<Action>? prereqs)
         {
             this.Prereqs = prereqs;
             return this;
