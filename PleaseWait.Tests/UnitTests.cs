@@ -58,7 +58,7 @@ namespace PleaseWait.Tests
             var orange = new Orange();
             var wait = Wait().AtMost(5, SECONDS);
             var ex = Assert.Throws<TimeoutException>(() => wait.Until(() => orange.IsPeeled));
-            Assert.That(ex.Message, Is.EqualTo("PleaseWait timed out after 00:00:05"));
+            Assert.That(ex.Message, Is.EqualTo("Condition was not fulfilled within 00:00:05."));
         }
 
         [Test]
@@ -68,7 +68,7 @@ namespace PleaseWait.Tests
             var wait = Wait().AtMost(2, SECONDS);
             _ = orange.PeelAsync(5);
             var ex = Assert.Throws<TimeoutException>(() => wait.Until(() => orange.IsPeeled));
-            Assert.That(ex.Message, Is.EqualTo("PleaseWait timed out after 00:00:02"));
+            Assert.That(ex.Message, Is.EqualTo("Condition was not fulfilled within 00:00:02."));
         }
 
         [Test]

@@ -175,7 +175,7 @@ namespace PleaseWait
             {
                 if (!this.ShouldFailSilently)
                 {
-                    throw new TimeoutException($"PleaseWait timed out after {this.Timeout}");
+                    throw new TimeoutException($"Condition was not fulfilled within {this.Timeout}.");
                 }
             }
         }
