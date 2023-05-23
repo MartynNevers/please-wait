@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        framework: [net6.0, net7.0]
+        framework: [net48, net6.0, net7.0]
         include:
           - framework: net6.0
             dotnet-version: 6.0.x
@@ -51,6 +51,7 @@ jobs:
         uses: NuGet/setup-nuget@v1.2.0
 
       - name: Setup .NET SDK ${{ matrix.dotnet-version }}
+        if: matrix.dotnet-version != ''
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
