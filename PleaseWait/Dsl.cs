@@ -73,6 +73,12 @@ namespace PleaseWait
             set;
         }
 
+        private string? Alias
+        {
+            get;
+            set;
+        }
+
         public static Dsl Wait()
         {
             return new Dsl();
@@ -145,6 +151,12 @@ namespace PleaseWait
             return this;
         }
 
+        public Dsl WithAlias(string alias)
+        {
+            this.Alias = alias;
+            return this;
+        }
+
         public void Until(Func<bool> condition)
         {
             var stopwatch = new Stopwatch();
@@ -175,7 +187,14 @@ namespace PleaseWait
             {
                 if (!this.ShouldFailSilently)
                 {
-                    throw new TimeoutException($"Condition was not fulfilled within {this.Timeout}.");
+                    if (string.IsNullOrEmpty(this.Alias))
+                    {
+                        throw new TimeoutException($"Condition was not fulfilled within {this.Timeout}.");
+                    }
+                    else
+                    {
+                        throw new TimeoutException($"Condition with alias '{this.Alias}' was not fulfilled within {this.Timeout}.");
+                    }
                 }
             }
         }

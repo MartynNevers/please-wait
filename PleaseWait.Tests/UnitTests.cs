@@ -35,12 +35,14 @@ namespace PleaseWait.Tests
             var pollDelay = wait.GetPropertyValue<TimeSpan>("PollDelay");
             var pollInterval = wait.GetPropertyValue<TimeSpan>("PollInterval");
             var prereqs = wait.GetPropertyValue<IList<Action>>("Prereqs");
+            var alias = wait.GetPropertyValue<IList<Action>>("Alias");
             Assert.That(shouldFailSilently, Is.False);
             Assert.That(shouldIgnoreExceptions, Is.True);
             Assert.That(timeout.TotalSeconds, Is.EqualTo(10));
             Assert.That(pollDelay.TotalMilliseconds, Is.EqualTo(100));
             Assert.That(pollInterval.TotalMilliseconds, Is.EqualTo(100));
             Assert.Null(prereqs);
+            Assert.Null(alias);
         }
 
         [Test]
@@ -91,6 +93,16 @@ namespace PleaseWait.Tests
             _ = orange.PeelAsync(5);
             var ex = Assert.Throws<TimeoutException>(() => wait.Until(() => orange.IsPeeled));
             Assert.That(ex.Message, Is.EqualTo("Condition was not fulfilled within 00:00:02."));
+        }
+
+        [Test]
+        public void GivenAliasIsProvidedWhenTimeoutOccursThenExceptionMessageContainsAliasTest()
+        {
+            var alias = "Is orange peeled?";
+            var orange = new Orange();
+            var wait = Wait().WithAlias(alias).AtMost(1, SECONDS);
+            var ex = Assert.Throws<TimeoutException>(() => wait.Until(() => orange.IsPeeled));
+            Assert.That(ex.Message, Is.EqualTo($"Condition with alias '{alias}' was not fulfilled within 00:00:01."));
         }
 
         [Test]
