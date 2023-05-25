@@ -20,8 +20,8 @@ namespace PleaseWait
 
     internal class Defaults
     {
-        public const bool ShouldFailSilently = false;
-        public const bool ShouldIgnoreExceptions = true;
+        public const bool FailSilently = false;
+        public const bool IgnoreExceptions = true;
         public static readonly TimeSpan Timeout;
         public static readonly TimeSpan PollDelay;
         public static readonly TimeSpan PollInterval;

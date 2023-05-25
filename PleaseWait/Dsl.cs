@@ -23,60 +23,16 @@ namespace PleaseWait
 
     public class Dsl
     {
+        private TimeSpan timeout = Defaults.Timeout;
+        private TimeSpan pollDelay = Defaults.PollDelay;
+        private TimeSpan pollInterval = Defaults.PollInterval;
+        private bool ignoreExceptions = Defaults.IgnoreExceptions;
+        private bool failSilently = Defaults.FailSilently;
+        private IList<Action>? prereqs = null;
+        private string? alias = null;
+
         private Dsl()
         {
-        }
-
-        private TimeSpan Timeout
-        {
-            get;
-            set;
-        }
-
-        = Defaults.Timeout;
-
-        private TimeSpan PollDelay
-        {
-            get;
-            set;
-        }
-
-        = Defaults.PollDelay;
-
-        private TimeSpan PollInterval
-        {
-            get;
-            set;
-        }
-
-        = Defaults.PollInterval;
-
-        private bool ShouldIgnoreExceptions
-        {
-            get;
-            set;
-        }
-
-        = Defaults.ShouldIgnoreExceptions;
-
-        private bool ShouldFailSilently
-        {
-            get;
-            set;
-        }
-
-        = Defaults.ShouldFailSilently;
-
-        private IList<Action>? Prereqs
-        {
-            get;
-            set;
-        }
-
-        private string? Alias
-        {
-            get;
-            set;
         }
 
         public static Dsl Wait()
@@ -84,59 +40,69 @@ namespace PleaseWait
             return new Dsl();
         }
 
+        public Dsl With()
+        {
+            return this;
+        }
+
+        public Dsl And()
+        {
+            return this;
+        }
+
         public Dsl AtMost(double value, TimeUnit timeUnit)
         {
-            this.Timeout = new TimeConstraint(value, timeUnit).GetTimeSpan();
+            this.timeout = new TimeConstraint(value, timeUnit).GetTimeSpan();
             return this;
         }
 
         public Dsl AtMost(TimeSpan timeSpan)
         {
-            this.Timeout = timeSpan;
+            this.timeout = timeSpan;
             return this;
         }
 
-        public Dsl WithPollDelay(double value, TimeUnit timeUnit)
+        public Dsl PollDelay(double value, TimeUnit timeUnit)
         {
-            this.PollDelay = new TimeConstraint(value, timeUnit).GetTimeSpan();
+            this.pollDelay = new TimeConstraint(value, timeUnit).GetTimeSpan();
             return this;
         }
 
-        public Dsl WithPollDelay(TimeSpan timeSpan)
+        public Dsl PollDelay(TimeSpan timeSpan)
         {
-            this.PollDelay = timeSpan;
+            this.pollDelay = timeSpan;
             return this;
         }
 
-        public Dsl WithPollInterval(double value, TimeUnit timeUnit)
+        public Dsl PollInterval(double value, TimeUnit timeUnit)
         {
-            this.PollInterval = new TimeConstraint(value, timeUnit).GetTimeSpan();
+            this.pollInterval = new TimeConstraint(value, timeUnit).GetTimeSpan();
             return this;
         }
 
-        public Dsl WithPollInterval(TimeSpan timeSpan)
+        public Dsl PollInterval(TimeSpan timeSpan)
         {
-            this.PollInterval = timeSpan;
+            this.pollInterval = timeSpan;
             return this;
         }
 
         public Dsl IgnoreExceptions(bool ignoreExceptions = true)
         {
-            this.ShouldIgnoreExceptions = ignoreExceptions;
+            this.ignoreExceptions = ignoreExceptions;
             return this;
         }
 
         public Dsl FailSilently(bool failSilently = true)
         {
-            this.ShouldFailSilently = failSilently;
+            this.failSilently = failSilently;
             return this;
         }
 
-        public Dsl WithPrereq(Action prereq)
+        public Dsl Prereq(Action prereq)
         {
             if (prereq != null)
             {
-                this.Prereqs = new List<Action>
+                this.prereqs = new List<Action>
                 {
                     prereq,
                 };
@@ -145,15 +111,15 @@ namespace PleaseWait
             return this;
         }
 
-        public Dsl WithPrereqs(IList<Action>? prereqs)
+        public Dsl Prereqs(IList<Action>? prereqs)
         {
-            this.Prereqs = prereqs;
+            this.prereqs = prereqs;
             return this;
         }
 
-        public Dsl WithAlias(string alias)
+        public Dsl Alias(string alias)
         {
-            this.Alias = alias;
+            this.alias = alias;
             return this;
         }
 
@@ -163,10 +129,10 @@ namespace PleaseWait
             stopwatch.Start();
 
             var outcome = false;
-            while (outcome == false && stopwatch.Elapsed < this.Timeout)
+            while (outcome == false && stopwatch.Elapsed < this.timeout)
             {
                 this.InvokePrereqs();
-                Thread.Sleep(this.PollDelay);
+                Thread.Sleep(this.pollDelay);
 
                 try
                 {
@@ -174,26 +140,26 @@ namespace PleaseWait
                 }
                 catch (Exception)
                 {
-                    if (!this.ShouldIgnoreExceptions)
+                    if (!this.ignoreExceptions)
                     {
                         throw;
                     }
                 }
 
-                Thread.Sleep(this.PollInterval);
+                Thread.Sleep(this.pollInterval);
             }
 
-            if (outcome == false && stopwatch.Elapsed > this.Timeout)
+            if (outcome == false && stopwatch.Elapsed > this.timeout)
             {
-                if (!this.ShouldFailSilently)
+                if (!this.failSilently)
                 {
-                    if (string.IsNullOrEmpty(this.Alias))
+                    if (string.IsNullOrEmpty(this.alias))
                     {
-                        throw new TimeoutException($"Condition was not fulfilled within {this.Timeout}.");
+                        throw new TimeoutException($"Condition was not fulfilled within {this.timeout}.");
                     }
                     else
                     {
-                        throw new TimeoutException($"Condition with alias '{this.Alias}' was not fulfilled within {this.Timeout}.");
+                        throw new TimeoutException($"Condition with alias '{this.alias}' was not fulfilled within {this.timeout}.");
                     }
                 }
             }
@@ -201,9 +167,9 @@ namespace PleaseWait
 
         private void InvokePrereqs()
         {
-            if (this.Prereqs != null)
+            if (this.prereqs != null)
             {
-                foreach (var prereq in this.Prereqs)
+                foreach (var prereq in this.prereqs)
                 {
                     try
                     {
@@ -211,7 +177,7 @@ namespace PleaseWait
                     }
                     catch (Exception)
                     {
-                        if (!this.ShouldIgnoreExceptions)
+                        if (!this.ignoreExceptions)
                         {
                             throw;
                         }

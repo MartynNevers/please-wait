@@ -16,19 +16,29 @@
 
 namespace PleaseWait.Tests
 {
+    using System.Diagnostics.CodeAnalysis;
     using System.Reflection;
 
     public static class ReflectionExtensions
     {
+        public static T GetFieldValue<T>(this object that, string name)
+        {
+            // Set the flags so that private and public fields from instances will be found
+            var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+            var field = that.GetType().GetField(name, bindingFlags);
+#pragma warning disable CS8603
+            return (T)field?.GetValue(that);
+#pragma warning restore CS8603
+        }
+
+        [ExcludeFromCodeCoverage]
         public static T GetPropertyValue<T>(this object that, string name)
         {
             // Set the flags so that private and public fields from instances will be found
             var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
             var property = that.GetType().GetProperty(name, bindingFlags);
-#pragma warning disable CS8600
 #pragma warning disable CS8603
             return (T)property?.GetValue(that);
-#pragma warning restore CS8600
 #pragma warning restore CS8603
         }
     }

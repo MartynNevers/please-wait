@@ -26,16 +26,16 @@ namespace PleaseWait.Tests
     public class UnitTests
     {
         [Test]
-        public void WhenInstanceIsCreatedThenPropertiesAreSetToTheirDefaultsTest()
+        public void WhenInstanceIsCreatedThenFieldsAreSetToTheirDefaultsTest()
         {
             var wait = Wait();
-            var shouldFailSilently = wait.GetPropertyValue<bool>("ShouldFailSilently");
-            var shouldIgnoreExceptions = wait.GetPropertyValue<bool>("ShouldIgnoreExceptions");
-            var timeout = wait.GetPropertyValue<TimeSpan>("Timeout");
-            var pollDelay = wait.GetPropertyValue<TimeSpan>("PollDelay");
-            var pollInterval = wait.GetPropertyValue<TimeSpan>("PollInterval");
-            var prereqs = wait.GetPropertyValue<IList<Action>>("Prereqs");
-            var alias = wait.GetPropertyValue<IList<Action>>("Alias");
+            var shouldFailSilently = wait.GetFieldValue<bool>("failSilently");
+            var shouldIgnoreExceptions = wait.GetFieldValue<bool>("ignoreExceptions");
+            var timeout = wait.GetFieldValue<TimeSpan>("timeout");
+            var pollDelay = wait.GetFieldValue<TimeSpan>("pollDelay");
+            var pollInterval = wait.GetFieldValue<TimeSpan>("pollInterval");
+            var prereqs = wait.GetFieldValue<IList<Action>>("prereqs");
+            var alias = wait.GetFieldValue<IList<Action>>("alias");
             Assert.That(shouldFailSilently, Is.False);
             Assert.That(shouldIgnoreExceptions, Is.True);
             Assert.That(timeout.TotalSeconds, Is.EqualTo(10));
@@ -50,12 +50,12 @@ namespace PleaseWait.Tests
         {
             var wait = Wait()
                 .AtMost(1, DAYS)
-                .WithPollDelay(2, HOURS)
-                .WithPollInterval(3, MINUTES);
+                .With().PollDelay(2, HOURS)
+                .And().With().PollInterval(3, MINUTES);
 
-            var timeout = wait.GetPropertyValue<TimeSpan>("Timeout");
-            var pollDelay = wait.GetPropertyValue<TimeSpan>("PollDelay");
-            var pollInterval = wait.GetPropertyValue<TimeSpan>("PollInterval");
+            var timeout = wait.GetFieldValue<TimeSpan>("timeout");
+            var pollDelay = wait.GetFieldValue<TimeSpan>("pollDelay");
+            var pollInterval = wait.GetFieldValue<TimeSpan>("pollInterval");
             Assert.That(timeout.TotalDays, Is.EqualTo(1));
             Assert.That(pollDelay.TotalHours, Is.EqualTo(2));
             Assert.That(pollInterval.TotalMinutes, Is.EqualTo(3));
@@ -100,7 +100,7 @@ namespace PleaseWait.Tests
         {
             var alias = "Is orange peeled?";
             var orange = new Orange();
-            var wait = Wait().WithAlias(alias).AtMost(1, SECONDS);
+            var wait = Wait().AtMost(1, SECONDS).With().Alias(alias);
             var ex = Assert.Throws<TimeoutException>(() => wait.Until(() => orange.IsPeeled));
             Assert.That(ex.Message, Is.EqualTo($"Condition with alias '{alias}' was not fulfilled within 00:00:01."));
         }
@@ -112,7 +112,7 @@ namespace PleaseWait.Tests
             _ = orange.PeelAsync(5);
             Wait()
                 .AtMost(2, SECONDS)
-                .FailSilently()
+                .And().FailSilently()
                 .Until(() => orange.IsPeeled);
 
             Assert.That(orange.IsPeeled, Is.False);
@@ -125,7 +125,7 @@ namespace PleaseWait.Tests
             _ = orange.PeelAsync(2);
             Wait()
                 .AtMost(5, SECONDS)
-                .WithPollDelay(800, MILLIS)
+                .With().PollDelay(800, MILLIS)
                 .Until(() => orange.IsPeeled);
 
             Assert.That(orange.IsPeeled, Is.True);
@@ -138,7 +138,7 @@ namespace PleaseWait.Tests
             _ = orange.PeelAsync(2);
             Wait()
                 .AtMost(5, SECONDS)
-                .WithPollInterval(400, MILLIS)
+                .With().PollInterval(400, MILLIS)
                 .Until(() => orange.IsPeeled);
 
             Assert.That(orange.IsPeeled, Is.True);
@@ -152,8 +152,8 @@ namespace PleaseWait.Tests
             _ = orange.PeelAsync(5);
             Wait()
                 .AtMost(2, SECONDS)
-                .WithPrereq(() => toggle = true)
-                .FailSilently()
+                .With().Prereq(() => toggle = true)
+                .And().FailSilently()
                 .Until(() => orange.IsPeeled);
 
             Assert.That(toggle, Is.True);
@@ -174,7 +174,7 @@ namespace PleaseWait.Tests
             _ = orange.PeelAsync(2);
             Wait()
                 .AtMost(5, SECONDS)
-                .WithPrereqs(prereqs)
+                .With().Prereqs(prereqs)
                 .Until(() => orange.IsPeeled);
 
             Assert.IsTrue(toggle);
@@ -188,8 +188,8 @@ namespace PleaseWait.Tests
             _ = orange.PeelAsync(2);
             Wait()
                 .AtMost(TimeSpan.FromSeconds(5))
-                .WithPollDelay(TimeSpan.FromMilliseconds(150))
-                .WithPollInterval(TimeSpan.FromMilliseconds(150))
+                .With().PollDelay(TimeSpan.FromMilliseconds(150))
+                .And().With().PollInterval(TimeSpan.FromMilliseconds(150))
                 .Until(() => orange.IsPeeled);
 
             Assert.That(orange.IsPeeled, Is.True);
@@ -201,8 +201,8 @@ namespace PleaseWait.Tests
             var orange = new Orange();
             Wait()
                 .AtMost(5, SECONDS)
-                .WithPollDelay(50, MILLIS)
-                .WithPollInterval(50, MILLIS)
+                .With().PollDelay(50, MILLIS)
+                .And().With().PollInterval(50, MILLIS)
                 .Until(() => orange.CountSegments() > 8);
 
             Assert.That(orange.CountSegments(), Is.GreaterThan(8).And.LessThan(12));
@@ -214,8 +214,8 @@ namespace PleaseWait.Tests
             var orange = new Orange();
             Wait()
                 .AtMost(5, SECONDS)
-                .WithPrereq(() => orange.CountSegments())
-                .FailSilently()
+                .With().Prereq(() => orange.CountSegments())
+                .And().FailSilently()
                 .Until(() => false);
 
             Assert.That(orange.CountSegments(), Is.GreaterThan(8).And.LessThan(12));
@@ -227,9 +227,9 @@ namespace PleaseWait.Tests
             var orange = new Orange();
             var wait = Wait()
                 .AtMost(1, SECONDS)
-                .WithPollDelay(50, MILLIS)
-                .WithPollInterval(50, MILLIS)
-                .IgnoreExceptions(false);
+                .With().PollDelay(50, MILLIS)
+                .And().With().PollInterval(50, MILLIS)
+                .And().IgnoreExceptions(false);
 
             var ex = Assert.Throws<InvalidOperationException>(() => wait.Until(() => orange.CountSegments() > 8));
             Assert.That(ex.Message, Is.EqualTo("Try again"));
@@ -241,9 +241,9 @@ namespace PleaseWait.Tests
             var orange = new Orange();
             var wait = Wait()
                 .AtMost(5, SECONDS)
-                .WithPrereq(() => orange.CountSegments())
-                .IgnoreExceptions(false)
-                .FailSilently();
+                .With().Prereq(() => orange.CountSegments())
+                .And().IgnoreExceptions(false)
+                .And().FailSilently();
 
             var ex = Assert.Throws<InvalidOperationException>(() => wait.Until(() => false));
             Assert.That(ex.Message, Is.EqualTo("Try again"));
