@@ -98,7 +98,7 @@ namespace PleaseWait
             return this;
         }
 
-        public Dsl Prereq(Action prereq)
+        public Dsl Prereq(Action? prereq)
         {
             if (prereq != null)
             {
@@ -117,7 +117,7 @@ namespace PleaseWait
             return this;
         }
 
-        public Dsl Alias(string alias)
+        public Dsl Alias(string? alias)
         {
             this.alias = alias;
             return this;
