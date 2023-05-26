@@ -29,13 +29,11 @@ namespace PleaseWait
         private double Value
         {
             get;
-            set;
         }
 
         private TimeUnit TimeUnit
         {
             get;
-            set;
         }
 
         public TimeSpan GetTimeSpan()
