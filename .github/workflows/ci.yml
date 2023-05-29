@@ -28,6 +28,8 @@ jobs:
       matrix:
         framework: [net48, net6.0, net7.0]
         include:
+          - framework: net48
+            dotnet-version: 7.0.x
           - framework: net6.0
             dotnet-version: 6.0.x
           - framework: net7.0
