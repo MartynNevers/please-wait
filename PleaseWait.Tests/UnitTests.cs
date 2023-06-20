@@ -259,7 +259,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WhenSleepIsInvokedThenPauseExecutionTest()
+        public void WhenSleepIsInvokedThenExecutionIsPausedTest()
         {
             var orange = new Orange();
             _ = orange.PeelAsync(5);
