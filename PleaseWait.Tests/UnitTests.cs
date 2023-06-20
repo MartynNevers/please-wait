@@ -248,5 +248,14 @@ namespace PleaseWait.Tests
             var ex = Assert.Throws<InvalidOperationException>(() => wait.Until(() => false));
             Assert.That(ex.Message, Is.EqualTo("Try again"));
         }
+
+        [Test]
+        public void WhenSleepIsInvokedThenPauseExecutionTest()
+        {
+            var orange = new Orange();
+            _ = orange.PeelAsync(5);
+            Wait().Sleep();
+            Assert.That(orange.IsPeeled, Is.True);
+        }
     }
 }

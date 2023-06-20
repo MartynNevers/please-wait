@@ -50,16 +50,26 @@ namespace PleaseWait
             return this;
         }
 
-        public Dsl AtMost(double value, TimeUnit timeUnit)
+        public Dsl Timeout(double value, TimeUnit timeUnit)
         {
             this.timeout = new TimeConstraint(value, timeUnit).GetTimeSpan();
             return this;
         }
 
-        public Dsl AtMost(TimeSpan timeSpan)
+        public Dsl Timeout(TimeSpan timeSpan)
         {
             this.timeout = timeSpan;
             return this;
+        }
+
+        public Dsl AtMost(double value, TimeUnit timeUnit)
+        {
+            return this.Timeout(value, timeUnit);
+        }
+
+        public Dsl AtMost(TimeSpan timeSpan)
+        {
+            return this.Timeout(timeSpan);
         }
 
         public Dsl PollDelay(double value, TimeUnit timeUnit)
@@ -121,6 +131,11 @@ namespace PleaseWait
         {
             this.alias = alias;
             return this;
+        }
+
+        public void Sleep()
+        {
+            Thread.Sleep(this.timeout);
         }
 
         public void Until(Func<bool> condition)
