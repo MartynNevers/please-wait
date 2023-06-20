@@ -8,5 +8,8 @@
 
 
 # Ignored Rules
-# Disabled to skip checking auto-generated XML comments in .csproj files
+# SA0001: Disabled to skip checking auto-generated XML comments in .csproj files
 dotnet_diagnostic.SA0001.severity = none
+
+# SA1600: Elements should be documented
+dotnet_diagnostic.SA1600.severity = none
