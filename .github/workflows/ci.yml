@@ -94,5 +94,5 @@ jobs:
           fi
 
       - name: Publish NuGet package
-        if: startsWith(github.ref, 'refs/heads/release') && contains(matrix.framework, 'net7.0')
+        if: startsWith(github.ref, 'refs/heads/release') && contains(matrix.framework, 'net8.0')
         run: nuget push **\*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGET_API_KEY}}
