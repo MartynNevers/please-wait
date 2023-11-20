@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        framework: [net48, net6.0, net7.0]
+        framework: [net48, net6.0, net7.0, net8.0]
         include:
           - framework: net48
             dotnet-version: 7.0.x
@@ -34,6 +34,8 @@ jobs:
             dotnet-version: 6.0.x
           - framework: net7.0
             dotnet-version: 7.0.x
+          - framework: net8.0
+            dotnet-version: 8.0.x
 
     steps:
       - uses: actions/checkout@v3
@@ -64,8 +66,8 @@ jobs:
       - name: Version of .NET SDK used by dotnet commands
         run: dotnet --version
 
-      - name: Restore project dependencies
-        run: dotnet restore
+      - name: Restore project dependencies (${{ matrix.framework }})
+        run: dotnet restore -p:TargetFramework=${{ matrix.framework }}
 
       - name: Build (${{ matrix.framework }})
         run: dotnet build --configuration $BUILD_CONFIG -p:Version=$BUILD_VERSION --framework ${{ matrix.framework }} --no-restore
@@ -73,12 +75,16 @@ jobs:
       - name: Run tests (${{ matrix.framework }})
         run: dotnet test /p:Configuration=$BUILD_CONFIG --framework ${{ matrix.framework }} --no-restore --no-build --verbosity normal
 
-      - name: Rebuild
-        if: startsWith(github.ref, 'refs/heads/release') && contains(matrix.framework, 'net7.0')
+      - name: Restore project dependencies (all)
+        if: startsWith(github.ref, 'refs/heads/release') && contains(matrix.framework, 'net8.0')
+        run: dotnet restore
+
+      - name: Build (all)
+        if: startsWith(github.ref, 'refs/heads/release') && contains(matrix.framework, 'net8.0')
         run: dotnet build --configuration $BUILD_CONFIG -p:Version=$BUILD_VERSION --no-restore
 
       - name: Ensure NuGet package is generated
-        if: startsWith(github.ref, 'refs/heads/release') && contains(matrix.framework, 'net7.0')
+        if: startsWith(github.ref, 'refs/heads/release') && contains(matrix.framework, 'net8.0')
         run: |
           FILE=./PleaseWait/bin/$BUILD_CONFIG/PleaseWait.$BUILD_VERSION.nupkg
           if compgen -G $FILE > /dev/null; then
