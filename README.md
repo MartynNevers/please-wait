@@ -1,5 +1,6 @@
 # please-wait
 [![CI](https://github.com/MartynNevers/please-wait/actions/workflows/ci.yml/badge.svg)](https://github.com/MartynNevers/please-wait/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/MartynNevers/please-wait/actions/workflows/codeql.yml/badge.svg)](https://github.com/MartynNevers/please-wait/actions/workflows/codeql.yml)
 [![NuGet](https://img.shields.io/nuget/v/PleaseWait?color=blue)](https://www.nuget.org/packages/PleaseWait)
 [![NuGet](https://img.shields.io/nuget/dt/PleaseWait)](https://www.nuget.org/packages/PleaseWait)
 
