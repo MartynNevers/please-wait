@@ -223,17 +223,18 @@ namespace PleaseWait
         }
 
         /// <summary>
-        /// Defines the waiting condition. PleaseWait will execute this code until it returns a boolean true.
+        /// Defines the waiting condition. PleaseWait will execute this code until it returns a boolean equal to expected or the timeout is exceeded.
         /// </summary>
         /// <param name="condition">The condition to wait for. Should return a boolean.</param>
-        /// <exception cref="TimeoutException">Thrown when the timeout is exceeded without the condition returning a boolean true.</exception>
-        public void Until(Func<bool> condition)
+        /// <param name="expected">The boolean value that the condition should return.</param>
+        /// <exception cref="TimeoutException">Thrown when the timeout is exceeded without the condition returning a boolean equal to expected.</exception>
+        public void Until(Func<bool> condition, bool expected = true)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            var outcome = false;
-            while (outcome == false && stopwatch.Elapsed < this.timeout)
+            var outcome = !expected;
+            while (outcome == !expected && stopwatch.Elapsed < this.timeout)
             {
                 this.InvokePrereqs();
                 Thread.Sleep(this.pollDelay);
@@ -253,7 +254,7 @@ namespace PleaseWait
                 Thread.Sleep(this.pollInterval);
             }
 
-            if (outcome == false && stopwatch.Elapsed > this.timeout)
+            if (outcome == !expected && stopwatch.Elapsed > this.timeout)
             {
                 if (!this.failSilently)
                 {
@@ -267,6 +268,26 @@ namespace PleaseWait
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Defines the waiting condition. PleaseWait will execute this code until it returns a boolean true or the timeout is exceeded.
+        /// </summary>
+        /// <param name="condition">The condition to wait for. Should return a boolean.</param>
+        /// <exception cref="TimeoutException">Thrown when the timeout is exceeded without the condition returning a boolean true.</exception>
+        public void UntilTrue(Func<bool> condition)
+        {
+            this.Until(condition, true);
+        }
+
+        /// <summary>
+        /// Defines the waiting condition. PleaseWait will execute this code until it returns a boolean false or the timeout is exceeded.
+        /// </summary>
+        /// <param name="condition">The condition to wait for. Should return a boolean.</param>
+        /// <exception cref="TimeoutException">Thrown when the timeout is exceeded without the condition returning a boolean false.</exception>
+        public void UntilFalse(Func<bool> condition)
+        {
+            this.Until(condition, false);
         }
 
         /// <summary>
