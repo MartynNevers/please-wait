@@ -83,6 +83,24 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        public void WhenConditionReturnsTrueThenExitSuccessfullyTest()
+        {
+            var orange = new Orange();
+            _ = orange.PeelAsync(2);
+            Wait().UntilTrue(() => orange.IsPeeled);
+            Assert.That(orange.IsPeeled, Is.True);
+        }
+
+        [Test]
+        public void WhenConditionReturnsFalseThenExitSuccessfullyTest()
+        {
+            var orange = new Orange();
+            _ = orange.Spoil(2);
+            Wait().UntilFalse(() => orange.IsFresh);
+            Assert.That(orange.IsFresh, Is.False);
+        }
+
+        [Test]
         public void GivenConditionThatIsUnattainableWhenTimeoutOccursThenThrowExceptionTest()
         {
             var orange = new Orange();

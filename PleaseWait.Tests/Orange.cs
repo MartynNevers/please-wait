@@ -32,12 +32,27 @@ namespace PleaseWait.Tests
             set;
         }
 
+        public bool IsFresh
+        {
+            get;
+            set;
+        }
+
         public async Task PeelAsync(double seconds)
         {
             await Task.Run(() =>
             {
                 Task.Delay(TimeSpan.FromSeconds(seconds)).Wait();
                 this.IsPeeled = true;
+            });
+        }
+
+        public async Task Spoil(double seconds)
+        {
+            await Task.Run(() =>
+            {
+                Task.Delay(TimeSpan.FromSeconds(seconds)).Wait();
+                this.IsFresh = false;
             });
         }
 
