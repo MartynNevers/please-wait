@@ -35,79 +35,150 @@ namespace PleaseWait
         {
         }
 
+        /// <summary>
+        /// Used to start defining a new waiting condition.
+        /// </summary>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
         public static Dsl Wait()
         {
             return new Dsl();
         }
 
+        /// <summary>
+        /// Syntactic sugar method that can be used to make the code easier to read.
+        /// </summary>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
         public Dsl With()
         {
             return this;
         }
 
+        /// <summary>
+        /// Syntactic sugar method that can be used to make the code easier to read.
+        /// </summary>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
         public Dsl And()
         {
             return this;
         }
 
+        /// <summary>
+        /// Defines the timeout for the waiting condition.
+        /// </summary>
+        /// <param name="value">The timeout value.</param>
+        /// <param name="timeUnit">The corresponding <see cref="TimeUnit"/> for the timeout value.</param>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
         public Dsl Timeout(double value, TimeUnit timeUnit)
         {
             this.timeout = new TimeConstraint(value, timeUnit).GetTimeSpan();
             return this;
         }
 
+        /// <summary>
+        /// Defines the timeout for the waiting condition.
+        /// </summary>
+        /// <param name="timeSpan">The timeout value.</param>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
         public Dsl Timeout(TimeSpan timeSpan)
         {
             this.timeout = timeSpan;
             return this;
         }
 
+        /// <summary>
+        /// Defines the timeout for the waiting condition.
+        /// </summary>
+        /// <param name="value">The timeout value.</param>
+        /// <param name="timeUnit">The corresponding <see cref="TimeUnit"/> for the timeout value.</param>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
         public Dsl AtMost(double value, TimeUnit timeUnit)
         {
             return this.Timeout(value, timeUnit);
         }
 
+        /// <summary>
+        /// Defines the timeout for the waiting condition.
+        /// </summary>
+        /// <param name="timeSpan">The timeout value.</param>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
         public Dsl AtMost(TimeSpan timeSpan)
         {
             return this.Timeout(timeSpan);
         }
 
+        /// <summary>
+        /// Defines the polling delay to be used in the waiting condition. Applied before the check on a condition.
+        /// </summary>
+        /// <param name="value">The polling delay value.</param>
+        /// <param name="timeUnit">The corresponding <see cref="TimeUnit"/> for the polling delay.</param>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
         public Dsl PollDelay(double value, TimeUnit timeUnit)
         {
             this.pollDelay = new TimeConstraint(value, timeUnit).GetTimeSpan();
             return this;
         }
 
+        /// <summary>
+        /// Defines the polling delay to be used in the waiting condition. Applied before the check on a condition.
+        /// </summary>
+        /// <param name="timeSpan">The timeout value.</param>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
         public Dsl PollDelay(TimeSpan timeSpan)
         {
             this.pollDelay = timeSpan;
             return this;
         }
 
+        /// <summary>
+        /// Defines the polling interval to be used in the waiting condition. Applied after the check on a condition.
+        /// </summary>
+        /// <param name="value">The polling interval value.</param>
+        /// <param name="timeUnit">The corresponding <see cref="TimeUnit"/> for the polling interval.</param>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
         public Dsl PollInterval(double value, TimeUnit timeUnit)
         {
             this.pollInterval = new TimeConstraint(value, timeUnit).GetTimeSpan();
             return this;
         }
 
+        /// <summary>
+        /// Defines the polling interval to be used in the waiting condition. Applied after the check on a condition.
+        /// </summary>
+        /// <param name="timeSpan">The polling interval value.</param>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
         public Dsl PollInterval(TimeSpan timeSpan)
         {
             this.pollInterval = timeSpan;
             return this;
         }
 
+        /// <summary>
+        /// Defines whether or not to ignore exceptions thrown by the code when checking for a condition.
+        /// </summary>
+        /// <param name="ignoreExceptions">Set to true to ignore exceptions, false otherwise.</param>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
         public Dsl IgnoreExceptions(bool ignoreExceptions = true)
         {
             this.ignoreExceptions = ignoreExceptions;
             return this;
         }
 
+        /// <summary>
+        /// Defines whether or not to fail silently when a condition is not met when the timeout is exceeded.
+        /// </summary>
+        /// <param name="failSilently">Set to true to fail silently, false otherwise.</param>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
         public Dsl FailSilently(bool failSilently = true)
         {
             this.failSilently = failSilently;
             return this;
         }
 
+        /// <summary>
+        /// Adds an <see cref="Action"/> to be executed before the condition to wait for is evaluated.
+        /// </summary>
+        /// <param name="prereq">The <see cref="Action"/> to be executed before the condition to wait for is evaluated.</param>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
         public Dsl Prereq(Action? prereq)
         {
             if (prereq != null)
@@ -121,30 +192,49 @@ namespace PleaseWait
             return this;
         }
 
+        /// <summary>
+        /// Adds an <see cref="IList"/> of <see cref="Action"/>s to be executed before the condition to wait for is evaluated.
+        /// </summary>
+        /// <param name="prereqs">The <see cref="IList"/> of <see cref="Action"/>s to be executed before the condition to wait for is evaluated.</param>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
         public Dsl Prereqs(IList<Action>? prereqs)
         {
             this.prereqs = prereqs;
             return this;
         }
 
+        /// <summary>
+        /// Adds an alias for the current waiting condition. Can be used to create more expressive exception messages.
+        /// </summary>
+        /// <param name="alias">The alias to be used for the current waiting condition.</param>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
         public Dsl Alias(string? alias)
         {
             this.alias = alias;
             return this;
         }
 
+        /// <summary>
+        /// Pause execution of the waiting condition for the duration of the timeout defined earlier.
+        /// </summary>
         public void Sleep()
         {
             Thread.Sleep(this.timeout);
         }
 
-        public void Until(Func<bool> condition)
+        /// <summary>
+        /// Defines the waiting condition. PleaseWait will execute this code until it returns a boolean equal to expected or the timeout is exceeded.
+        /// </summary>
+        /// <param name="condition">The condition to wait for. Should return a boolean.</param>
+        /// <param name="expected">The boolean value that the condition should return.</param>
+        /// <exception cref="TimeoutException">Thrown when the timeout is exceeded without the condition returning a boolean equal to expected.</exception>
+        public void Until(Func<bool> condition, bool expected = true)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            var outcome = false;
-            while (outcome == false && stopwatch.Elapsed < this.timeout)
+            var outcome = !expected;
+            while (outcome == !expected && stopwatch.Elapsed < this.timeout)
             {
                 this.InvokePrereqs();
                 Thread.Sleep(this.pollDelay);
@@ -164,7 +254,7 @@ namespace PleaseWait
                 Thread.Sleep(this.pollInterval);
             }
 
-            if (outcome == false && stopwatch.Elapsed > this.timeout)
+            if (outcome == !expected && stopwatch.Elapsed > this.timeout)
             {
                 if (!this.failSilently)
                 {
@@ -180,6 +270,29 @@ namespace PleaseWait
             }
         }
 
+        /// <summary>
+        /// Defines the waiting condition. PleaseWait will execute this code until it returns a boolean true or the timeout is exceeded.
+        /// </summary>
+        /// <param name="condition">The condition to wait for. Should return a boolean.</param>
+        /// <exception cref="TimeoutException">Thrown when the timeout is exceeded without the condition returning a boolean true.</exception>
+        public void UntilTrue(Func<bool> condition)
+        {
+            this.Until(condition, true);
+        }
+
+        /// <summary>
+        /// Defines the waiting condition. PleaseWait will execute this code until it returns a boolean false or the timeout is exceeded.
+        /// </summary>
+        /// <param name="condition">The condition to wait for. Should return a boolean.</param>
+        /// <exception cref="TimeoutException">Thrown when the timeout is exceeded without the condition returning a boolean false.</exception>
+        public void UntilFalse(Func<bool> condition)
+        {
+            this.Until(condition, false);
+        }
+
+        /// <summary>
+        /// Invokes the prerequisites as defined by the user.
+        /// </summary>
         private void InvokePrereqs()
         {
             if (this.prereqs != null)
