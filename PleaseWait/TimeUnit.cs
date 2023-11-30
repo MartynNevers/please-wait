@@ -16,12 +16,34 @@
 
 namespace PleaseWait
 {
+    /// <summary>
+    /// The unit of time to be used when defining timeouts, polling delays and polling intervals.
+    /// </summary>
     public enum TimeUnit
     {
+        /// <summary>
+        /// Milliseconds.
+        /// </summary>
         MILLIS,
+
+        /// <summary>
+        /// Seconds.
+        /// </summary>
         SECONDS,
+
+        /// <summary>
+        /// Minutes.
+        /// </summary>
         MINUTES,
+
+        /// <summary>
+        /// Hours.
+        /// </summary>
         HOURS,
+
+        /// <summary>
+        /// Days.
+        /// </summary>
         DAYS,
     }
 }
