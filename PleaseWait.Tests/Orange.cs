@@ -38,6 +38,8 @@ namespace PleaseWait.Tests
             set;
         }
 
+        = true;
+
         public async Task PeelAsync(double seconds)
         {
             await Task.Run(() =>
