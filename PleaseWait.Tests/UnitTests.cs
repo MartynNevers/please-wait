@@ -95,7 +95,7 @@ namespace PleaseWait.Tests
         public void WhenConditionReturnsFalseThenExitSuccessfullyTest()
         {
             var orange = new Orange();
-            _ = orange.Spoil(2);
+            _ = orange.SpoilAsync(2);
             Wait().UntilFalse(() => orange.IsFresh);
             Assert.That(orange.IsFresh, Is.False);
         }

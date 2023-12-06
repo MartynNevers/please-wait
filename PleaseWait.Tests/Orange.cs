@@ -47,7 +47,7 @@ namespace PleaseWait.Tests
             });
         }
 
-        public async Task Spoil(double seconds)
+        public async Task SpoilAsync(double seconds)
         {
             await Task.Run(() =>
             {
