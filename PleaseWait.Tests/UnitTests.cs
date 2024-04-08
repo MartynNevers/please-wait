@@ -281,7 +281,7 @@ namespace PleaseWait.Tests
         {
             var orange = new Orange();
             _ = orange.PeelAsync(5);
-            Wait().Sleep();
+            Wait().Sleep(7, SECONDS);
             Assert.That(orange.IsPeeled, Is.True);
         }
     }

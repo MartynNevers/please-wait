@@ -215,11 +215,25 @@ namespace PleaseWait
         }
 
         /// <summary>
-        /// Pause execution of the waiting condition for the duration of the timeout defined earlier.
+        /// Suspends the current thread for the specified amount of time.
         /// </summary>
-        public void Sleep()
+        /// <param name="timeSpan">The timeout value.</param>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
+        public Dsl Sleep(TimeSpan timeSpan)
         {
-            Thread.Sleep(this.timeout);
+            Thread.Sleep(timeSpan);
+            return this;
+        }
+
+        /// <summary>
+        /// Suspends the current thread for the specified amount of time.
+        /// </summary>
+        /// <param name="value">The timeout value.</param>
+        /// <param name="timeUnit">The corresponding <see cref="TimeUnit"/> for the timeout value.</param>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
+        public Dsl Sleep(double value, TimeUnit timeUnit)
+        {
+            return this.Sleep(new TimeConstraint(value, timeUnit).GetTimeSpan());
         }
 
         /// <summary>
