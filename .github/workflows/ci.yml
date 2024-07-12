@@ -66,24 +66,16 @@ jobs:
       - name: Version of .NET SDK used by dotnet commands
         run: dotnet --version
 
-      - name: Restore project dependencies (${{ matrix.framework }})
-        run: dotnet restore -p:TargetFramework=${{ matrix.framework }}
+      - name: Restore project dependencies
+        run: dotnet restore
 
-      - name: Build (${{ matrix.framework }})
-        run: dotnet build --configuration $BUILD_CONFIG -p:Version=$BUILD_VERSION --framework ${{ matrix.framework }} --no-restore
+      - name: Build
+        run: dotnet build --configuration $BUILD_CONFIG -p:Version=$BUILD_VERSION --no-restore
 
       - name: Run tests (${{ matrix.framework }})
         run: dotnet test /p:Configuration=$BUILD_CONFIG --framework ${{ matrix.framework }} --no-restore --no-build --verbosity normal
 
-      - name: Restore project dependencies (all)
-        if: startsWith(github.ref, 'refs/heads/release') && contains(matrix.framework, 'net8.0')
-        run: dotnet restore
-
-      - name: Build (all)
-        if: startsWith(github.ref, 'refs/heads/release') && contains(matrix.framework, 'net8.0')
-        run: dotnet build --configuration $BUILD_CONFIG -p:Version=$BUILD_VERSION --no-restore
-
-      - name: Ensure NuGet package is generated
+      - name: Ensure NuGet package is generated (if release branch and net8.0 build)
         if: startsWith(github.ref, 'refs/heads/release') && contains(matrix.framework, 'net8.0')
         run: |
           FILE=./PleaseWait/bin/$BUILD_CONFIG/PleaseWait.$BUILD_VERSION.nupkg
@@ -93,6 +85,6 @@ jobs:
             exit 1;
           fi
 
-      - name: Publish NuGet package
+      - name: Publish NuGet package (if release branch and net8.0 build)
         if: startsWith(github.ref, 'refs/heads/release') && contains(matrix.framework, 'net8.0')
         run: nuget push **\*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGET_API_KEY}}
