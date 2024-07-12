@@ -22,7 +22,7 @@ namespace PleaseWait.Tests
     using static PleaseWait.Dsl;
     using static PleaseWait.TimeUnit;
 
-    [Parallelizable(scope: ParallelScope.All)]
+    [TestFixture, Parallelizable(scope: ParallelScope.All)]
     public class UnitTests
     {
         [Test]
