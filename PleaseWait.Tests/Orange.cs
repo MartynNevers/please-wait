@@ -68,7 +68,7 @@ namespace PleaseWait.Tests
         {
             if (!this.IsPeeled)
             {
-                _ = this.PeelAsync(0);
+                this.IsPeeled = true;
                 throw new InvalidOperationException("Try again");
             }
 
