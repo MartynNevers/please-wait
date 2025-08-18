@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Rewrite README.md with comprehensive documentation, examples, and professional structure
+- Remove .NET 6.0 from CI workflow and test project build targets (maintains .NET Standard 2.0 targeting for .NET 6.0+ compatibility)
+- Add Mono installation to CI workflow for .NET Framework 4.8 test support
 
 ## [2.7.0] - 2024-07-12
 

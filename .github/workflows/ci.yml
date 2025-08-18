@@ -4,8 +4,6 @@ name: CI
 
 on:
   create:
-    branches: 
-      - release/**
   push:
     branches:
       - main
@@ -26,12 +24,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        framework: [net48, net6.0, net8.0]
+        framework: [net48, net8.0]
         include:
           - framework: net48
             dotnet-version: 8.0.x
-          - framework: net6.0
-            dotnet-version: 6.0.x
           - framework: net8.0
             dotnet-version: 8.0.x
 
@@ -57,6 +53,12 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
+
+      - name: Install Mono (for .NET Framework 4.8 tests)
+        if: matrix.framework == 'net48'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mono-complete
 
       - name: List installed .NET SDKs
         run: dotnet --list-sdks
