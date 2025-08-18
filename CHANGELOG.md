@@ -10,8 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - CHANGELOG.md file to document version history and changes
 - **Cancellation Token Support**: Add `CancellationToken` parameter to all `Until()`, `UntilTrue()`, and `UntilFalse()` methods for graceful cancellation
+- **Enhanced Logging and Diagnostics**: Comprehensive logging system with `IWaitLogger` interface, `ConsoleLogger` implementation, and `NullLogger` for no-op logging
+- **Diagnostic Logging Support**: New `WithLogger()` method to enable detailed logging of wait operations including start, condition checks, success, timeout, and cancellation events
+- **ConsoleLogger**: New `PleaseWait.Logging.ConsoleLogger` writes diagnostics to console output
+- **DebugLogger**: New `PleaseWait.Logging.DebugLogger` writes diagnostics to `System.Diagnostics.Debug`
 - **Code Quality Improvements**: Implement refactoring patterns (Extract Method, Template Method) for cleaner, more maintainable code
-- **Test Organization**: Organize 31 tests into 5 logical categories (Initialization, Basic Functionality, Timeout & Exceptions, Configuration, Cancellation)
+- **Test Organization**: Organize 41 tests into 6 logical categories (Initialization, Basic Functionality, Timeout & Exceptions, Configuration, Cancellation, Logging)
 - **Enhanced .gitignore**: Comprehensive patterns for modern C# projects including code coverage and test results
 
 ### Changed

@@ -186,6 +186,49 @@ Wait().AtMost(10, SECONDS)
     .Until(() => DataIsReady(), cancellationToken: cts.Token);
 ```
 
+### Diagnostic Logging
+
+PleaseWait supports diagnostic logging to help debug wait operations:
+
+```csharp
+using PleaseWait.Logging;
+
+// Enable console logging
+Wait()
+    .WithLogger(new ConsoleLogger())
+    .AtMost(10, SECONDS)
+    .Until(() => SomeCondition());
+
+// Enable debug logging (writes to System.Diagnostics.Debug)
+Wait()
+    .WithLogger(new DebugLogger())
+    .AtMost(10, SECONDS)
+    .Until(() => SomeCondition());
+
+// Custom logger implementation
+public class CustomLogger : IWaitLogger
+{
+    public void LogWaitStart(string condition, TimeSpan timeout) { /* ... */ }
+    public void LogConditionCheck(string condition, bool result, TimeSpan elapsed) { /* ... */ }
+    public void LogWaitSuccess(string condition, TimeSpan elapsed, int checks) { /* ... */ }
+    public void LogTimeout(string condition, TimeSpan timeout) { /* ... */ }
+    public void LogCancellation(string condition) { /* ... */ }
+}
+
+Wait()
+    .WithLogger(new CustomLogger())
+    .AtMost(10, SECONDS)
+    .Until(() => SomeCondition());
+```
+
+**Console Logger Output:**
+```
+[PleaseWait] 🚀 Starting wait: condition (timeout: 10000ms)
+[PleaseWait] ✗ Condition check: condition (elapsed: 100ms)
+[PleaseWait] ✓ Condition check: condition (elapsed: 200ms)
+[PleaseWait] ✅ Success: condition completed in 200ms (2 checks)
+```
+
 ### Thread Sleep
 
 ```csharp

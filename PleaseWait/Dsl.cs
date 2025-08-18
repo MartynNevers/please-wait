@@ -20,6 +20,7 @@ namespace PleaseWait
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading;
+    using PleaseWait.Logging;
 
     public class Dsl
     {
@@ -30,6 +31,7 @@ namespace PleaseWait
         private bool failSilently = Defaults.FailSilently;
         private IList<Action>? prereqs = null;
         private string? alias = null;
+        private IWaitLogger logger = NullLogger.Instance;
 
         private Dsl()
         {
@@ -193,6 +195,17 @@ namespace PleaseWait
         }
 
         /// <summary>
+        /// Sets the logger for wait operations. Use this to enable diagnostic logging.
+        /// </summary>
+        /// <param name="logger">The logger to use for wait operations.</param>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
+        public Dsl WithLogger(IWaitLogger logger)
+        {
+            this.logger = logger ?? NullLogger.Instance;
+            return this;
+        }
+
+        /// <summary>
         /// Suspends the current thread for the specified amount of time.
         /// </summary>
         /// <param name="timeSpan">The timeout value.</param>
@@ -222,10 +235,21 @@ namespace PleaseWait
         /// <exception cref="OperationCanceledException">Thrown when cancellation is requested via the cancellation token.</exception>
         public void Until(Func<bool> condition, bool expected = true, CancellationToken cancellationToken = default)
         {
-            var success = this.WaitForCondition(condition, expected, cancellationToken);
-            if (!success && !this.failSilently)
+            try
             {
-                throw this.CreateTimeoutException();
+                var success = this.WaitForCondition(condition, expected, cancellationToken);
+                if (!success && !this.failSilently)
+                {
+                    var conditionDescription = this.alias ?? "condition";
+                    this.logger.LogTimeout(conditionDescription, this.timeout);
+                    throw this.CreateTimeoutException();
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                var conditionDescription = this.alias ?? "condition";
+                this.logger.LogCancellation(conditionDescription);
+                throw;
             }
         }
 
@@ -289,7 +313,12 @@ namespace PleaseWait
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
+            var conditionDescription = this.alias ?? "condition";
+            this.logger.LogWaitStart(conditionDescription, this.timeout);
+
             var outcome = !expected;
+            var checkCount = 0;
+
             while (outcome == !expected && stopwatch.Elapsed < this.timeout)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -298,7 +327,16 @@ namespace PleaseWait
                 Thread.Sleep(this.pollDelay);
 
                 outcome = this.EvaluateCondition(condition);
+                checkCount++;
+
+                this.logger.LogConditionCheck(conditionDescription, outcome == expected, stopwatch.Elapsed);
+
                 Thread.Sleep(this.pollInterval);
+            }
+
+            if (outcome == expected)
+            {
+                this.logger.LogWaitSuccess(conditionDescription, stopwatch.Elapsed, checkCount);
             }
 
             return outcome == expected;
