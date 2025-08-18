@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - CHANGELOG.md file to document version history and changes
 
+### Changed
+- Rewrite README.md with comprehensive documentation, examples, and professional structure
+
 ## [2.7.0] - 2024-07-12
 
 ### Changed
