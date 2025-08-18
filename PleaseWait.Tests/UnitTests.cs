@@ -28,6 +28,7 @@ namespace PleaseWait.Tests
     public class UnitTests
     {
         [Test]
+        [Category("Initialization")]
         public void WhenInstanceIsCreatedThenFieldsAreSetToTheirDefaultsTest()
         {
             var wait = Wait();
@@ -51,6 +52,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Initialization")]
         public void WhenExtremeTimeUnitsAreUsedThenTimeConstraintsAreAppropriatelySetTest()
         {
             var wait = Wait()
@@ -70,12 +72,14 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Initialization")]
         public void WhenInvalidTimeUnitIsUsedThenThrowExceptionTest()
         {
             Assert.Throws<NotImplementedException>(() => Wait().AtMost(10, (TimeUnit)5));
         }
 
         [Test]
+        [Category("Basic Functionality")]
         public void WhenConditionPassesThenExitSuccessfullyTest()
         {
             var orange = new Orange();
@@ -85,6 +89,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Basic Functionality")]
         public void WhenConditionReturnsTrueThenExitSuccessfullyTest()
         {
             var orange = new Orange();
@@ -94,6 +99,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Basic Functionality")]
         public void WhenConditionReturnsFalseThenExitSuccessfullyTest()
         {
             var orange = new Orange();
@@ -103,6 +109,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Timeout & Exceptions")]
         public void GivenConditionThatIsUnattainableWhenTimeoutOccursThenThrowExceptionTest()
         {
             var orange = new Orange();
@@ -112,6 +119,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Timeout & Exceptions")]
         public void GivenConditionThatIsOnlyAttainableAfterTimeoutWhenTimeoutOccursThenThrowExceptionTest()
         {
             var orange = new Orange();
@@ -122,6 +130,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Timeout & Exceptions")]
         public void GivenAliasIsProvidedWhenTimeoutOccursThenExceptionMessageContainsAliasTest()
         {
             var alias = "Is orange peeled?";
@@ -132,6 +141,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Timeout & Exceptions")]
         public void GivenFailSilentlyIsTrueWhenTimeoutOccursThenExitGracefullyTest()
         {
             var orange = new Orange();
@@ -145,6 +155,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Configuration")]
         public void GivenPollDelayIs800MsWhenConditionPassesThenExitSuccessfullyTest()
         {
             var orange = new Orange();
@@ -158,6 +169,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Configuration")]
         public void GivenPollIntervalIs400MsWhenConditionPassesThenExitSuccessfullyTest()
         {
             var orange = new Orange();
@@ -171,6 +183,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Configuration")]
         public void WhenSinglePrerequisiteIsProvidedThenPrerequisiteIsInvokedTest()
         {
             var toggle = false;
@@ -186,6 +199,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Configuration")]
         public void WhenMultiplePrerequisitesAreProvidedThenPrerequisitesAreInvokedTest()
         {
             var toggle = false;
@@ -211,6 +225,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Configuration")]
         public void GivenTimeConstraintsAreSetUsingTimeSpansWhenConditionPassesThenExitSuccessfullyTest()
         {
             var orange = new Orange();
@@ -225,6 +240,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Timeout & Exceptions")]
         public void WhenConditionThrowsExceptionThenExceptionIsSwallowedTest()
         {
             var orange = new Orange();
@@ -238,6 +254,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Timeout & Exceptions")]
         public void WhenPrerequisiteThrowsExceptionThenExceptionIsSwallowedTest()
         {
             var orange = new Orange();
@@ -251,6 +268,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Timeout & Exceptions")]
         public void GivenIgnoreExceptionsIsFalseWhenConditionThrowsExceptionThenExceptionIsThrownTest()
         {
             var orange = new Orange();
@@ -265,6 +283,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Timeout & Exceptions")]
         public void GivenIgnoreExceptionsIsFalseWhenPrerequisiteThrowsExceptionThenExceptionIsThrownTest()
         {
             var orange = new Orange();
@@ -279,6 +298,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Basic Functionality")]
         public void WhenSleepIsInvokedThenExecutionIsPausedTest()
         {
             var orange = new Orange();
@@ -288,6 +308,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Cancellation")]
         public void WhenCancellationTokenIsCancelledThenThrowsOperationCanceledExceptionTest()
         {
             using var cts = new CancellationTokenSource();
@@ -302,6 +323,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Cancellation")]
         public void WhenCancellationTokenIsCancelledDuringExecutionThenThrowsOperationCanceledExceptionTest()
         {
             using var cts = new CancellationTokenSource();
@@ -318,6 +340,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Cancellation")]
         public void WhenCancellationTokenIsNotCancelledThenExecutesNormallyTest()
         {
             using var cts = new CancellationTokenSource();
@@ -336,6 +359,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Cancellation")]
         public void WhenCancellationTokenIsCancelledWithUntilTrueThenThrowsOperationCanceledExceptionTest()
         {
             using var cts = new CancellationTokenSource();
@@ -350,6 +374,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Cancellation")]
         public void WhenCancellationTokenIsCancelledWithUntilFalseThenThrowsOperationCanceledExceptionTest()
         {
             using var cts = new CancellationTokenSource();
@@ -364,6 +389,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Cancellation")]
         public void WhenCancellationTokenIsCancelledWithPrerequisitesThenThrowsOperationCanceledExceptionTest()
         {
             using var cts = new CancellationTokenSource();
@@ -385,6 +411,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Cancellation")]
         public void WhenCancellationTokenIsCancelledAfterPrerequisitesThenThrowsOperationCanceledExceptionTest()
         {
             using var cts = new CancellationTokenSource();
@@ -410,6 +437,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Cancellation")]
         public void WhenCancellationTokenIsCancelledWithAliasThenThrowsOperationCanceledExceptionTest()
         {
             using var cts = new CancellationTokenSource();
@@ -425,6 +453,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Cancellation")]
         public void WhenCancellationTokenIsCancelledWithExceptionHandlingThenThrowsOperationCanceledExceptionTest()
         {
             using var cts = new CancellationTokenSource();
@@ -441,6 +470,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Cancellation")]
         public void WhenCancellationTokenIsCancelledWithCustomTimeoutThenThrowsOperationCanceledExceptionTest()
         {
             using var cts = new CancellationTokenSource();
@@ -457,6 +487,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
+        [Category("Cancellation")]
         public void WhenCancellationTokenIsCancelledWithExpectedFalseThenThrowsOperationCanceledExceptionTest()
         {
             using var cts = new CancellationTokenSource();

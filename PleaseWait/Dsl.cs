@@ -68,22 +68,16 @@ namespace PleaseWait
         /// <param name="value">The timeout value.</param>
         /// <param name="timeUnit">The corresponding <see cref="TimeUnit"/> for the timeout value.</param>
         /// <returns>The current <see cref="Dsl"/>.</returns>
-        public Dsl Timeout(double value, TimeUnit timeUnit)
-        {
-            this.timeout = new TimeConstraint(value, timeUnit).GetTimeSpan();
-            return this;
-        }
+        public Dsl Timeout(double value, TimeUnit timeUnit) =>
+            this.SetTimeout(new TimeConstraint(value, timeUnit).GetTimeSpan());
 
         /// <summary>
         /// Defines the timeout for the waiting condition.
         /// </summary>
         /// <param name="timeSpan">The timeout value.</param>
         /// <returns>The current <see cref="Dsl"/>.</returns>
-        public Dsl Timeout(TimeSpan timeSpan)
-        {
-            this.timeout = timeSpan;
-            return this;
-        }
+        public Dsl Timeout(TimeSpan timeSpan) =>
+            this.SetTimeout(timeSpan);
 
         /// <summary>
         /// Defines the timeout for the waiting condition.
@@ -91,20 +85,16 @@ namespace PleaseWait
         /// <param name="value">The timeout value.</param>
         /// <param name="timeUnit">The corresponding <see cref="TimeUnit"/> for the timeout value.</param>
         /// <returns>The current <see cref="Dsl"/>.</returns>
-        public Dsl AtMost(double value, TimeUnit timeUnit)
-        {
-            return this.Timeout(value, timeUnit);
-        }
+        public Dsl AtMost(double value, TimeUnit timeUnit) =>
+            this.SetTimeout(new TimeConstraint(value, timeUnit).GetTimeSpan());
 
         /// <summary>
         /// Defines the timeout for the waiting condition.
         /// </summary>
         /// <param name="timeSpan">The timeout value.</param>
         /// <returns>The current <see cref="Dsl"/>.</returns>
-        public Dsl AtMost(TimeSpan timeSpan)
-        {
-            return this.Timeout(timeSpan);
-        }
+        public Dsl AtMost(TimeSpan timeSpan) =>
+            this.SetTimeout(timeSpan);
 
         /// <summary>
         /// Defines the polling delay to be used in the waiting condition. Applied before the check on a condition.
@@ -112,22 +102,16 @@ namespace PleaseWait
         /// <param name="value">The polling delay value.</param>
         /// <param name="timeUnit">The corresponding <see cref="TimeUnit"/> for the polling delay.</param>
         /// <returns>The current <see cref="Dsl"/>.</returns>
-        public Dsl PollDelay(double value, TimeUnit timeUnit)
-        {
-            this.pollDelay = new TimeConstraint(value, timeUnit).GetTimeSpan();
-            return this;
-        }
+        public Dsl PollDelay(double value, TimeUnit timeUnit) =>
+            this.SetPollDelay(new TimeConstraint(value, timeUnit).GetTimeSpan());
 
         /// <summary>
         /// Defines the polling delay to be used in the waiting condition. Applied before the check on a condition.
         /// </summary>
         /// <param name="timeSpan">The timeout value.</param>
         /// <returns>The current <see cref="Dsl"/>.</returns>
-        public Dsl PollDelay(TimeSpan timeSpan)
-        {
-            this.pollDelay = timeSpan;
-            return this;
-        }
+        public Dsl PollDelay(TimeSpan timeSpan) =>
+            this.SetPollDelay(timeSpan);
 
         /// <summary>
         /// Defines the polling interval to be used in the waiting condition. Applied after the check on a condition.
@@ -135,22 +119,16 @@ namespace PleaseWait
         /// <param name="value">The polling interval value.</param>
         /// <param name="timeUnit">The corresponding <see cref="TimeUnit"/> for the polling interval.</param>
         /// <returns>The current <see cref="Dsl"/>.</returns>
-        public Dsl PollInterval(double value, TimeUnit timeUnit)
-        {
-            this.pollInterval = new TimeConstraint(value, timeUnit).GetTimeSpan();
-            return this;
-        }
+        public Dsl PollInterval(double value, TimeUnit timeUnit) =>
+            this.SetPollInterval(new TimeConstraint(value, timeUnit).GetTimeSpan());
 
         /// <summary>
         /// Defines the polling interval to be used in the waiting condition. Applied after the check on a condition.
         /// </summary>
         /// <param name="timeSpan">The polling interval value.</param>
         /// <returns>The current <see cref="Dsl"/>.</returns>
-        public Dsl PollInterval(TimeSpan timeSpan)
-        {
-            this.pollInterval = timeSpan;
-            return this;
-        }
+        public Dsl PollInterval(TimeSpan timeSpan) =>
+            this.SetPollInterval(timeSpan);
 
         /// <summary>
         /// Defines whether or not to ignore exceptions thrown by the code when checking for a condition.
@@ -231,10 +209,8 @@ namespace PleaseWait
         /// <param name="value">The timeout value.</param>
         /// <param name="timeUnit">The corresponding <see cref="TimeUnit"/> for the timeout value.</param>
         /// <returns>The current <see cref="Dsl"/>.</returns>
-        public Dsl Sleep(double value, TimeUnit timeUnit)
-        {
-            return this.Sleep(new TimeConstraint(value, timeUnit).GetTimeSpan());
-        }
+        public Dsl Sleep(double value, TimeUnit timeUnit) =>
+            this.Sleep(new TimeConstraint(value, timeUnit).GetTimeSpan());
 
         /// <summary>
         /// Defines the waiting condition. PleaseWait will execute this code until it returns a boolean equal to expected, the timeout is exceeded, or cancellation is requested.
@@ -246,45 +222,10 @@ namespace PleaseWait
         /// <exception cref="OperationCanceledException">Thrown when cancellation is requested via the cancellation token.</exception>
         public void Until(Func<bool> condition, bool expected = true, CancellationToken cancellationToken = default)
         {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-
-            var outcome = !expected;
-            while (outcome == !expected && stopwatch.Elapsed < this.timeout)
+            var success = this.WaitForCondition(condition, expected, cancellationToken);
+            if (!success && !this.failSilently)
             {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                this.InvokePrereqs();
-                Thread.Sleep(this.pollDelay);
-
-                try
-                {
-                    outcome = condition();
-                }
-                catch (Exception)
-                {
-                    if (!this.ignoreExceptions)
-                    {
-                        throw;
-                    }
-                }
-
-                Thread.Sleep(this.pollInterval);
-            }
-
-            if (outcome == !expected && stopwatch.Elapsed > this.timeout)
-            {
-                if (!this.failSilently)
-                {
-                    if (string.IsNullOrEmpty(this.alias))
-                    {
-                        throw new TimeoutException($"Condition was not fulfilled within {this.timeout}.");
-                    }
-                    else
-                    {
-                        throw new TimeoutException($"Condition with alias '{this.alias}' was not fulfilled within {this.timeout}.");
-                    }
-                }
+                throw this.CreateTimeoutException();
             }
         }
 
@@ -334,6 +275,101 @@ namespace PleaseWait
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Core waiting logic that polls for a condition to be met.
+        /// </summary>
+        /// <param name="condition">The condition to wait for.</param>
+        /// <param name="expected">The expected boolean value.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>True if condition was met, false if timeout occurred.</returns>
+        private bool WaitForCondition(Func<bool> condition, bool expected, CancellationToken cancellationToken)
+        {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            var outcome = !expected;
+            while (outcome == !expected && stopwatch.Elapsed < this.timeout)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                this.InvokePrereqs();
+                Thread.Sleep(this.pollDelay);
+
+                outcome = this.EvaluateCondition(condition);
+                Thread.Sleep(this.pollInterval);
+            }
+
+            return outcome == expected;
+        }
+
+        /// <summary>
+        /// Evaluates a condition with exception handling.
+        /// </summary>
+        /// <param name="condition">The condition to evaluate.</param>
+        /// <returns>The result of the condition evaluation.</returns>
+        private bool EvaluateCondition(Func<bool> condition)
+        {
+            try
+            {
+                return condition();
+            }
+            catch (Exception)
+            {
+                if (!this.ignoreExceptions)
+                {
+                    throw;
+                }
+
+                return false; // Return false to continue waiting
+            }
+        }
+
+        /// <summary>
+        /// Creates a timeout exception with appropriate message.
+        /// </summary>
+        /// <returns>A TimeoutException with context-specific message.</returns>
+        private TimeoutException CreateTimeoutException()
+        {
+            var message = string.IsNullOrEmpty(this.alias)
+                ? $"Condition was not fulfilled within {this.timeout}."
+                : $"Condition with alias '{this.alias}' was not fulfilled within {this.timeout}.";
+
+            return new TimeoutException(message);
+        }
+
+        /// <summary>
+        /// Sets the timeout value.
+        /// </summary>
+        /// <param name="timeSpan">The timeout value.</param>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
+        private Dsl SetTimeout(TimeSpan timeSpan)
+        {
+            this.timeout = timeSpan;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the polling delay value.
+        /// </summary>
+        /// <param name="timeSpan">The polling delay value.</param>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
+        private Dsl SetPollDelay(TimeSpan timeSpan)
+        {
+            this.pollDelay = timeSpan;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the polling interval value.
+        /// </summary>
+        /// <param name="timeSpan">The polling interval value.</param>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
+        private Dsl SetPollInterval(TimeSpan timeSpan)
+        {
+            this.pollInterval = timeSpan;
+            return this;
         }
     }
 }

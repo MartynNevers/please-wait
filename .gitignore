@@ -221,6 +221,103 @@ project.lock.json
 # UWP Projects
 AppPackages/
 
+# =========================
+# Code Coverage and Test Results
+# =========================
+
+# Code coverage directories and files
+coverage/
+**/coverage/
+*.coverage
+*.coveragexml
+*.cobertura.xml
+*.opencover.xml
+*.lcov
+*.info
+*.gcov
+*.gcda
+*.gcno
+
+# Test results
+TestResults/
+**/TestResults/
+*.trx
+*.testlog
+*.testresults
+
+# Benchmark results
+BenchmarkDotNet.Artifacts/
+**/BenchmarkDotNet.Artifacts/
+
+# =========================
+# .NET Core / .NET 5+ specific
+# =========================
+
+# .NET Core build artifacts
+*.runtimeconfig.json
+*.deps.json
+*.runtimeconfig.dev.json
+
+# .NET Core test artifacts
+**/TestResults/
+**/coverage/
+**/bin/
+**/obj/
+
+# =========================
+# Package management
+# =========================
+
+# NuGet v3's project.json files produces more ignorable files
+*.nuget.props
+*.nuget.targets
+
+# =========================
+# IDE and Editor files
+# =========================
+
+# Visual Studio files
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# Mono auto generated files
+mono_crash.*
+
+# =========================
+# OS generated files
+# =========================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# =========================
+# Temporary files
+# =========================
+
+# Temporary files created by .NET tools
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
 #####
 # End of core ignore list, below put you custom 'per project' settings (patterns or path)
 #####
