@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - CHANGELOG.md file to document version history and changes
+- **Cancellation Token Support**: Add `CancellationToken` parameter to all `Until()`, `UntilTrue()`, and `UntilFalse()` methods for graceful cancellation
+- **Comprehensive Test Coverage**: Add 12 new tests covering cancellation token scenarios including immediate cancellation, delayed cancellation, and integration with prerequisites
+- **Enhanced Documentation**: Add cancellation token examples and usage patterns to README.md
 
 ### Changed
 - Rewrite README.md with comprehensive documentation, examples, and professional structure

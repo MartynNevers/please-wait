@@ -145,6 +145,47 @@ Wait().AtMost(5, SECONDS).UntilFalse(() => IsLoading());
 Wait().AtMost(5, SECONDS).Until(() => IsComplete(), expected: true);
 ```
 
+### Cancellation Support
+
+```csharp
+using System.Threading;
+
+// Basic cancellation
+var cts = new CancellationTokenSource();
+cts.CancelAfter(5000); // Cancel after 5 seconds
+
+try
+{
+    Wait().AtMost(30, SECONDS)
+        .Until(() => LongRunningOperation(), cancellationToken: cts.Token);
+}
+catch (OperationCanceledException)
+{
+    Console.WriteLine("Operation was cancelled!");
+}
+
+// User-initiated cancellation (e.g., in UI applications)
+var userCancellation = new CancellationTokenSource();
+
+// In a button click handler
+userCancellation.Cancel();
+
+Wait().AtMost(60, SECONDS)
+    .Until(() => BackgroundTask(), cancellationToken: userCancellation.Token);
+
+// Cancellation with UntilTrue/UntilFalse
+Wait().AtMost(10, SECONDS)
+    .UntilTrue(() => IsReady(), cts.Token);
+
+Wait().AtMost(10, SECONDS)
+    .UntilFalse(() => IsLoading(), cts.Token);
+
+// Cancellation with prerequisites
+Wait().AtMost(10, SECONDS)
+    .WithPrereq(() => RefreshData())
+    .Until(() => DataIsReady(), cancellationToken: cts.Token);
+```
+
 ### Thread Sleep
 
 ```csharp

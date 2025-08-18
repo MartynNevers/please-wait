@@ -18,6 +18,7 @@ namespace PleaseWait.Tests
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using NUnit.Framework;
     using static PleaseWait.Dsl;
     using static PleaseWait.TimeUnit;
@@ -284,6 +285,189 @@ namespace PleaseWait.Tests
             _ = orange.PeelAsync(5);
             Wait().Sleep(7, SECONDS);
             Assert.That(orange.IsPeeled, Is.True);
+        }
+
+        [Test]
+        public void WhenCancellationTokenIsCancelledThenThrowsOperationCanceledExceptionTest()
+        {
+            using var cts = new CancellationTokenSource();
+            cts.Cancel(); // Cancel immediately
+
+            Assert.Throws<OperationCanceledException>(() =>
+            {
+                Wait()
+                    .AtMost(10, SECONDS)
+                    .Until(() => true, cancellationToken: cts.Token);
+            });
+        }
+
+        [Test]
+        public void WhenCancellationTokenIsCancelledDuringExecutionThenThrowsOperationCanceledExceptionTest()
+        {
+            using var cts = new CancellationTokenSource();
+
+            // Cancel after 500ms
+            cts.CancelAfter(500);
+
+            Assert.Throws<OperationCanceledException>(() =>
+            {
+                Wait()
+                    .AtMost(10, SECONDS)
+                    .Until(() => false, cancellationToken: cts.Token); // Never true condition
+            });
+        }
+
+        [Test]
+        public void WhenCancellationTokenIsNotCancelledThenExecutesNormallyTest()
+        {
+            using var cts = new CancellationTokenSource();
+            var orange = new Orange();
+            _ = orange.PeelAsync(2);
+
+            // Should not throw
+            Assert.DoesNotThrow(() =>
+            {
+                Wait()
+                    .AtMost(5, SECONDS)
+                    .Until(() => orange.IsPeeled, cancellationToken: cts.Token);
+            });
+
+            Assert.That(orange.IsPeeled, Is.True);
+        }
+
+        [Test]
+        public void WhenCancellationTokenIsCancelledWithUntilTrueThenThrowsOperationCanceledExceptionTest()
+        {
+            using var cts = new CancellationTokenSource();
+            cts.Cancel(); // Cancel immediately
+
+            Assert.Throws<OperationCanceledException>(() =>
+            {
+                Wait()
+                    .AtMost(10, SECONDS)
+                    .UntilTrue(() => true, cts.Token);
+            });
+        }
+
+        [Test]
+        public void WhenCancellationTokenIsCancelledWithUntilFalseThenThrowsOperationCanceledExceptionTest()
+        {
+            using var cts = new CancellationTokenSource();
+            cts.Cancel(); // Cancel immediately
+
+            Assert.Throws<OperationCanceledException>(() =>
+            {
+                Wait()
+                    .AtMost(10, SECONDS)
+                    .UntilFalse(() => false, cts.Token);
+            });
+        }
+
+        [Test]
+        public void WhenCancellationTokenIsCancelledWithPrerequisitesThenThrowsOperationCanceledExceptionTest()
+        {
+            using var cts = new CancellationTokenSource();
+            cts.Cancel(); // Cancel immediately
+
+            var prereqExecuted = false;
+            var prereq = new Action(() => prereqExecuted = true);
+
+            Assert.Throws<OperationCanceledException>(() =>
+            {
+                Wait()
+                    .AtMost(10, SECONDS)
+                    .With().Prereq(prereq)
+                    .Until(() => true, cancellationToken: cts.Token);
+            });
+
+            // Prerequisites should not execute when cancelled immediately
+            Assert.That(prereqExecuted, Is.False);
+        }
+
+        [Test]
+        public void WhenCancellationTokenIsCancelledAfterPrerequisitesThenThrowsOperationCanceledExceptionTest()
+        {
+            using var cts = new CancellationTokenSource();
+
+            var prereqExecuted = false;
+            var prereq = new Action(() => prereqExecuted = true);
+
+            // Cancel after 500ms
+            cts.CancelAfter(500);
+
+            Assert.Throws<OperationCanceledException>(() =>
+            {
+                Wait()
+                    .AtMost(10, SECONDS)
+                    .With().PollDelay(100, MILLIS)
+                    .And().With().PollInterval(100, MILLIS)
+                    .With().Prereq(prereq)
+                    .Until(() => false, cancellationToken: cts.Token); // Never true condition
+            });
+
+            // Prerequisites should execute before cancellation
+            Assert.That(prereqExecuted, Is.True);
+        }
+
+        [Test]
+        public void WhenCancellationTokenIsCancelledWithAliasThenThrowsOperationCanceledExceptionTest()
+        {
+            using var cts = new CancellationTokenSource();
+            cts.Cancel(); // Cancel immediately
+
+            Assert.Throws<OperationCanceledException>(() =>
+            {
+                Wait()
+                    .AtMost(10, SECONDS)
+                    .Alias("Test Condition")
+                    .Until(() => true, cancellationToken: cts.Token);
+            });
+        }
+
+        [Test]
+        public void WhenCancellationTokenIsCancelledWithExceptionHandlingThenThrowsOperationCanceledExceptionTest()
+        {
+            using var cts = new CancellationTokenSource();
+            cts.Cancel(); // Cancel immediately
+
+            Assert.Throws<OperationCanceledException>(() =>
+            {
+                Wait()
+                    .AtMost(10, SECONDS)
+                    .With().IgnoreExceptions(false)
+                    .And().FailSilently()
+                    .Until(() => true, cancellationToken: cts.Token);
+            });
+        }
+
+        [Test]
+        public void WhenCancellationTokenIsCancelledWithCustomTimeoutThenThrowsOperationCanceledExceptionTest()
+        {
+            using var cts = new CancellationTokenSource();
+            cts.Cancel(); // Cancel immediately
+
+            Assert.Throws<OperationCanceledException>(() =>
+            {
+                Wait()
+                    .AtMost(1, MINUTES)
+                    .With().PollDelay(1, SECONDS)
+                    .And().With().PollInterval(1, SECONDS)
+                    .Until(() => true, cancellationToken: cts.Token);
+            });
+        }
+
+        [Test]
+        public void WhenCancellationTokenIsCancelledWithExpectedFalseThenThrowsOperationCanceledExceptionTest()
+        {
+            using var cts = new CancellationTokenSource();
+            cts.Cancel(); // Cancel immediately
+
+            Assert.Throws<OperationCanceledException>(() =>
+            {
+                Wait()
+                    .AtMost(10, SECONDS)
+                    .Until(() => false, expected: false, cancellationToken: cts.Token);
+            });
         }
     }
 }

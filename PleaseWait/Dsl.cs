@@ -237,12 +237,14 @@ namespace PleaseWait
         }
 
         /// <summary>
-        /// Defines the waiting condition. PleaseWait will execute this code until it returns a boolean equal to expected or the timeout is exceeded.
+        /// Defines the waiting condition. PleaseWait will execute this code until it returns a boolean equal to expected, the timeout is exceeded, or cancellation is requested.
         /// </summary>
         /// <param name="condition">The condition to wait for. Should return a boolean.</param>
         /// <param name="expected">The boolean value that the condition should return.</param>
+        /// <param name="cancellationToken">The cancellation token to observe for cancellation requests. Defaults to CancellationToken.None (no cancellation).</param>
         /// <exception cref="TimeoutException">Thrown when the timeout is exceeded without the condition returning a boolean equal to expected.</exception>
-        public void Until(Func<bool> condition, bool expected = true)
+        /// <exception cref="OperationCanceledException">Thrown when cancellation is requested via the cancellation token.</exception>
+        public void Until(Func<bool> condition, bool expected = true, CancellationToken cancellationToken = default)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -250,6 +252,8 @@ namespace PleaseWait
             var outcome = !expected;
             while (outcome == !expected && stopwatch.Elapsed < this.timeout)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 this.InvokePrereqs();
                 Thread.Sleep(this.pollDelay);
 
@@ -285,23 +289,27 @@ namespace PleaseWait
         }
 
         /// <summary>
-        /// Defines the waiting condition. PleaseWait will execute this code until it returns a boolean true or the timeout is exceeded.
+        /// Defines the waiting condition. PleaseWait will execute this code until it returns a boolean true, the timeout is exceeded, or cancellation is requested.
         /// </summary>
         /// <param name="condition">The condition to wait for. Should return a boolean.</param>
+        /// <param name="cancellationToken">The cancellation token to observe for cancellation requests. Defaults to CancellationToken.None (no cancellation).</param>
         /// <exception cref="TimeoutException">Thrown when the timeout is exceeded without the condition returning a boolean true.</exception>
-        public void UntilTrue(Func<bool> condition)
+        /// <exception cref="OperationCanceledException">Thrown when cancellation is requested via the cancellation token.</exception>
+        public void UntilTrue(Func<bool> condition, CancellationToken cancellationToken = default)
         {
-            this.Until(condition, true);
+            this.Until(condition, true, cancellationToken);
         }
 
         /// <summary>
-        /// Defines the waiting condition. PleaseWait will execute this code until it returns a boolean false or the timeout is exceeded.
+        /// Defines the waiting condition. PleaseWait will execute this code until it returns a boolean false, the timeout is exceeded, or cancellation is requested.
         /// </summary>
         /// <param name="condition">The condition to wait for. Should return a boolean.</param>
+        /// <param name="cancellationToken">The cancellation token to observe for cancellation requests. Defaults to CancellationToken.None (no cancellation).</param>
         /// <exception cref="TimeoutException">Thrown when the timeout is exceeded without the condition returning a boolean false.</exception>
-        public void UntilFalse(Func<bool> condition)
+        /// <exception cref="OperationCanceledException">Thrown when cancellation is requested via the cancellation token.</exception>
+        public void UntilFalse(Func<bool> condition, CancellationToken cancellationToken = default)
         {
-            this.Until(condition, false);
+            this.Until(condition, false, cancellationToken);
         }
 
         /// <summary>
