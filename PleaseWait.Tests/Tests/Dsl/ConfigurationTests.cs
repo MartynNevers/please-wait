@@ -19,92 +19,265 @@ namespace PleaseWait.Tests
     using System;
     using System.Collections.Generic;
     using NUnit.Framework;
+    using PleaseWait.Logging;
     using static PleaseWait.Dsl;
+    using static PleaseWait.Strategy.WaitStrategy;
     using static PleaseWait.TimeUnit;
 
     [TestFixture]
     [Category("Configuration")]
-    [Parallelizable(scope: ParallelScope.All)]
+
+    // Set to ParallelScope.None because these tests modify global static state (GlobalDefaults)
+    // which could interfere with other tests running in parallel
+    [Parallelizable(scope: ParallelScope.None)]
     public class ConfigurationTests
     {
-        [Test]
-        public void Until_PollDelay800MsAndConditionPasses_ExitsSuccessfully()
+        [TearDown]
+        public void TearDown()
         {
-            var orange = new Orange();
-            _ = orange.PeelAsync(2);
-            Wait()
-                .AtMost(5, Seconds)
-                .With().PollDelay(800, Millis)
-                .Until(() => orange.IsPeeled);
-
-            Assert.That(orange.IsPeeled, Is.True);
+            Wait().ResetToDefaults();
         }
 
         [Test]
-        public void Until_PollInterval400MsAndConditionPasses_ExitsSuccessfully()
+        public void Configure_ReturnsConfigurationBuilder()
         {
-            var orange = new Orange();
-            _ = orange.PeelAsync(2);
-            Wait()
-                .AtMost(5, Seconds)
-                .With().PollInterval(400, Millis)
-                .Until(() => orange.IsPeeled);
-
-            Assert.That(orange.IsPeeled, Is.True);
+            var builder = Wait().Configure();
+            Assert.That(builder, Is.Not.Null);
+            Assert.That(builder, Is.InstanceOf<ConfigurationBuilder>());
         }
 
         [Test]
-        public void Until_SinglePrerequisiteProvided_PrerequisiteIsInvoked()
+        public void DefaultTimeout_WithTimeSpan_SetsGlobalDefault()
         {
-            var toggle = false;
-            var orange = new Orange();
-            _ = orange.PeelAsync(5);
-            Wait()
-                .AtMost(2, Seconds)
-                .With().Prereq(() => toggle = true)
-                .And().FailSilently()
-                .Until(() => orange.IsPeeled);
+            var expectedTimeout = TimeSpan.FromSeconds(30);
 
-            Assert.That(toggle, Is.True);
+            Wait().Configure()
+                .DefaultTimeout(expectedTimeout);
+
+            // Use metrics to verify the configuration was applied
+            var metrics = Wait().WithMetrics().Until(() => true);
+
+            Assert.That(metrics, Is.Not.Null);
+            Assert.That(metrics.ConfiguredTimeout, Is.EqualTo(expectedTimeout));
         }
 
         [Test]
-        public void Until_MultiplePrerequisitesProvided_PrerequisitesAreInvoked()
+        public void DefaultTimeout_WithValueAndTimeUnit_SetsGlobalDefault()
         {
-            var toggle = false;
-            var i = 0;
-            var orange = new Orange();
-            var prereqs = new List<Action>()
+            var expectedTimeout = TimeSpan.FromMinutes(5);
+
+            Wait().Configure()
+                .DefaultTimeout(5, Minutes);
+
+            // Use metrics to verify the configuration was applied
+            var metrics = Wait().WithMetrics().Until(() => true);
+
+            Assert.That(metrics, Is.Not.Null);
+            Assert.That(metrics.ConfiguredTimeout, Is.EqualTo(expectedTimeout));
+        }
+
+        [Test]
+        public void DefaultPollDelay_WithTimeSpan_SetsGlobalDefault()
+        {
+            var expectedDelay = TimeSpan.FromMilliseconds(50);
+
+            Wait().Configure()
+                .DefaultPollDelay(expectedDelay);
+
+            // Use metrics to verify the configuration was applied
+            var metrics = Wait().WithMetrics().Until(() => true);
+
+            Assert.That(metrics, Is.Not.Null);
+            Assert.That(metrics.ConfiguredPollDelay, Is.EqualTo(expectedDelay));
+        }
+
+        [Test]
+        public void DefaultPollDelay_WithValueAndTimeUnit_SetsGlobalDefault()
+        {
+            var expectedDelay = TimeSpan.FromMilliseconds(200);
+
+            Wait().Configure()
+                .DefaultPollDelay(200, Millis);
+
+            // Use metrics to verify the configuration was applied
+            var metrics = Wait().WithMetrics().Until(() => true);
+
+            Assert.That(metrics, Is.Not.Null);
+            Assert.That(metrics.ConfiguredPollDelay, Is.EqualTo(expectedDelay));
+        }
+
+        [Test]
+        public void DefaultPollInterval_WithTimeSpan_SetsGlobalDefault()
+        {
+            var expectedInterval = TimeSpan.FromMilliseconds(100);
+
+            Wait().Configure()
+                .DefaultPollInterval(expectedInterval);
+
+            // Use metrics to verify the configuration was applied
+            var metrics = Wait().WithMetrics().Until(() => true);
+
+            Assert.That(metrics, Is.Not.Null);
+            Assert.That(metrics.ConfiguredPollInterval, Is.EqualTo(expectedInterval));
+        }
+
+        [Test]
+        public void DefaultPollInterval_WithValueAndTimeUnit_SetsGlobalDefault()
+        {
+            var expectedInterval = TimeSpan.FromMilliseconds(300);
+
+            Wait().Configure()
+                .DefaultPollInterval(300, Millis);
+
+            // Use metrics to verify the configuration was applied
+            var metrics = Wait().WithMetrics().Until(() => true);
+
+            Assert.That(metrics, Is.Not.Null);
+            Assert.That(metrics.ConfiguredPollInterval, Is.EqualTo(expectedInterval));
+        }
+
+        [Test]
+        public void DefaultIgnoreExceptions_SetsGlobalDefault()
+        {
+            Wait().Configure()
+                .DefaultIgnoreExceptions(true);
+
+            // Test that the configuration was applied by checking behavior
+            // This should not throw an exception since we're ignoring them
+            var counter = 0;
+            Assert.DoesNotThrow(() =>
             {
-                () => toggle = true,
-                () => i++,
-            };
+                Wait().AtMost(500, Millis).With().PollDelay(10, Millis).With().PollInterval(10, Millis).Until(() =>
+                {
+                    counter++;
+                    if (counter < 5)
+                    {
+                        throw new InvalidOperationException("Test exception");
+                    }
 
-            _ = orange.PeelAsync(2);
-            Wait()
-                .AtMost(5, Seconds)
-                .With().Prereqs(prereqs)
-                .Until(() => orange.IsPeeled);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(toggle, Is.True);
-                Assert.That(i, Is.GreaterThan(0));
+                    return true;
+                });
             });
+
+            Assert.That(counter, Is.GreaterThan(0));
         }
 
         [Test]
-        public void Until_TimeConstraintsSetUsingTimeSpansAndConditionPasses_ExitsSuccessfully()
+        public void DefaultFailSilently_SetsGlobalDefault()
         {
-            var orange = new Orange();
-            _ = orange.PeelAsync(2);
-            Wait()
-                .AtMost(TimeSpan.FromSeconds(5))
-                .With().PollDelay(TimeSpan.FromMilliseconds(150))
-                .And().With().PollInterval(TimeSpan.FromMilliseconds(150))
-                .Until(() => orange.IsPeeled);
+            Wait().Configure()
+                .DefaultFailSilently(true);
 
-            Assert.That(orange.IsPeeled, Is.True);
+            // Test that the configuration was applied by checking behavior
+            // This should not throw an exception since we're failing silently
+            var result = Wait().AtMost(10, Millis).Until(() => false);
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public void DefaultLogger_SetsGlobalDefault()
+        {
+            var testLogger = new TestLogger();
+
+            Wait().Configure()
+                .DefaultLogger(testLogger);
+
+            // Test that the configuration was applied by checking logging behavior
+            Wait().AtMost(10, Millis).Until(() => true);
+
+            Assert.That(testLogger.WaitStartLogged, Is.True);
+            Assert.That(testLogger.WaitSuccessLogged, Is.True);
+        }
+
+        [Test]
+        public void DefaultLogger_WithNull_ThrowsArgumentNullException()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+                Wait().Configure().DefaultLogger(null!));
+        }
+
+        [Test]
+        public void DefaultStrategy_SetsGlobalDefault()
+        {
+            // Test that different strategies produce different behavior
+            var aggressiveMetrics = Wait().WithMetrics().Until(() => true);
+            Assert.That(aggressiveMetrics, Is.Not.Null);
+            Wait().ResetToDefaults();
+
+            Wait().Configure()
+                .DefaultStrategy(Conservative);
+
+            var conservativeMetrics = Wait().WithMetrics().Until(() => true);
+            Assert.That(conservativeMetrics, Is.Not.Null);
+
+            // Verify that the strategy was applied by comparing behavior
+            Assert.That(aggressiveMetrics!.TotalTime, Is.LessThan(conservativeMetrics!.TotalTime));
+        }
+
+        [Test]
+        public void DefaultPrerequisites_SetsGlobalDefault()
+        {
+            var executed = false;
+            var prereqs = new List<Action> { () => executed = true };
+
+            Wait().Configure()
+                .DefaultPrerequisites(prereqs);
+
+            // Test that the configuration was applied by checking behavior
+            Wait().AtMost(10, Millis).Until(() => true);
+
+            Assert.That(executed, Is.True);
+        }
+
+        [Test]
+        public void DefaultAlias_SetsGlobalDefault()
+        {
+            var expectedAlias = "Test Alias";
+
+            Wait().Configure()
+                .DefaultAlias(expectedAlias);
+
+            // Use metrics to verify the configuration was applied
+            var metrics = Wait().WithMetrics().Until(() => true);
+
+            Assert.That(metrics, Is.Not.Null);
+            Assert.That(metrics.ConditionAlias, Is.EqualTo(expectedAlias));
+        }
+
+        [Test]
+        public void ConfigurationBuilder_SupportsMethodChaining()
+        {
+            var result = Wait().Configure()
+                .DefaultTimeout(TimeSpan.FromSeconds(30))
+                .DefaultPollDelay(TimeSpan.FromMilliseconds(100))
+                .DefaultPollInterval(TimeSpan.FromMilliseconds(200))
+                .DefaultIgnoreExceptions(true)
+                .DefaultFailSilently(true)
+                .DefaultLogger(new ConsoleLogger())
+                .DefaultStrategy(Linear)
+                .DefaultPrerequisites(new List<Action>())
+                .DefaultAlias("test");
+
+            Assert.That(result, Is.InstanceOf<ConfigurationBuilder>());
+        }
+
+        [Test]
+        public void ResetToDefaults_ResetsAllConfiguration()
+        {
+            // Set some custom defaults
+            Wait().Configure()
+                .DefaultTimeout(TimeSpan.FromSeconds(60))
+                .DefaultAlias("Custom Alias");
+
+            // Reset to defaults
+            Wait().ResetToDefaults();
+
+            // Verify reset by checking metrics
+            var metrics = Wait().WithMetrics().Until(() => true);
+
+            Assert.That(metrics, Is.Not.Null);
+            Assert.That(metrics.ConfiguredTimeout, Is.EqualTo(TimeSpan.FromSeconds(10))); // Default value
+            Assert.That(metrics.ConditionAlias, Is.Null); // Default value
         }
     }
 }

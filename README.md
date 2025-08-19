@@ -24,6 +24,7 @@
   - [Diagnostic Logging](#diagnostic-logging)
   - [Performance Monitoring](#performance-monitoring)
   - [Wait Strategies](#wait-strategies)
+  - [Global Configuration](#global-configuration)
   - [Thread Sleep](#thread-sleep)
 - [🧪 Testing Examples](#-testing-examples)
   - [UI Testing](#ui-testing)
@@ -346,6 +347,57 @@ Wait()
 | **Aggressive** | 1/4 of configured | 1/4 of configured | UI testing, real-time monitoring, immediate response needed | Both delays reduced once at start, min 1ms interval |
 | **Conservative** | 2x configured | 2x configured | Expensive operations, resource-constrained environments, reduced CPU usage | Both delays doubled once at start |
 | **Adaptive** | As configured | Adjusts based on condition check performance | Conditions with varying performance characteristics that take multiple checks to resolve | Requires `WithMetrics()`, adjusts after each check: fast → 50% less, slow → 100% more |
+
+### Global Configuration
+
+PleaseWait supports global configuration to set default values for all wait operations. This is useful for setting application-wide defaults that apply to all `Wait()` instances.
+
+```csharp
+using static PleaseWait.TimeUnit;
+using static PleaseWait.Strategy.WaitStrategy;
+
+// Configure global defaults
+Wait().Configure()
+    .DefaultTimeout(30, Seconds)
+    .DefaultPollDelay(200, Millis)
+    .DefaultPollInterval(500, Millis)
+    .DefaultLogger(new ConsoleLogger())
+    .DefaultStrategy(Conservative)
+    .DefaultIgnoreExceptions(true)
+    .DefaultFailSilently(false)
+    .DefaultPrerequisites(new List<Action> { () => RefreshData() });
+
+// All subsequent Wait() calls will use these defaults
+Wait().Until(() => SomeCondition()); // Uses 30s timeout, 200ms poll delay, etc.
+
+// Individual instances can still override defaults
+Wait()
+    .AtMost(10, Seconds) // Override timeout
+    .WithStrategy(Aggressive) // Override strategy
+    .Until(() => SomeCondition());
+
+// Reset to original defaults
+Wait().ResetToDefaults();
+```
+
+**Global Configuration Options:**
+
+| Method | Default Value | Description |
+|--------|---------------|-------------|
+| `DefaultTimeout(double, TimeUnit)` | 10 seconds | Default timeout for all wait operations |
+| `DefaultPollDelay(double, TimeUnit)` | 100 milliseconds | Default initial delay before first condition check |
+| `DefaultPollInterval(double, TimeUnit)` | 100 milliseconds | Default delay between condition checks |
+| `DefaultLogger(IWaitLogger)` | `NullLogger` | Default logger for all wait operations |
+| `DefaultStrategy(WaitStrategy)` | `Linear` | Default wait strategy for all operations |
+| `DefaultIgnoreExceptions(bool)` | `false` | Whether to ignore exceptions during condition checks |
+| `DefaultFailSilently(bool)` | `false` | Whether to return false instead of throwing on timeout |
+| `DefaultPrerequisites(List<Action>)` | Empty list | Default actions to execute before each condition check |
+
+**Best Practices:**
+- Configure global defaults early in your application startup
+- Use `ResetToDefaults()` in test teardown to prevent test interference
+- Override defaults on individual instances when specific behavior is needed
+- Consider using different configurations for different environments (dev, test, prod)
 
 ### Thread Sleep
 

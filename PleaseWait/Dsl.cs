@@ -26,16 +26,16 @@ namespace PleaseWait
 
     public class Dsl
     {
-        private TimeSpan timeout = Defaults.Timeout;
-        private TimeSpan pollDelay = Defaults.PollDelay;
-        private TimeSpan pollInterval = Defaults.PollInterval;
-        private bool ignoreExceptions = Defaults.IgnoreExceptions;
-        private bool failSilently = Defaults.FailSilently;
-        private IList<Action>? prereqs = Defaults.Prereqs;
-        private string? alias = Defaults.Alias;
-        private IWaitLogger logger = Defaults.Logger;
-        private WaitMetrics? metrics = Defaults.Metrics;
-        private WaitStrategy strategy = Defaults.Strategy;
+        private TimeSpan timeout = GlobalDefaults.Timeout;
+        private TimeSpan pollDelay = GlobalDefaults.PollDelay;
+        private TimeSpan pollInterval = GlobalDefaults.PollInterval;
+        private bool ignoreExceptions = GlobalDefaults.IgnoreExceptions;
+        private bool failSilently = GlobalDefaults.FailSilently;
+        private IList<Action>? prereqs = GlobalDefaults.Prereqs;
+        private string? alias = GlobalDefaults.Alias;
+        private IWaitLogger logger = GlobalDefaults.Logger;
+        private WaitMetrics? metrics = GlobalDefaults.Metrics;
+        private WaitStrategy strategy = GlobalDefaults.Strategy;
 
         private Dsl()
         {
@@ -48,6 +48,23 @@ namespace PleaseWait
         public static Dsl Wait()
         {
             return new Dsl();
+        }
+
+        /// <summary>
+        /// Configures global defaults for PleaseWait.
+        /// </summary>
+        /// <returns>A configuration builder for setting global defaults.</returns>
+        public ConfigurationBuilder Configure()
+        {
+            return new ConfigurationBuilder();
+        }
+
+        /// <summary>
+        /// Resets all global configuration to default values.
+        /// </summary>
+        public void ResetToDefaults()
+        {
+            GlobalDefaults.ResetToDefaults();
         }
 
         /// <summary>

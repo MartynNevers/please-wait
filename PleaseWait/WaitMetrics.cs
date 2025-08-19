@@ -17,7 +17,6 @@
 namespace PleaseWait
 {
     using System;
-    using System.Collections.Generic;
 
     /// <summary>
     /// Contains performance metrics collected during a wait operation.

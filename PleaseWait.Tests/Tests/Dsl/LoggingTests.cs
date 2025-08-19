@@ -19,6 +19,7 @@ namespace PleaseWait.Tests
     using System;
     using System.Threading;
     using NUnit.Framework;
+    using PleaseWait.Logging;
     using static PleaseWait.Dsl;
     using static PleaseWait.TimeUnit;
 
@@ -30,7 +31,7 @@ namespace PleaseWait.Tests
         [Test]
         public void WithLogger_SetsLoggerCorrectly()
         {
-            var logger = new PleaseWait.Logging.ConsoleLogger();
+            var logger = new ConsoleLogger();
             var dsl = Wait().WithLogger(logger);
             Assert.That(dsl, Is.Not.Null);
         }
@@ -116,7 +117,7 @@ namespace PleaseWait.Tests
         {
             Assert.DoesNotThrow(() =>
             {
-                Wait().WithLogger(new PleaseWait.Logging.DebugLogger()).AtMost(100, Millis).Until(() => true);
+                Wait().WithLogger(new DebugLogger()).AtMost(100, Millis).Until(() => true);
             });
         }
 

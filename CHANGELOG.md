@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **DebugLogger**: New `PleaseWait.Logging.DebugLogger` writes diagnostics to `System.Diagnostics.Debug`
 - **Performance Monitoring**: New `WithMetrics()` method and `WaitMetrics` class for collecting performance data during wait operations including condition checks, timing, and success/failure status
 - **Wait Strategies**: New `WithStrategy()` method with 5 different strategies (Linear, ExponentialBackoff, Aggressive, Conservative, Adaptive) for optimized polling behavior
+- **Global Configuration System**: New `Wait().Configure()` and `Wait().ResetToDefaults()` methods for setting application-wide defaults for all wait operations
+- **ConfigurationBuilder**: Fluent API for configuring global defaults including timeout, polling delays, logger, strategy, exception handling, and prerequisites
 - **Code Quality Improvements**: Implement refactoring patterns (Extract Method, Template Method) for cleaner, more maintainable code
 - **Test Organization**: Organize 41 tests into 6 logical categories (Initialization, Basic Functionality, Timeout & Exceptions, Configuration, Cancellation, Logging)
 - **Enhanced .gitignore**: Comprehensive patterns for modern C# projects including code coverage and test results
@@ -35,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove .NET 6.0 from CI workflow and test project build targets (maintains .NET Standard 2.0 targeting for .NET 6.0+ compatibility)
 - Add Mono installation to CI workflow for .NET Framework 4.8 test support
 - **Code Quality**: Resolve all StyleCop warnings and achieve clean build with 0 warnings, 0 errors
+- **Default Configuration**: All `Wait()` instances now read from global defaults, which can be configured via `Wait().Configure()` and reset via `Wait().ResetToDefaults()`
 
 ## [2.7.0] - 2024-07-12
 
