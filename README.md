@@ -6,6 +6,36 @@
 [![NuGet](https://img.shields.io/nuget/dt/PleaseWait)](https://www.nuget.org/packages/PleaseWait)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
+## 📋 Table of Contents
+
+- [Overview](#overview)
+- [🚀 Features](#-features)
+- [📦 Installation](#-installation)
+- [🎯 Quick Start](#-quick-start)
+  - [Basic Usage](#basic-usage)
+  - [Advanced Usage](#advanced-usage)
+- [📚 API Examples](#-api-examples)
+  - [Timeout Configuration](#timeout-configuration)
+  - [Polling Configuration](#polling-configuration)
+  - [Exception Handling](#exception-handling)
+  - [Prerequisite Actions](#prerequisite-actions)
+  - [Explicit Boolean Conditions](#explicit-boolean-conditions)
+  - [Cancellation Support](#cancellation-support)
+  - [Diagnostic Logging](#diagnostic-logging)
+  - [Performance Monitoring](#performance-monitoring)
+  - [Wait Strategies](#wait-strategies)
+  - [Thread Sleep](#thread-sleep)
+- [🧪 Testing Examples](#-testing-examples)
+  - [UI Testing](#ui-testing)
+  - [API Testing](#api-testing)
+  - [Database Testing](#database-testing)
+- [📋 Requirements](#-requirements)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
+- [📖 Documentation](#-documentation)
+
+## Overview
+
 A lightweight, fluent Domain-Specific Language (DSL) for C# that simplifies testing asynchronous operations and waiting for conditions to occur. PleaseWait provides an intuitive API for synchronizing asynchronous systems without the complexity of manual thread management, timeouts, and concurrency handling.
 
 ## 🚀 Features
@@ -14,9 +44,15 @@ A lightweight, fluent Domain-Specific Language (DSL) for C# that simplifies test
 - **Flexible Timeouts**: Support for multiple time units (milliseconds, seconds, minutes, hours, days)
 - **Exception Handling**: Configurable exception swallowing and silent failure modes
 - **Prerequisite Actions**: Execute actions before checking conditions
-- **Thread-Safe**: Built with thread safety in mind
+- **Cancellation Support**: Built-in CancellationToken support for graceful operation cancellation
+- **Performance Monitoring**: Collect detailed metrics on wait operations and condition checks
+- **Wait Strategies**: Choose from 5 different polling strategies (Linear, ExponentialBackoff, Aggressive, Conservative, Adaptive)
+- **Diagnostic Logging**: Comprehensive logging system for debugging wait operations
+- **Thread Sleep**: Explicit thread suspension with flexible time unit support
 - **Lightweight**: Minimal dependencies, focused on core functionality
 - **Cross-Platform**: Targets .NET Standard 2.0 for broad compatibility
+
+⚠️ **IMPORTANT**: Thread safety and synchronization are the responsibility of the consuming application
 
 ## 📦 Installation
 
@@ -188,7 +224,7 @@ Wait().AtMost(10, Seconds)
 
 ### Diagnostic Logging
 
-PleaseWait supports diagnostic logging to help debug wait operations:
+PleaseWait supports diagnostic logging to help debug wait operations. By default, no logging occurs (using `NullLogger`). To enable logging, use one of the following approaches:
 
 ```csharp
 using PleaseWait.Logging;
@@ -375,8 +411,8 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 
 1. Clone the repository
 2. Install dependencies: `dotnet restore`
-3. Run tests: `dotnet test`
-4. Build: `dotnet build`
+3. Build: `dotnet build`
+4. Run tests: `dotnet test`
 
 ## 📄 License
 
