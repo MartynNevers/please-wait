@@ -25,6 +25,7 @@
   - [Performance Monitoring](#performance-monitoring)
   - [Wait Strategies](#wait-strategies)
   - [Global Configuration](#global-configuration)
+  - [Instance Configuration](#instance-configuration)
   - [Thread Sleep](#thread-sleep)
 - [🧪 Testing Examples](#-testing-examples)
   - [UI Testing](#ui-testing)
@@ -398,6 +399,88 @@ Wait().ResetToDefaults();
 - Use `ResetToDefaults()` in test teardown to prevent test interference
 - Override defaults on individual instances when specific behavior is needed
 - Consider using different configurations for different environments (dev, test, prod)
+
+### Instance Configuration
+
+For reusable configurations that don't affect global state, use `WaitConfig` objects. This allows you to create configuration templates that can be reused across multiple wait operations.
+
+```csharp
+using static PleaseWait.TimeUnit;
+using static PleaseWait.Strategy.WaitStrategy;
+
+// Create a reusable configuration
+var fastConfig = Wait().Config()
+    .WithTimeout(5, Seconds)
+    .WithPolling(50, Millis, 100, Millis)
+    .WithStrategy(Aggressive)
+    .WithAlias("Fast Operations");
+
+// Use the configuration for multiple operations
+Wait(fastConfig).Until(() => SomeCondition());
+Wait(fastConfig).Until(() => AnotherCondition());
+
+// Create another configuration for different use case
+var safeConfig = Wait().Config()
+    .WithTimeout(30, Seconds)
+    .WithPolling(200, Millis, 500, Millis)
+    .WithStrategy(Conservative)
+    .WithIgnoreExceptions(true)
+    .WithAlias("Safe Operations");
+
+Wait(safeConfig).Until(() => CriticalOperation());
+```
+
+**Partial Configuration Overrides:**
+Only set the values you want to override - unset values will use captured global defaults:
+
+```csharp
+// Set global defaults
+Wait().Configure()
+    .DefaultTimeout(30, Seconds)
+    .DefaultPollDelay(200, Millis)
+    .DefaultStrategy(Conservative);
+
+// Create config with only timeout override
+var config = Wait().Config()
+    .WithTimeout(5, Seconds);
+    // PollDelay and Strategy will use captured global defaults
+
+Wait(config).Until(() => condition); // Uses 5s timeout + captured poll delay + captured strategy
+
+// Update global defaults later
+Wait().Configure().DefaultPollDelay(100, Millis);
+
+// Same config still uses CAPTURED global defaults (not updated ones)
+Wait(config).Until(() => condition); // Uses 5s timeout + 200ms poll delay + Conservative strategy
+```
+
+**Important: Captured Global Defaults**
+When you create a `WaitConfig`, it captures the current global default values at creation time. This ensures predictable behavior - the config will always use the same defaults regardless of subsequent global configuration changes.
+
+**Instance Configuration Options:**
+
+| Method | Description |
+|--------|-------------|
+| `WithTimeout(double, TimeUnit)` | Set timeout for this configuration |
+| `WithPollDelay(double, TimeUnit)` | Set poll delay for this configuration |
+| `WithPollInterval(double, TimeUnit)` | Set poll interval for this configuration |
+| `WithPolling(delay, delayUnit, interval, intervalUnit)` | Set both poll delay and interval |
+| `WithIgnoreExceptions(bool)` | Set exception handling behavior |
+| `WithFailSilently(bool)` | Set fail silently behavior |
+| `WithExceptionHandling(bool, bool)` | Set both exception handling options |
+| `WithLogger(IWaitLogger)` | Set logger for this configuration |
+| `WithMetrics(bool)` | Enable/disable metrics collection |
+| `WithStrategy(WaitStrategy)` | Set wait strategy for this configuration |
+| `WithAlias(string)` | Set alias for this configuration |
+| `WithPrerequisites(List<Action>)` | Set prerequisite actions |
+| `WithPrerequisite(Action)` | Set a single prerequisite action |
+
+**Benefits:**
+- **Reusable**: Create once, use many times
+- **Thread Safe**: No global state modification
+- **Flexible**: Override only what you need
+- **Predictable**: Captures global defaults at creation time
+- **Composable**: Chain multiple configurations
 
 ### Thread Sleep
 

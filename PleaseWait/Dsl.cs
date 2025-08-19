@@ -41,6 +41,21 @@ namespace PleaseWait
         {
         }
 
+        private Dsl(WaitConfig config)
+        {
+            // Use config values if set, otherwise use captured global defaults
+            this.timeout = config.Timeout ?? config.DefaultTimeout;
+            this.pollDelay = config.PollDelay ?? config.DefaultPollDelay;
+            this.pollInterval = config.PollInterval ?? config.DefaultPollInterval;
+            this.ignoreExceptions = config.IgnoreExceptions ?? config.DefaultIgnoreExceptions;
+            this.failSilently = config.FailSilently ?? config.DefaultFailSilently;
+            this.prereqs = config.Prereqs ?? config.DefaultPrereqs;
+            this.alias = config.Alias ?? config.DefaultAlias;
+            this.logger = config.Logger ?? config.DefaultLogger;
+            this.metrics = config.CollectMetrics == true ? new WaitMetrics() : config.DefaultMetrics;
+            this.strategy = config.Strategy ?? config.DefaultStrategy;
+        }
+
         /// <summary>
         /// Used to start defining a new waiting condition.
         /// </summary>
@@ -48,6 +63,16 @@ namespace PleaseWait
         public static Dsl Wait()
         {
             return new Dsl();
+        }
+
+        /// <summary>
+        /// Used to start defining a new waiting condition with a specific configuration.
+        /// </summary>
+        /// <param name="config">The configuration to use for this wait operation.</param>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
+        public static Dsl Wait(WaitConfig config)
+        {
+            return new Dsl(config ?? throw new ArgumentNullException(nameof(config)));
         }
 
         /// <summary>
@@ -65,6 +90,15 @@ namespace PleaseWait
         public void ResetToDefaults()
         {
             GlobalDefaults.ResetToDefaults();
+        }
+
+        /// <summary>
+        /// Creates a configuration builder for creating reusable wait configurations.
+        /// </summary>
+        /// <returns>A configuration builder for creating wait configurations.</returns>
+        public WaitConfig Config()
+        {
+            return new WaitConfig();
         }
 
         /// <summary>
