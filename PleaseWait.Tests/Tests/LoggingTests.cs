@@ -1,5 +1,5 @@
 // <copyright file="LoggingTests.cs" company="Esdet">
-// Copyright 2023 the original author or authors.
+// Copyright 2025 the original author or authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -118,6 +118,23 @@ namespace PleaseWait.Tests
             {
                 Wait().WithLogger(new PleaseWait.Logging.DebugLogger()).AtMost(100, MILLIS).Until(() => true);
             });
+        }
+
+        [Test]
+        public void Until_WithLoggerAndMetrics_LogsAndReturnsMetrics()
+        {
+            var logger = new TestLogger();
+            var metrics = Wait()
+                .WithLogger(logger)
+                .WithMetrics()
+                .AtMost(100, MILLIS)
+                .Until(() => true);
+
+            Assert.That(metrics, Is.Not.Null);
+            Assert.That(metrics!.WasSuccessful, Is.True);
+            Assert.That(metrics.ConditionChecks, Is.GreaterThan(0));
+            Assert.That(logger.WaitStartLogged, Is.True);
+            Assert.That(logger.WaitSuccessLogged, Is.True);
         }
     }
 }

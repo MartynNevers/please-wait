@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Diagnostic Logging Support**: New `WithLogger()` method to enable detailed logging of wait operations including start, condition checks, success, timeout, and cancellation events
 - **ConsoleLogger**: New `PleaseWait.Logging.ConsoleLogger` writes diagnostics to console output
 - **DebugLogger**: New `PleaseWait.Logging.DebugLogger` writes diagnostics to `System.Diagnostics.Debug`
+- **Performance Monitoring**: New `WithMetrics()` method and `WaitMetrics` class for collecting performance data during wait operations including condition checks, timing, and success/failure status
 - **Code Quality Improvements**: Implement refactoring patterns (Extract Method, Template Method) for cleaner, more maintainable code
 - **Test Organization**: Organize 41 tests into 6 logical categories (Initialization, Basic Functionality, Timeout & Exceptions, Configuration, Cancellation, Logging)
 - **Enhanced .gitignore**: Comprehensive patterns for modern C# projects including code coverage and test results

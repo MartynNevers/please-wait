@@ -13,3 +13,6 @@ dotnet_diagnostic.SA0001.severity = none
 
 # SA1600: Elements should be documented
 dotnet_diagnostic.SA1600.severity = none
+
+# SA1636: File header copyright text should match the copyright text from the settings
+dotnet_diagnostic.SA1636.severity = none

@@ -1,5 +1,5 @@
 ﻿// <copyright file="Dsl.cs" company="Esdet">
-// Copyright 2023 the original author or authors.
+// Copyright 2025 the original author or authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ namespace PleaseWait
         private IList<Action>? prereqs = null;
         private string? alias = null;
         private IWaitLogger logger = NullLogger.Instance;
+        private WaitMetrics? metrics = null;
 
         private Dsl()
         {
@@ -191,6 +192,11 @@ namespace PleaseWait
         public Dsl Alias(string? alias)
         {
             this.alias = alias;
+            if (this.metrics != null)
+            {
+                this.metrics.ConditionAlias = alias;
+            }
+
             return this;
         }
 
@@ -202,6 +208,22 @@ namespace PleaseWait
         public Dsl WithLogger(IWaitLogger logger)
         {
             this.logger = logger ?? NullLogger.Instance;
+            return this;
+        }
+
+        /// <summary>
+        /// Enables performance metrics collection for the wait operation.
+        /// </summary>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
+        public Dsl WithMetrics()
+        {
+            this.metrics = new WaitMetrics
+            {
+                ConditionAlias = this.alias,
+                ConfiguredTimeout = this.timeout,
+                ConfiguredPollDelay = this.pollDelay,
+                ConfiguredPollInterval = this.pollInterval,
+            };
             return this;
         }
 
@@ -231,9 +253,10 @@ namespace PleaseWait
         /// <param name="condition">The condition to wait for. Should return a boolean.</param>
         /// <param name="expected">The boolean value that the condition should return.</param>
         /// <param name="cancellationToken">The cancellation token to observe for cancellation requests. Defaults to CancellationToken.None (no cancellation).</param>
+        /// <returns>The performance metrics for this wait operation, or null if metrics were not enabled.</returns>
         /// <exception cref="TimeoutException">Thrown when the timeout is exceeded without the condition returning a boolean equal to expected.</exception>
         /// <exception cref="OperationCanceledException">Thrown when cancellation is requested via the cancellation token.</exception>
-        public void Until(Func<bool> condition, bool expected = true, CancellationToken cancellationToken = default)
+        public WaitMetrics? Until(Func<bool> condition, bool expected = true, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -244,6 +267,8 @@ namespace PleaseWait
                     this.logger.LogTimeout(conditionDescription, this.timeout);
                     throw this.CreateTimeoutException();
                 }
+
+                return this.metrics;
             }
             catch (OperationCanceledException)
             {
@@ -318,20 +343,56 @@ namespace PleaseWait
 
             var outcome = !expected;
             var checkCount = 0;
+            var pollDelayStopwatch = new Stopwatch();
+            var pollIntervalStopwatch = new Stopwatch();
 
             while (outcome == !expected && stopwatch.Elapsed < this.timeout)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
                 this.InvokePrereqs();
-                Thread.Sleep(this.pollDelay);
 
+                pollDelayStopwatch.Start();
+                Thread.Sleep(this.pollDelay);
+                pollDelayStopwatch.Stop();
+
+                var conditionCheckStopwatch = new Stopwatch();
+                conditionCheckStopwatch.Start();
                 outcome = this.EvaluateCondition(condition);
+                conditionCheckStopwatch.Stop();
                 checkCount++;
+
+                // Record metrics if enabled
+                if (this.metrics != null)
+                {
+                    var checkTime = conditionCheckStopwatch.Elapsed;
+                    this.metrics.ConditionChecks = checkCount;
+                    this.metrics.TotalTime = stopwatch.Elapsed;
+                    this.metrics.PollDelayTime = pollDelayStopwatch.Elapsed;
+
+                    if (checkTime < this.metrics.MinCheckTime)
+                    {
+                        this.metrics.MinCheckTime = checkTime;
+                    }
+
+                    if (checkTime > this.metrics.MaxCheckTime)
+                    {
+                        this.metrics.MaxCheckTime = checkTime;
+                    }
+                }
 
                 this.logger.LogConditionCheck(conditionDescription, outcome == expected, stopwatch.Elapsed);
 
+                pollIntervalStopwatch.Start();
                 Thread.Sleep(this.pollInterval);
+                pollIntervalStopwatch.Stop();
+            }
+
+            // Final metrics update
+            if (this.metrics != null)
+            {
+                this.metrics.WasSuccessful = outcome == expected;
+                this.metrics.PollIntervalTime = pollIntervalStopwatch.Elapsed;
             }
 
             if (outcome == expected)
@@ -385,6 +446,11 @@ namespace PleaseWait
         private Dsl SetTimeout(TimeSpan timeSpan)
         {
             this.timeout = timeSpan;
+            if (this.metrics != null)
+            {
+                this.metrics.ConfiguredTimeout = timeSpan;
+            }
+
             return this;
         }
 
@@ -396,6 +462,11 @@ namespace PleaseWait
         private Dsl SetPollDelay(TimeSpan timeSpan)
         {
             this.pollDelay = timeSpan;
+            if (this.metrics != null)
+            {
+                this.metrics.ConfiguredPollDelay = timeSpan;
+            }
+
             return this;
         }
 
@@ -407,6 +478,11 @@ namespace PleaseWait
         private Dsl SetPollInterval(TimeSpan timeSpan)
         {
             this.pollInterval = timeSpan;
+            if (this.metrics != null)
+            {
+                this.metrics.ConfiguredPollInterval = timeSpan;
+            }
+
             return this;
         }
     }

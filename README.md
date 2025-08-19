@@ -229,6 +229,39 @@ Wait()
 [PleaseWait] ✅ Success: condition completed in 200ms (2 checks)
 ```
 
+### Performance Monitoring
+
+```csharp
+// Enable metrics collection
+var metrics = Wait()
+    .WithMetrics()
+    .AtMost(10, SECONDS)
+    .Until(() => SomeCondition());
+
+// Analyze performance data
+Console.WriteLine($"Checks: {metrics.ConditionChecks}");
+Console.WriteLine($"Total time: {metrics.TotalTime}");
+Console.WriteLine($"Average check time: {metrics.AverageCheckTime}");
+Console.WriteLine($"Success: {metrics.WasSuccessful}");
+
+// Use with logging for comprehensive diagnostics
+Wait()
+    .WithLogger(new ConsoleLogger())
+    .WithMetrics()
+    .Alias("Database Ready")
+    .AtMost(30, SECONDS)
+    .Until(() => database.IsConnected);
+```
+
+**Metrics Output:**
+```
+[PleaseWait] 🚀 Starting wait: Database Ready (timeout: 30000ms)
+[PleaseWait] ✗ Condition check: Database Ready (elapsed: 100ms)
+[PleaseWait] ✓ Condition check: Database Ready (elapsed: 250ms)
+[PleaseWait] ✅ Success: Database Ready completed in 250ms (2 checks)
+[PleaseWait] 📊 Metrics: 2 checks, 250ms total, avg: 125ms, min: 100ms, max: 150ms
+```
+
 ### Thread Sleep
 
 ```csharp
