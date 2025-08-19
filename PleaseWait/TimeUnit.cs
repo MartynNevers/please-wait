@@ -24,26 +24,26 @@ namespace PleaseWait
         /// <summary>
         /// Milliseconds.
         /// </summary>
-        MILLIS,
+        Millis,
 
         /// <summary>
         /// Seconds.
         /// </summary>
-        SECONDS,
+        Seconds,
 
         /// <summary>
         /// Minutes.
         /// </summary>
-        MINUTES,
+        Minutes,
 
         /// <summary>
         /// Hours.
         /// </summary>
-        HOURS,
+        Hours,
 
         /// <summary>
         /// Days.
         /// </summary>
-        DAYS,
+        Days,
     }
 }

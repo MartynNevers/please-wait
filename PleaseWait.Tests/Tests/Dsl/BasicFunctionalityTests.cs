@@ -57,7 +57,7 @@ namespace PleaseWait.Tests
         {
             var orange = new Orange();
             _ = orange.PeelAsync(5);
-            Wait().Sleep(7, SECONDS);
+            Wait().Sleep(7, Seconds);
             Assert.That(orange.IsPeeled, Is.True);
         }
     }

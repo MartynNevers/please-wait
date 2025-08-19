@@ -46,7 +46,7 @@ namespace PleaseWait.Tests
         public void Until_WithLogger_LogsWaitStart()
         {
             var logger = new TestLogger();
-            Wait().WithLogger(logger).AtMost(100, MILLIS).Until(() => true);
+            Wait().WithLogger(logger).AtMost(100, Millis).Until(() => true);
             Assert.That(logger.WaitStartLogged, Is.True);
             Assert.That(logger.WaitStartCondition, Is.EqualTo("condition"));
             Assert.That(logger.WaitStartTimeout, Is.EqualTo(TimeSpan.FromMilliseconds(100)));
@@ -57,7 +57,7 @@ namespace PleaseWait.Tests
         {
             var logger = new TestLogger();
             var checkCount = 0;
-            Wait().WithLogger(logger).AtMost(500, MILLIS).Until(() => ++checkCount > 1);
+            Wait().WithLogger(logger).AtMost(500, Millis).Until(() => ++checkCount > 1);
             Assert.That(logger.ConditionChecksLogged, Is.GreaterThan(0));
         }
 
@@ -65,7 +65,7 @@ namespace PleaseWait.Tests
         public void Until_WithLogger_LogsWaitSuccess()
         {
             var logger = new TestLogger();
-            Wait().WithLogger(logger).AtMost(100, MILLIS).Until(() => true);
+            Wait().WithLogger(logger).AtMost(100, Millis).Until(() => true);
             Assert.That(logger.WaitSuccessLogged, Is.True);
             Assert.That(logger.WaitSuccessCondition, Is.EqualTo("condition"));
             Assert.That(logger.WaitSuccessChecks, Is.GreaterThan(0));
@@ -75,7 +75,7 @@ namespace PleaseWait.Tests
         public void Until_WithLoggerAndAlias_LogsWithAlias()
         {
             var logger = new TestLogger();
-            Wait().WithLogger(logger).Alias("test condition").AtMost(100, MILLIS).Until(() => true);
+            Wait().WithLogger(logger).Alias("test condition").AtMost(100, Millis).Until(() => true);
             Assert.That(logger.WaitStartCondition, Is.EqualTo("test condition"));
             Assert.That(logger.WaitSuccessCondition, Is.EqualTo("test condition"));
         }
@@ -85,7 +85,7 @@ namespace PleaseWait.Tests
         {
             var logger = new TestLogger();
             Assert.Throws<TimeoutException>(() =>
-                Wait().WithLogger(logger).AtMost(50, MILLIS).Until(() => false));
+                Wait().WithLogger(logger).AtMost(50, Millis).Until(() => false));
             Assert.That(logger.TimeoutLogged, Is.True);
             Assert.That(logger.TimeoutCondition, Is.EqualTo("condition"));
             Assert.That(logger.TimeoutValue, Is.EqualTo(TimeSpan.FromMilliseconds(50)));
@@ -98,7 +98,7 @@ namespace PleaseWait.Tests
             var cts = new CancellationTokenSource();
             cts.Cancel();
             Assert.Throws<OperationCanceledException>(() =>
-                Wait().WithLogger(logger).AtMost(1, SECONDS).Until(() => true, cancellationToken: cts.Token));
+                Wait().WithLogger(logger).AtMost(1, Seconds).Until(() => true, cancellationToken: cts.Token));
             Assert.That(logger.CancellationLogged, Is.True);
             Assert.That(logger.CancellationCondition, Is.EqualTo("condition"));
         }
@@ -107,7 +107,7 @@ namespace PleaseWait.Tests
         public void Until_WithFailSilently_DoesNotLogTimeout()
         {
             var logger = new TestLogger();
-            Wait().WithLogger(logger).AtMost(50, MILLIS).FailSilently().Until(() => false);
+            Wait().WithLogger(logger).AtMost(50, Millis).FailSilently().Until(() => false);
             Assert.That(logger.TimeoutLogged, Is.False);
         }
 
@@ -116,7 +116,7 @@ namespace PleaseWait.Tests
         {
             Assert.DoesNotThrow(() =>
             {
-                Wait().WithLogger(new PleaseWait.Logging.DebugLogger()).AtMost(100, MILLIS).Until(() => true);
+                Wait().WithLogger(new PleaseWait.Logging.DebugLogger()).AtMost(100, Millis).Until(() => true);
             });
         }
 
@@ -127,7 +127,7 @@ namespace PleaseWait.Tests
             var metrics = Wait()
                 .WithLogger(logger)
                 .WithMetrics()
-                .AtMost(100, MILLIS)
+                .AtMost(100, Millis)
                 .Until(() => true);
 
             Assert.That(metrics, Is.Not.Null);

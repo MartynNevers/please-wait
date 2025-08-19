@@ -30,7 +30,7 @@ namespace PleaseWait.Tests
         public void Until_ConditionUnattainable_ThrowsTimeoutException()
         {
             var orange = new Orange();
-            var wait = Wait().AtMost(5, SECONDS);
+            var wait = Wait().AtMost(5, Seconds);
             var ex = Assert.Throws<TimeoutException>(() => wait.Until(() => orange.IsPeeled));
             Assert.That(ex.Message, Is.EqualTo("Condition was not fulfilled within 00:00:05."));
         }
@@ -39,7 +39,7 @@ namespace PleaseWait.Tests
         public void Until_ConditionAttainableAfterTimeout_ThrowsTimeoutException()
         {
             var orange = new Orange();
-            var wait = Wait().AtMost(2, SECONDS);
+            var wait = Wait().AtMost(2, Seconds);
             _ = orange.PeelAsync(5);
             var ex = Assert.Throws<TimeoutException>(() => wait.Until(() => orange.IsPeeled));
             Assert.That(ex.Message, Is.EqualTo("Condition was not fulfilled within 00:00:02."));
@@ -50,7 +50,7 @@ namespace PleaseWait.Tests
         {
             var alias = "Is orange peeled?";
             var orange = new Orange();
-            var wait = Wait().AtMost(1, SECONDS).With().Alias(alias);
+            var wait = Wait().AtMost(1, Seconds).With().Alias(alias);
             var ex = Assert.Throws<TimeoutException>(() => wait.Until(() => orange.IsPeeled));
             Assert.That(ex.Message, Is.EqualTo($"Condition with alias '{alias}' was not fulfilled within 00:00:01."));
         }
@@ -61,7 +61,7 @@ namespace PleaseWait.Tests
             var orange = new Orange();
             _ = orange.PeelAsync(5);
             Wait()
-                .AtMost(2, SECONDS)
+                .AtMost(2, Seconds)
                 .And().FailSilently()
                 .Until(() => orange.IsPeeled);
 
@@ -73,9 +73,9 @@ namespace PleaseWait.Tests
         {
             var orange = new Orange();
             Wait()
-                .AtMost(5, SECONDS)
-                .With().PollDelay(50, MILLIS)
-                .And().With().PollInterval(50, MILLIS)
+                .AtMost(5, Seconds)
+                .With().PollDelay(50, Millis)
+                .And().With().PollInterval(50, Millis)
                 .Until(() => orange.CountSegments() > 8);
 
             Assert.That(orange.CountSegments(), Is.GreaterThan(8).And.LessThan(12));
@@ -86,7 +86,7 @@ namespace PleaseWait.Tests
         {
             var orange = new Orange();
             Wait()
-                .AtMost(5, SECONDS)
+                .AtMost(5, Seconds)
                 .With().Prereq(() => orange.CountSegments())
                 .And().FailSilently()
                 .Until(() => false);
@@ -99,9 +99,9 @@ namespace PleaseWait.Tests
         {
             var orange = new Orange();
             var wait = Wait()
-                .AtMost(1, SECONDS)
-                .With().PollDelay(50, MILLIS)
-                .And().With().PollInterval(50, MILLIS)
+                .AtMost(1, Seconds)
+                .With().PollDelay(50, Millis)
+                .And().With().PollInterval(50, Millis)
                 .And().IgnoreExceptions(false);
 
             var ex = Assert.Throws<InvalidOperationException>(() => wait.Until(() => orange.CountSegments() > 8));
@@ -113,7 +113,7 @@ namespace PleaseWait.Tests
         {
             var orange = new Orange();
             var wait = Wait()
-                .AtMost(5, SECONDS)
+                .AtMost(5, Seconds)
                 .With().Prereq(() => orange.CountSegments())
                 .And().IgnoreExceptions(false)
                 .And().FailSilently();

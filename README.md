@@ -47,7 +47,7 @@ public void WaitForCondition()
     _ = orange.PeelAsync(2); // Start async operation
     
     // Wait for the condition to be true
-    Wait().AtMost(10, SECONDS).Until(() => orange.IsPeeled);
+    Wait().AtMost(10, Seconds).Until(() => orange.IsPeeled);
     
     Assert.That(orange.IsPeeled, Is.True);
 }
@@ -62,9 +62,9 @@ public void AdvancedWaitingExample()
     var orange = new Orange();
     
     Wait()
-        .AtMost(5, SECONDS)
-        .WithPollDelay(100, MILLIS)
-        .WithPollInterval(200, MILLIS)
+        .AtMost(5, Seconds)
+        .WithPollDelay(100, Millis)
+        .WithPollInterval(200, Millis)
         .IgnoreExceptions()
         .WithPrereq(() => orange.Refresh())
         .Until(() => orange.IsPeeled && orange.CountSegments() > 8);
@@ -77,22 +77,22 @@ public void AdvancedWaitingExample()
 
 ```csharp
 // Using time units
-Wait().AtMost(30, SECONDS).Until(condition);
+Wait().AtMost(30, Seconds).Until(condition);
 
 // Using TimeSpan
 Wait().AtMost(TimeSpan.FromMinutes(1)).Until(condition);
 
 // Using the DSL
-Wait().Timeout(30, SECONDS).Until(condition);
+Wait().Timeout(30, Seconds).Until(condition);
 ```
 
 ### Polling Configuration
 
 ```csharp
 Wait()
-    .AtMost(10, SECONDS)
-    .WithPollDelay(100, MILLIS)    // Initial delay before first check
-    .WithPollInterval(500, MILLIS) // Interval between subsequent checks
+    .AtMost(10, Seconds)
+    .WithPollDelay(100, Millis)    // Initial delay before first check
+    .WithPollInterval(500, Millis) // Interval between subsequent checks
     .Until(condition);
 ```
 
@@ -100,13 +100,13 @@ Wait()
 
 ```csharp
 // Swallow exceptions (default behavior)
-Wait().AtMost(5, SECONDS).Until(() => RiskyOperation());
+Wait().AtMost(5, Seconds).Until(() => RiskyOperation());
 
 // Re-throw exceptions
-Wait().AtMost(5, SECONDS).IgnoreExceptions(false).Until(() => RiskyOperation());
+Wait().AtMost(5, Seconds).IgnoreExceptions(false).Until(() => RiskyOperation());
 
 // Fail silently (don't throw timeout exceptions)
-Wait().AtMost(5, SECONDS).FailSilently().Until(() => condition);
+Wait().AtMost(5, Seconds).FailSilently().Until(() => condition);
 ```
 
 ### Prerequisite Actions
@@ -114,7 +114,7 @@ Wait().AtMost(5, SECONDS).FailSilently().Until(() => condition);
 ```csharp
 // Single prerequisite action
 Wait()
-    .AtMost(10, SECONDS)
+    .AtMost(10, Seconds)
     .WithPrereq(() => RefreshData())
     .Until(() => DataIsReady());
 
@@ -127,7 +127,7 @@ var actions = new List<Action>
 };
 
 Wait()
-    .AtMost(10, SECONDS)
+    .AtMost(10, Seconds)
     .WithPrereqs(actions)
     .Until(() => DataIsReady());
 ```
@@ -136,13 +136,13 @@ Wait()
 
 ```csharp
 // Wait for true
-Wait().AtMost(5, SECONDS).UntilTrue(() => IsReady());
+Wait().AtMost(5, Seconds).UntilTrue(() => IsReady());
 
 // Wait for false
-Wait().AtMost(5, SECONDS).UntilFalse(() => IsLoading());
+Wait().AtMost(5, Seconds).UntilFalse(() => IsLoading());
 
 // Wait for specific boolean value
-Wait().AtMost(5, SECONDS).Until(() => IsComplete(), expected: true);
+Wait().AtMost(5, Seconds).Until(() => IsComplete(), expected: true);
 ```
 
 ### Cancellation Support
@@ -156,7 +156,7 @@ cts.CancelAfter(5000); // Cancel after 5 seconds
 
 try
 {
-    Wait().AtMost(30, SECONDS)
+    Wait().AtMost(30, Seconds)
         .Until(() => LongRunningOperation(), cancellationToken: cts.Token);
 }
 catch (OperationCanceledException)
@@ -170,18 +170,18 @@ var userCancellation = new CancellationTokenSource();
 // In a button click handler
 userCancellation.Cancel();
 
-Wait().AtMost(60, SECONDS)
+Wait().AtMost(60, Seconds)
     .Until(() => BackgroundTask(), cancellationToken: userCancellation.Token);
 
 // Cancellation with UntilTrue/UntilFalse
-Wait().AtMost(10, SECONDS)
+Wait().AtMost(10, Seconds)
     .UntilTrue(() => IsReady(), cts.Token);
 
-Wait().AtMost(10, SECONDS)
+Wait().AtMost(10, Seconds)
     .UntilFalse(() => IsLoading(), cts.Token);
 
 // Cancellation with prerequisites
-Wait().AtMost(10, SECONDS)
+Wait().AtMost(10, Seconds)
     .WithPrereq(() => RefreshData())
     .Until(() => DataIsReady(), cancellationToken: cts.Token);
 ```
@@ -196,13 +196,13 @@ using PleaseWait.Logging;
 // Enable console logging
 Wait()
     .WithLogger(new ConsoleLogger())
-    .AtMost(10, SECONDS)
+    .AtMost(10, Seconds)
     .Until(() => SomeCondition());
 
 // Enable debug logging (writes to System.Diagnostics.Debug)
 Wait()
     .WithLogger(new DebugLogger())
-    .AtMost(10, SECONDS)
+    .AtMost(10, Seconds)
     .Until(() => SomeCondition());
 
 // Custom logger implementation
@@ -217,7 +217,7 @@ public class CustomLogger : IWaitLogger
 
 Wait()
     .WithLogger(new CustomLogger())
-    .AtMost(10, SECONDS)
+    .AtMost(10, Seconds)
     .Until(() => SomeCondition());
 ```
 
@@ -235,7 +235,7 @@ Wait()
 // Enable metrics collection
 var metrics = Wait()
     .WithMetrics()
-    .AtMost(10, SECONDS)
+    .AtMost(10, Seconds)
     .Until(() => SomeCondition());
 
 // Analyze performance data
@@ -249,7 +249,7 @@ Wait()
     .WithLogger(new ConsoleLogger())
     .WithMetrics()
     .Alias("Database Ready")
-    .AtMost(30, SECONDS)
+    .AtMost(30, Seconds)
     .Until(() => database.IsConnected);
 ```
 
@@ -262,11 +262,60 @@ Wait()
 [PleaseWait] 📊 Metrics: 2 checks, 250ms total, avg: 125ms, min: 100ms, max: 150ms
 ```
 
+### Wait Strategies
+
+Choose from different polling strategies to optimize for your specific use case:
+
+```csharp
+using static PleaseWait.Strategy.WaitStrategy;
+
+// Linear (default) - consistent polling intervals
+Wait()
+    .WithStrategy(Linear)
+    .AtMost(10, Seconds)
+    .Until(() => condition);
+
+// Exponential Backoff - increases delays over time
+Wait()
+    .WithStrategy(ExponentialBackoff)
+    .AtMost(30, Seconds)
+    .Until(() => database.IsReady());
+
+// Aggressive - minimal delays for fast detection
+Wait()
+    .WithStrategy(Aggressive)
+    .AtMost(5, Seconds)
+    .Until(() => button.IsEnabled);
+
+// Conservative - longer delays to minimize resource usage
+Wait()
+    .WithStrategy(Conservative)
+    .AtMost(60, Seconds)
+    .Until(() => heavyOperation.IsComplete());
+
+// Adaptive - adjusts based on condition check performance
+Wait()
+    .WithStrategy(Adaptive)
+    .WithMetrics()
+    .AtMost(30, Seconds)
+    .Until(() => condition);
+```
+
+**Strategy Details:**
+
+| Strategy | Poll Delay | Poll Interval | Best For | Details |
+|----------|------------|---------------|----------|---------|
+| **Linear** | As configured | As configured | Predictable conditions with consistent timing | Uses configured values exactly as provided |
+| **Exponential Backoff** | As configured | Increases exponentially (1x, 2x, 4x, 8x...) | Resource-intensive conditions that improve over time (database startup, service initialization) | Interval increases after each check, max 25% of timeout |
+| **Aggressive** | 1/4 of configured | 1/4 of configured | UI testing, real-time monitoring, immediate response needed | Both delays reduced once at start, min 1ms interval |
+| **Conservative** | 2x configured | 2x configured | Expensive operations, resource-constrained environments, reduced CPU usage | Both delays doubled once at start |
+| **Adaptive** | As configured | Adjusts based on condition check performance | Conditions with varying performance characteristics that take multiple checks to resolve | Requires `WithMetrics()`, adjusts after each check: fast → 50% less, slow → 100% more |
+
 ### Thread Sleep
 
 ```csharp
 // Sleep for specific duration
-Wait().Sleep(2, SECONDS);
+Wait().Sleep(2, Seconds);
 
 // Sleep using TimeSpan
 Wait().Sleep(TimeSpan.FromMilliseconds(500));
@@ -282,7 +331,7 @@ public void WaitForElementToBeVisible()
     var driver = new ChromeDriver();
     driver.Navigate().GoToUrl("https://example.com");
     
-    Wait().AtMost(10, SECONDS)
+    Wait().AtMost(10, Seconds)
         .Until(() => driver.FindElement(By.Id("login-button")).Displayed);
 }
 ```
@@ -295,7 +344,7 @@ public async Task WaitForApiResponse()
     var client = new HttpClient();
     var response = await client.PostAsync("/api/process", content);
     
-    Wait().AtMost(30, SECONDS)
+    Wait().AtMost(30, Seconds)
         .Until(() => GetProcessingStatus(response.Id) == "completed");
 }
 ```
@@ -308,7 +357,7 @@ public void WaitForDatabaseUpdate()
     var repository = new UserRepository();
     repository.UpdateUserStatus(userId, "processing");
     
-    Wait().AtMost(5, SECONDS)
+    Wait().AtMost(5, Seconds)
         .Until(() => repository.GetUserStatus(userId) == "processed");
 }
 ```

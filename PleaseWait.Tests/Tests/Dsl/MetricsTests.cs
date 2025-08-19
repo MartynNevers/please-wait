@@ -32,7 +32,7 @@ namespace PleaseWait.Tests
         {
             var metrics = Wait()
                 .WithMetrics()
-                .AtMost(100, MILLIS)
+                .AtMost(100, Millis)
                 .Until(() => true);
 
             Assert.That(metrics, Is.Not.Null);
@@ -45,7 +45,7 @@ namespace PleaseWait.Tests
         public void WithMetrics_NotEnabled_ReturnsNull()
         {
             var metrics = Wait()
-                .AtMost(100, MILLIS)
+                .AtMost(100, Millis)
                 .Until(() => true);
 
             Assert.That(metrics, Is.Null);
@@ -57,9 +57,9 @@ namespace PleaseWait.Tests
             var checkCount = 0;
             var metrics = Wait()
                 .WithMetrics()
-                .AtMost(500, MILLIS)
-                .PollDelay(10, MILLIS)
-                .PollInterval(10, MILLIS)
+                .AtMost(500, Millis)
+                .PollDelay(10, Millis)
+                .PollInterval(10, Millis)
                 .Until(() => ++checkCount >= 3);
 
             Assert.That(metrics!.ConditionChecks, Is.EqualTo(3));
@@ -71,7 +71,7 @@ namespace PleaseWait.Tests
         {
             var metrics = Wait()
                 .WithMetrics()
-                .AtMost(100, MILLIS)
+                .AtMost(100, Millis)
                 .Until(() => true);
 
             Assert.That(metrics!.TotalTime, Is.GreaterThan(TimeSpan.Zero));
@@ -83,7 +83,7 @@ namespace PleaseWait.Tests
         {
             var metrics = Wait()
                 .WithMetrics()
-                .AtMost(100, MILLIS)
+                .AtMost(100, Millis)
                 .Until(() => true);
 
             Assert.That(metrics!.AverageCheckTime, Is.GreaterThan(TimeSpan.Zero));
@@ -96,9 +96,9 @@ namespace PleaseWait.Tests
             var checkCount = 0;
             var metrics = Wait()
                 .WithMetrics()
-                .AtMost(500, MILLIS)
-                .PollDelay(10, MILLIS)
-                .PollInterval(10, MILLIS)
+                .AtMost(500, Millis)
+                .PollDelay(10, Millis)
+                .PollInterval(10, Millis)
                 .Until(() => ++checkCount >= 3);
 
             Assert.That(metrics!.MinCheckTime, Is.GreaterThanOrEqualTo(TimeSpan.Zero));
@@ -111,9 +111,9 @@ namespace PleaseWait.Tests
         {
             var metrics = Wait()
                 .WithMetrics()
-                .AtMost(200, MILLIS)
-                .PollDelay(50, MILLIS)
-                .PollInterval(10, MILLIS)
+                .AtMost(200, Millis)
+                .PollDelay(50, Millis)
+                .PollInterval(10, Millis)
                 .Until(() => true);
 
             Assert.That(metrics!.PollDelayTime, Is.GreaterThan(TimeSpan.Zero));
@@ -124,9 +124,9 @@ namespace PleaseWait.Tests
         {
             var metrics = Wait()
                 .WithMetrics()
-                .AtMost(200, MILLIS)
-                .PollDelay(10, MILLIS)
-                .PollInterval(50, MILLIS)
+                .AtMost(200, Millis)
+                .PollDelay(10, Millis)
+                .PollInterval(50, Millis)
                 .Until(() => true);
 
             Assert.That(metrics!.PollIntervalTime, Is.GreaterThan(TimeSpan.Zero));
@@ -137,9 +137,9 @@ namespace PleaseWait.Tests
         {
             var metrics = Wait()
                 .WithMetrics()
-                .AtMost(500, MILLIS)
-                .PollDelay(100, MILLIS)
-                .PollInterval(200, MILLIS)
+                .AtMost(500, Millis)
+                .PollDelay(100, Millis)
+                .PollInterval(200, Millis)
                 .Until(() => true);
 
             Assert.That(metrics!.ConfiguredTimeout, Is.EqualTo(TimeSpan.FromMilliseconds(500)));
@@ -153,7 +153,7 @@ namespace PleaseWait.Tests
             var metrics = Wait()
                 .WithMetrics()
                 .Alias("Test Condition")
-                .AtMost(100, MILLIS)
+                .AtMost(100, Millis)
                 .Until(() => true);
 
             Assert.That(metrics!.ConditionAlias, Is.EqualTo("Test Condition"));
@@ -166,7 +166,7 @@ namespace PleaseWait.Tests
             {
                 Wait()
                     .WithMetrics()
-                    .AtMost(50, MILLIS)
+                    .AtMost(50, Millis)
                     .Until(() => false);
             });
         }
@@ -180,8 +180,8 @@ namespace PleaseWait.Tests
             {
                 Wait()
                     .WithMetrics()
-                    .AtMost(1000, MILLIS)
-                    .PollDelay(100, MILLIS)
+                    .AtMost(1000, Millis)
+                    .PollDelay(100, Millis)
                     .Until(() => false, cancellationToken: cts.Token);
             });
         }
@@ -191,7 +191,7 @@ namespace PleaseWait.Tests
         {
             var metrics = Wait()
                 .WithMetrics()
-                .AtMost(100, MILLIS)
+                .AtMost(100, Millis)
                 .Until(() => true);
 
             var result = metrics!.ToString();
@@ -209,7 +209,7 @@ namespace PleaseWait.Tests
         {
             var metrics = Wait()
                 .WithMetrics()
-                .AtMost(100, MILLIS)
+                .AtMost(100, Millis)
                 .Until(() => true);
 
             Assert.That(metrics, Is.Not.Null);
@@ -221,7 +221,7 @@ namespace PleaseWait.Tests
         {
             var metrics = Wait()
                 .WithMetrics()
-                .AtMost(100, MILLIS)
+                .AtMost(100, Millis)
                 .Until(() => false, expected: false);
 
             Assert.That(metrics, Is.Not.Null);

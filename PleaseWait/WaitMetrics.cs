@@ -27,12 +27,12 @@ namespace PleaseWait
         /// <summary>
         /// Gets the number of times the condition was evaluated.
         /// </summary>
-        public int ConditionChecks { get; internal set; }
+        public int ConditionChecks { get; set; }
 
         /// <summary>
         /// Gets the total time spent waiting for the condition.
         /// </summary>
-        public TimeSpan TotalTime { get; internal set; }
+        public TimeSpan TotalTime { get; set; }
 
         /// <summary>
         /// Gets the average time per condition check.
@@ -44,47 +44,47 @@ namespace PleaseWait
         /// <summary>
         /// Gets the fastest condition check time.
         /// </summary>
-        public TimeSpan MinCheckTime { get; internal set; } = TimeSpan.MaxValue;
+        public TimeSpan MinCheckTime { get; set; } = TimeSpan.MaxValue;
 
         /// <summary>
         /// Gets the slowest condition check time.
         /// </summary>
-        public TimeSpan MaxCheckTime { get; internal set; } = TimeSpan.Zero;
+        public TimeSpan MaxCheckTime { get; set; } = TimeSpan.Zero;
 
         /// <summary>
         /// Gets the total time spent in poll delays.
         /// </summary>
-        public TimeSpan PollDelayTime { get; internal set; }
+        public TimeSpan PollDelayTime { get; set; }
 
         /// <summary>
         /// Gets the total time spent in poll intervals.
         /// </summary>
-        public TimeSpan PollIntervalTime { get; internal set; }
+        public TimeSpan PollIntervalTime { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether the wait operation was successful.
         /// </summary>
-        public bool WasSuccessful { get; internal set; }
+        public bool WasSuccessful { get; set; }
 
         /// <summary>
         /// Gets the alias used for the condition, if any.
         /// </summary>
-        public string? ConditionAlias { get; internal set; }
+        public string? ConditionAlias { get; set; }
 
         /// <summary>
         /// Gets the timeout that was configured for the wait operation.
         /// </summary>
-        public TimeSpan ConfiguredTimeout { get; internal set; }
+        public TimeSpan ConfiguredTimeout { get; set; }
 
         /// <summary>
         /// Gets the poll delay that was configured for the wait operation.
         /// </summary>
-        public TimeSpan ConfiguredPollDelay { get; internal set; }
+        public TimeSpan ConfiguredPollDelay { get; set; }
 
         /// <summary>
         /// Gets the poll interval that was configured for the wait operation.
         /// </summary>
-        public TimeSpan ConfiguredPollInterval { get; internal set; }
+        public TimeSpan ConfiguredPollInterval { get; set; }
 
         /// <summary>
         /// Gets a string representation of the metrics.

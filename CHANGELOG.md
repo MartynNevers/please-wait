@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Breaking Changes
+- **Enum Naming Convention**: Update `TimeUnit` enum values from uppercase to PascalCase to follow C# conventions
+  - `MILLIS` → `Millis`
+  - `SECONDS` → `Seconds` 
+  - `MINUTES` → `Minutes`
+  - `HOURS` → `Hours`
+  - `DAYS` → `Days`
+  - **Migration Required**: Update all enum references in existing code to use new PascalCase values
+  - **Impact**: This is a breaking change requiring a major version bump (v3.0.0)
+
 ### Added
 - CHANGELOG.md file to document version history and changes
 - **Cancellation Token Support**: Add `CancellationToken` parameter to all `Until()`, `UntilTrue()`, and `UntilFalse()` methods for graceful cancellation
@@ -15,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **ConsoleLogger**: New `PleaseWait.Logging.ConsoleLogger` writes diagnostics to console output
 - **DebugLogger**: New `PleaseWait.Logging.DebugLogger` writes diagnostics to `System.Diagnostics.Debug`
 - **Performance Monitoring**: New `WithMetrics()` method and `WaitMetrics` class for collecting performance data during wait operations including condition checks, timing, and success/failure status
+- **Wait Strategies**: New `WithStrategy()` method with 5 different strategies (Linear, ExponentialBackoff, Aggressive, Conservative, Adaptive) for optimized polling behavior
 - **Code Quality Improvements**: Implement refactoring patterns (Extract Method, Template Method) for cleaner, more maintainable code
 - **Test Organization**: Organize 41 tests into 6 logical categories (Initialization, Basic Functionality, Timeout & Exceptions, Configuration, Cancellation, Logging)
 - **Enhanced .gitignore**: Comprehensive patterns for modern C# projects including code coverage and test results

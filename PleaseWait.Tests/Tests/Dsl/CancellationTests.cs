@@ -36,7 +36,7 @@ namespace PleaseWait.Tests
             Assert.Throws<OperationCanceledException>(() =>
             {
                 Wait()
-                    .AtMost(10, SECONDS)
+                    .AtMost(10, Seconds)
                     .Until(() => true, cancellationToken: cts.Token);
             });
         }
@@ -50,7 +50,7 @@ namespace PleaseWait.Tests
             Assert.Throws<OperationCanceledException>(() =>
             {
                 Wait()
-                    .AtMost(10, SECONDS)
+                    .AtMost(10, Seconds)
                     .Until(() => false, cancellationToken: cts.Token);
             });
         }
@@ -65,7 +65,7 @@ namespace PleaseWait.Tests
             Assert.DoesNotThrow(() =>
             {
                 Wait()
-                    .AtMost(5, SECONDS)
+                    .AtMost(5, Seconds)
                     .Until(() => orange.IsPeeled, cancellationToken: cts.Token);
             });
 
@@ -81,7 +81,7 @@ namespace PleaseWait.Tests
             Assert.Throws<OperationCanceledException>(() =>
             {
                 Wait()
-                    .AtMost(10, SECONDS)
+                    .AtMost(10, Seconds)
                     .UntilTrue(() => true, cts.Token);
             });
         }
@@ -95,7 +95,7 @@ namespace PleaseWait.Tests
             Assert.Throws<OperationCanceledException>(() =>
             {
                 Wait()
-                    .AtMost(10, SECONDS)
+                    .AtMost(10, Seconds)
                     .UntilFalse(() => false, cts.Token);
             });
         }
@@ -112,7 +112,7 @@ namespace PleaseWait.Tests
             Assert.Throws<OperationCanceledException>(() =>
             {
                 Wait()
-                    .AtMost(10, SECONDS)
+                    .AtMost(10, Seconds)
                     .With().Prereq(prereq)
                     .Until(() => true, cancellationToken: cts.Token);
             });
@@ -133,9 +133,9 @@ namespace PleaseWait.Tests
             Assert.Throws<OperationCanceledException>(() =>
             {
                 Wait()
-                    .AtMost(10, SECONDS)
-                    .With().PollDelay(100, MILLIS)
-                    .And().With().PollInterval(100, MILLIS)
+                    .AtMost(10, Seconds)
+                    .With().PollDelay(100, Millis)
+                    .And().With().PollInterval(100, Millis)
                     .With().Prereq(prereq)
                     .Until(() => false, cancellationToken: cts.Token);
             });
@@ -152,7 +152,7 @@ namespace PleaseWait.Tests
             Assert.Throws<OperationCanceledException>(() =>
             {
                 Wait()
-                    .AtMost(10, SECONDS)
+                    .AtMost(10, Seconds)
                     .Alias("Test Condition")
                     .Until(() => true, cancellationToken: cts.Token);
             });
@@ -167,7 +167,7 @@ namespace PleaseWait.Tests
             Assert.Throws<OperationCanceledException>(() =>
             {
                 Wait()
-                    .AtMost(10, SECONDS)
+                    .AtMost(10, Seconds)
                     .With().IgnoreExceptions(false)
                     .And().FailSilently()
                     .Until(() => true, cancellationToken: cts.Token);
@@ -183,9 +183,9 @@ namespace PleaseWait.Tests
             Assert.Throws<OperationCanceledException>(() =>
             {
                 Wait()
-                    .AtMost(1, MINUTES)
-                    .With().PollDelay(1, SECONDS)
-                    .And().With().PollInterval(1, SECONDS)
+                    .AtMost(1, Minutes)
+                    .With().PollDelay(1, Seconds)
+                    .And().With().PollInterval(1, Seconds)
                     .Until(() => true, cancellationToken: cts.Token);
             });
         }
@@ -199,7 +199,7 @@ namespace PleaseWait.Tests
             Assert.Throws<OperationCanceledException>(() =>
             {
                 Wait()
-                    .AtMost(10, SECONDS)
+                    .AtMost(10, Seconds)
                     .Until(() => false, expected: false, cancellationToken: cts.Token);
             });
         }

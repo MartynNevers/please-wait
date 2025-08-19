@@ -14,7 +14,7 @@
 // limitations under the License.
 // </copyright>
 
-namespace PleaseWait
+namespace PleaseWait.Core
 {
     using System;
 
@@ -40,11 +40,11 @@ namespace PleaseWait
         {
             return this.TimeUnit switch
             {
-                TimeUnit.MILLIS => TimeSpan.FromMilliseconds(this.Value),
-                TimeUnit.SECONDS => TimeSpan.FromSeconds(this.Value),
-                TimeUnit.MINUTES => TimeSpan.FromMinutes(this.Value),
-                TimeUnit.HOURS => TimeSpan.FromHours(this.Value),
-                TimeUnit.DAYS => TimeSpan.FromDays(this.Value),
+                TimeUnit.Millis => TimeSpan.FromMilliseconds(this.Value),
+                TimeUnit.Seconds => TimeSpan.FromSeconds(this.Value),
+                TimeUnit.Minutes => TimeSpan.FromMinutes(this.Value),
+                TimeUnit.Hours => TimeSpan.FromHours(this.Value),
+                TimeUnit.Days => TimeSpan.FromDays(this.Value),
                 _ => throw new NotImplementedException(),
             };
         }

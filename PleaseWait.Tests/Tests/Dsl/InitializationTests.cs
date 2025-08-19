@@ -54,9 +54,9 @@ namespace PleaseWait.Tests
         public void Wait_ExtremeTimeUnitsUsed_SetsTimeConstraintsAppropriately()
         {
             var wait = Wait()
-                .AtMost(1, DAYS)
-                .With().PollDelay(2, HOURS)
-                .And().With().PollInterval(3, MINUTES);
+                .AtMost(1, Days)
+                .With().PollDelay(2, Hours)
+                .And().With().PollInterval(3, Minutes);
 
             var timeout = wait.GetFieldValue<TimeSpan>("timeout");
             var pollDelay = wait.GetFieldValue<TimeSpan>("pollDelay");

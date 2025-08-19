@@ -20,7 +20,9 @@ namespace PleaseWait
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading;
+    using PleaseWait.Core;
     using PleaseWait.Logging;
+    using PleaseWait.Strategy;
 
     public class Dsl
     {
@@ -29,10 +31,11 @@ namespace PleaseWait
         private TimeSpan pollInterval = Defaults.PollInterval;
         private bool ignoreExceptions = Defaults.IgnoreExceptions;
         private bool failSilently = Defaults.FailSilently;
-        private IList<Action>? prereqs = null;
-        private string? alias = null;
-        private IWaitLogger logger = NullLogger.Instance;
-        private WaitMetrics? metrics = null;
+        private IList<Action>? prereqs = Defaults.Prereqs;
+        private string? alias = Defaults.Alias;
+        private IWaitLogger logger = Defaults.Logger;
+        private WaitMetrics? metrics = Defaults.Metrics;
+        private WaitStrategy strategy = Defaults.Strategy;
 
         private Dsl()
         {
@@ -228,6 +231,17 @@ namespace PleaseWait
         }
 
         /// <summary>
+        /// Sets the wait strategy for the operation.
+        /// </summary>
+        /// <param name="strategy">The wait strategy to use.</param>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
+        public Dsl WithStrategy(WaitStrategy strategy)
+        {
+            this.strategy = strategy;
+            return this;
+        }
+
+        /// <summary>
         /// Suspends the current thread for the specified amount of time.
         /// </summary>
         /// <param name="timeSpan">The timeout value.</param>
@@ -353,7 +367,9 @@ namespace PleaseWait
                 this.InvokePrereqs();
 
                 pollDelayStopwatch.Start();
-                Thread.Sleep(this.pollDelay);
+                var calculator = new WaitStrategyCalculator(this.strategy, this.pollDelay, this.pollInterval, this.timeout, this.metrics);
+                var initialDelay = calculator.CalculateInitialDelay();
+                Thread.Sleep(initialDelay);
                 pollDelayStopwatch.Stop();
 
                 var conditionCheckStopwatch = new Stopwatch();
@@ -384,7 +400,8 @@ namespace PleaseWait
                 this.logger.LogConditionCheck(conditionDescription, outcome == expected, stopwatch.Elapsed);
 
                 pollIntervalStopwatch.Start();
-                Thread.Sleep(this.pollInterval);
+                var intervalDelay = calculator.CalculateIntervalDelay(checkCount);
+                Thread.Sleep(intervalDelay);
                 pollIntervalStopwatch.Stop();
             }
 

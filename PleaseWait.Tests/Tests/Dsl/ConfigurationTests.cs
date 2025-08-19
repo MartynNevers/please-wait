@@ -33,8 +33,8 @@ namespace PleaseWait.Tests
             var orange = new Orange();
             _ = orange.PeelAsync(2);
             Wait()
-                .AtMost(5, SECONDS)
-                .With().PollDelay(800, MILLIS)
+                .AtMost(5, Seconds)
+                .With().PollDelay(800, Millis)
                 .Until(() => orange.IsPeeled);
 
             Assert.That(orange.IsPeeled, Is.True);
@@ -46,8 +46,8 @@ namespace PleaseWait.Tests
             var orange = new Orange();
             _ = orange.PeelAsync(2);
             Wait()
-                .AtMost(5, SECONDS)
-                .With().PollInterval(400, MILLIS)
+                .AtMost(5, Seconds)
+                .With().PollInterval(400, Millis)
                 .Until(() => orange.IsPeeled);
 
             Assert.That(orange.IsPeeled, Is.True);
@@ -60,7 +60,7 @@ namespace PleaseWait.Tests
             var orange = new Orange();
             _ = orange.PeelAsync(5);
             Wait()
-                .AtMost(2, SECONDS)
+                .AtMost(2, Seconds)
                 .With().Prereq(() => toggle = true)
                 .And().FailSilently()
                 .Until(() => orange.IsPeeled);
@@ -82,7 +82,7 @@ namespace PleaseWait.Tests
 
             _ = orange.PeelAsync(2);
             Wait()
-                .AtMost(5, SECONDS)
+                .AtMost(5, Seconds)
                 .With().Prereqs(prereqs)
                 .Until(() => orange.IsPeeled);
 
