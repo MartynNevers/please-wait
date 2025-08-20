@@ -42,15 +42,15 @@ namespace PleaseWait.Tests.Tests
         public void Constructor_CapturesGlobalDefaults()
         {
             // Set specific global defaults
-            Wait().Configure()
-                .DefaultTimeout(25, Seconds)
-                .DefaultPollDelay(150, Millis)
-                .DefaultPollInterval(350, Millis)
-                .DefaultIgnoreExceptions(true)
-                .DefaultFailSilently(false)
-                .DefaultAlias("Test Alias")
-                .DefaultLogger(new ConsoleLogger())
-                .DefaultStrategy(Aggressive);
+            Wait().Global().Configure()
+                .Timeout(25, Seconds)
+                .PollDelay(150, Millis)
+                .PollInterval(350, Millis)
+                .IgnoreExceptions(true)
+                .FailSilently(false)
+                .Alias("Test Alias")
+                .Logger(new ConsoleLogger())
+                .Strategy(Aggressive);
 
             var config = new WaitConfig();
 
@@ -65,7 +65,7 @@ namespace PleaseWait.Tests.Tests
             Assert.That(config.DefaultStrategy, Is.EqualTo(Aggressive));
 
             // Reset global defaults
-            Wait().ResetToDefaults();
+            Wait().Global().ResetToDefaults();
         }
 
         [Test]
@@ -74,231 +74,224 @@ namespace PleaseWait.Tests.Tests
             var config = new WaitConfig();
 
             // All configuration properties should be null (indicating use captured defaults)
-            Assert.That(config.Timeout, Is.Null);
-            Assert.That(config.PollDelay, Is.Null);
-            Assert.That(config.PollInterval, Is.Null);
-            Assert.That(config.IgnoreExceptions, Is.Null);
-            Assert.That(config.FailSilently, Is.Null);
-            Assert.That(config.Prereqs, Is.Null);
-            Assert.That(config.Alias, Is.Null);
-            Assert.That(config.Logger, Is.Null);
-            Assert.That(config.CollectMetrics, Is.Null);
-            Assert.That(config.Strategy, Is.Null);
+            Assert.That(config.ConfigTimeout, Is.Null);
+            Assert.That(config.ConfigPollDelay, Is.Null);
+            Assert.That(config.ConfigPollInterval, Is.Null);
+            Assert.That(config.ConfigIgnoreExceptions, Is.Null);
+            Assert.That(config.ConfigFailSilently, Is.Null);
+            Assert.That(config.ConfigPrereqs, Is.Null);
+            Assert.That(config.ConfigAlias, Is.Null);
+            Assert.That(config.ConfigLogger, Is.Null);
+            Assert.That(config.ConfigMetrics, Is.Null);
+            Assert.That(config.ConfigStrategy, Is.Null);
         }
 
         [Test]
-        public void WithTimeout_TimeSpan_SetsTimeout()
+        public void Timeout_TimeSpan_SetsTimeout()
         {
             var config = new WaitConfig();
             var timeout = TimeSpan.FromSeconds(30);
-            var result = config.WithTimeout(timeout);
+            var result = config.Timeout(timeout);
 
             Assert.That(result, Is.SameAs(config));
-            Assert.That(config.Timeout, Is.EqualTo(timeout));
+            Assert.That(config.ConfigTimeout, Is.EqualTo(timeout));
         }
 
         [Test]
-        public void WithTimeout_ValueAndUnit_SetsTimeout()
+        public void Timeout_ValueAndUnit_SetsTimeout()
         {
             var config = new WaitConfig();
-            var result = config.WithTimeout(45, Seconds);
+            var result = config.Timeout(45, Seconds);
 
             Assert.That(result, Is.SameAs(config));
-            Assert.That(config.Timeout, Is.EqualTo(TimeSpan.FromSeconds(45)));
+            Assert.That(config.ConfigTimeout, Is.EqualTo(TimeSpan.FromSeconds(45)));
         }
 
         [Test]
-        public void WithPollDelay_TimeSpan_SetsPollDelay()
+        public void PollDelay_TimeSpan_SetsPollDelay()
         {
             var config = new WaitConfig();
             var pollDelay = TimeSpan.FromMilliseconds(250);
-            var result = config.WithPollDelay(pollDelay);
+            var result = config.PollDelay(pollDelay);
 
             Assert.That(result, Is.SameAs(config));
-            Assert.That(config.PollDelay, Is.EqualTo(pollDelay));
+            Assert.That(config.ConfigPollDelay, Is.EqualTo(pollDelay));
         }
 
         [Test]
-        public void WithPollDelay_ValueAndUnit_SetsPollDelay()
+        public void PollDelay_ValueAndUnit_SetsPollDelay()
         {
             var config = new WaitConfig();
-            var result = config.WithPollDelay(300, Millis);
+            var result = config.PollDelay(300, Millis);
 
             Assert.That(result, Is.SameAs(config));
-            Assert.That(config.PollDelay, Is.EqualTo(TimeSpan.FromMilliseconds(300)));
+            Assert.That(config.ConfigPollDelay, Is.EqualTo(TimeSpan.FromMilliseconds(300)));
         }
 
         [Test]
-        public void WithPollInterval_TimeSpan_SetsPollInterval()
+        public void PollInterval_TimeSpan_SetsPollInterval()
         {
             var config = new WaitConfig();
             var pollInterval = TimeSpan.FromMilliseconds(400);
-            var result = config.WithPollInterval(pollInterval);
+            var result = config.PollInterval(pollInterval);
 
             Assert.That(result, Is.SameAs(config));
-            Assert.That(config.PollInterval, Is.EqualTo(pollInterval));
+            Assert.That(config.ConfigPollInterval, Is.EqualTo(pollInterval));
         }
 
         [Test]
-        public void WithPollInterval_ValueAndUnit_SetsPollInterval()
+        public void PollInterval_ValueAndUnit_SetsPollInterval()
         {
             var config = new WaitConfig();
-            var result = config.WithPollInterval(500, Millis);
+            var result = config.PollInterval(500, Millis);
 
             Assert.That(result, Is.SameAs(config));
-            Assert.That(config.PollInterval, Is.EqualTo(TimeSpan.FromMilliseconds(500)));
+            Assert.That(config.ConfigPollInterval, Is.EqualTo(TimeSpan.FromMilliseconds(500)));
         }
 
         [Test]
-        public void WithPolling_TimeSpan_SetsBothDelayAndInterval()
+        public void Polling_TimeSpan_SetsBothDelayAndInterval()
         {
             var config = new WaitConfig();
             var delay = TimeSpan.FromMilliseconds(100);
             var interval = TimeSpan.FromMilliseconds(200);
-            var result = config.WithPolling(delay, interval);
+            var result = config.Polling(delay, interval);
 
             Assert.That(result, Is.SameAs(config));
-            Assert.That(config.PollDelay, Is.EqualTo(delay));
-            Assert.That(config.PollInterval, Is.EqualTo(interval));
+            Assert.That(config.ConfigPollDelay, Is.EqualTo(delay));
+            Assert.That(config.ConfigPollInterval, Is.EqualTo(interval));
         }
 
         [Test]
-        public void WithPolling_ValueAndUnit_SetsBothDelayAndInterval()
+        public void Polling_ValueAndUnit_SetsBothDelayAndInterval()
         {
             var config = new WaitConfig();
-            var result = config.WithPolling(150, Millis, 250, Millis);
+            var result = config.Polling(150, Millis, 250, Millis);
 
             Assert.That(result, Is.SameAs(config));
-            Assert.That(config.PollDelay, Is.EqualTo(TimeSpan.FromMilliseconds(150)));
-            Assert.That(config.PollInterval, Is.EqualTo(TimeSpan.FromMilliseconds(250)));
+            Assert.That(config.ConfigPollDelay, Is.EqualTo(TimeSpan.FromMilliseconds(150)));
+            Assert.That(config.ConfigPollInterval, Is.EqualTo(TimeSpan.FromMilliseconds(250)));
         }
 
         [Test]
-        public void WithIgnoreExceptions_SetsIgnoreExceptions()
+        public void IgnoreExceptions_WithTrue_EnablesExceptionIgnoring()
         {
             var config = new WaitConfig();
-            var result = config.WithIgnoreExceptions(true);
+            var result = config.IgnoreExceptions(true);
 
             Assert.That(result, Is.SameAs(config));
-            Assert.That(config.IgnoreExceptions, Is.True);
+            Assert.That(config.ConfigIgnoreExceptions, Is.True);
         }
 
         [Test]
-        public void WithFailSilently_SetsFailSilently()
+        public void FailSilently_WithTrue_EnablesSilentFailure()
         {
             var config = new WaitConfig();
-            var result = config.WithFailSilently(true);
+            var result = config.FailSilently(true);
 
             Assert.That(result, Is.SameAs(config));
-            Assert.That(config.FailSilently, Is.True);
+            Assert.That(config.ConfigFailSilently, Is.True);
         }
 
         [Test]
-        public void WithExceptionHandling_SetsBothOptions()
+        public void ExceptionHandling_SetsBothOptions()
         {
             var config = new WaitConfig();
-            var result = config.WithExceptionHandling(true, false);
+            var result = config.ExceptionHandling(true, false);
 
             Assert.That(result, Is.SameAs(config));
-            Assert.That(config.IgnoreExceptions, Is.True);
-            Assert.That(config.FailSilently, Is.False);
+            Assert.That(config.ConfigIgnoreExceptions, Is.True);
+            Assert.That(config.ConfigFailSilently, Is.False);
         }
 
         [Test]
-        public void WithLogger_SetsLogger()
+        public void Logger_SetsLogger()
         {
             var config = new WaitConfig();
             var logger = new ConsoleLogger();
-            var result = config.WithLogger(logger);
+            var result = config.Logger(logger);
 
             Assert.That(result, Is.SameAs(config));
-            Assert.That(config.Logger, Is.SameAs(logger));
+            Assert.That(config.ConfigLogger, Is.SameAs(logger));
         }
 
         [Test]
-        public void WithLogger_NullLogger_ThrowsArgumentNullException()
+        public void Logger_NullLogger_ThrowsArgumentNullException()
         {
             var config = new WaitConfig();
-            Assert.Throws<ArgumentNullException>(() => config.WithLogger(null!));
+            Assert.Throws<ArgumentNullException>(() => config.Logger(null!));
         }
 
         [Test]
-        public void WithMetrics_DefaultTrue_EnablesMetrics()
+        public void Metrics_WithDefaultParameter_EnablesMetrics()
         {
             var config = new WaitConfig();
-            var result = config.WithMetrics();
+            var result = config.Metrics();
 
             Assert.That(result, Is.SameAs(config));
-            Assert.That(config.CollectMetrics, Is.True);
+            Assert.That(config.ConfigMetrics, Is.True);
         }
 
         [Test]
-        public void WithMetrics_ExplicitTrue_EnablesMetrics()
+        public void Metrics_ExplicitTrue_EnablesMetrics()
         {
             var config = new WaitConfig();
-            var result = config.WithMetrics(true);
+            var result = config.Metrics(true);
 
             Assert.That(result, Is.SameAs(config));
-            Assert.That(config.CollectMetrics, Is.True);
+            Assert.That(config.ConfigMetrics, Is.True);
         }
 
         [Test]
-        public void WithMetrics_False_DisablesMetrics()
+        public void Metrics_False_DisablesMetrics()
         {
             var config = new WaitConfig();
-            var result = config.WithMetrics(false);
+            var result = config.Metrics(false);
 
             Assert.That(result, Is.SameAs(config));
-            Assert.That(config.CollectMetrics, Is.False);
+            Assert.That(config.ConfigMetrics, Is.False);
         }
 
         [Test]
-        public void WithStrategy_SetsStrategy()
+        public void Strategy_SetsStrategy()
         {
             var config = new WaitConfig();
-            var result = config.WithStrategy(Conservative);
+            var result = config.Strategy(Conservative);
 
             Assert.That(result, Is.SameAs(config));
-            Assert.That(config.Strategy, Is.EqualTo(Conservative));
+            Assert.That(config.ConfigStrategy, Is.EqualTo(Conservative));
         }
 
         [Test]
-        public void WithAlias_SetsAlias()
+        public void Alias_SetsAlias()
         {
             var config = new WaitConfig();
             var alias = "Test Operation";
-            var result = config.WithAlias(alias);
+            var result = config.Alias(alias);
 
             Assert.That(result, Is.SameAs(config));
-            Assert.That(config.Alias, Is.EqualTo(alias));
+            Assert.That(config.ConfigAlias, Is.EqualTo(alias));
         }
 
         [Test]
-        public void WithPrerequisites_SetsPrerequisites()
+        public void Alias_WithNull_SetsNullAlias()
+        {
+            var config = new WaitConfig();
+            var result = config.Alias(null);
+
+            Assert.That(result, Is.SameAs(config));
+            Assert.That(config.ConfigAlias, Is.Null);
+        }
+
+        [Test]
+        public void Prereqs_SetsPrerequisites()
         {
             var config = new WaitConfig();
             var prereqs = new List<Action> { () => { }, () => { } };
-            var result = config.WithPrerequisites(prereqs);
+            var result = config.Prereqs(prereqs);
 
             Assert.That(result, Is.SameAs(config));
-            Assert.That(config.Prereqs, Is.SameAs(prereqs));
-        }
-
-        [Test]
-        public void WithPrerequisite_SetsPrerequisite()
-        {
-            var config = new WaitConfig();
-            var executed = false;
-            var prereq = new Action(() => executed = true);
-            var result = config.WithPrerequisite(prereq);
-
-            Assert.That(result, Is.SameAs(config));
-            Assert.That(config.Prereqs, Is.Not.Null);
-            Assert.That(config.Prereqs!.Count, Is.EqualTo(1));
-
-            // Execute the prerequisite to verify it's correct
-            config.Prereqs[0]();
-            Assert.That(executed, Is.True);
+            Assert.That(config.ConfigPrereqs, Is.SameAs(prereqs));
         }
 
         [Test]
@@ -308,26 +301,26 @@ namespace PleaseWait.Tests.Tests
             var prereq = new Action(() => { });
 
             var config = new WaitConfig()
-                .WithTimeout(10, Seconds)
-                .WithPolling(100, Millis, 200, Millis)
-                .WithExceptionHandling(true, false)
-                .WithLogger(logger)
-                .WithMetrics()
-                .WithStrategy(Adaptive)
-                .WithAlias("Chained Config")
-                .WithPrerequisite(prereq);
+                .Timeout(10, Seconds)
+                .Polling(100, Millis, 200, Millis)
+                .ExceptionHandling(true, false)
+                .Logger(logger)
+                .Metrics()
+                .Strategy(Adaptive)
+                .Alias("Chained Config")
+                .Prereq(prereq);
 
-            Assert.That(config.Timeout, Is.EqualTo(TimeSpan.FromSeconds(10)));
-            Assert.That(config.PollDelay, Is.EqualTo(TimeSpan.FromMilliseconds(100)));
-            Assert.That(config.PollInterval, Is.EqualTo(TimeSpan.FromMilliseconds(200)));
-            Assert.That(config.IgnoreExceptions, Is.True);
-            Assert.That(config.FailSilently, Is.False);
-            Assert.That(config.Logger, Is.SameAs(logger));
-            Assert.That(config.CollectMetrics, Is.True);
-            Assert.That(config.Strategy, Is.EqualTo(Adaptive));
-            Assert.That(config.Alias, Is.EqualTo("Chained Config"));
-            Assert.That(config.Prereqs, Is.Not.Null);
-            Assert.That(config.Prereqs!.Count, Is.EqualTo(1));
+            Assert.That(config.ConfigTimeout, Is.EqualTo(TimeSpan.FromSeconds(10)));
+            Assert.That(config.ConfigPollDelay, Is.EqualTo(TimeSpan.FromMilliseconds(100)));
+            Assert.That(config.ConfigPollInterval, Is.EqualTo(TimeSpan.FromMilliseconds(200)));
+            Assert.That(config.ConfigIgnoreExceptions, Is.True);
+            Assert.That(config.ConfigFailSilently, Is.False);
+            Assert.That(config.ConfigLogger, Is.SameAs(logger));
+            Assert.That(config.ConfigMetrics, Is.True);
+            Assert.That(config.ConfigStrategy, Is.EqualTo(Adaptive));
+            Assert.That(config.ConfigAlias, Is.EqualTo("Chained Config"));
+            Assert.That(config.ConfigPrereqs, Is.Not.Null);
+            Assert.That(config.ConfigPrereqs!.Count, Is.EqualTo(1));
         }
 
         [Test]
@@ -351,6 +344,80 @@ namespace PleaseWait.Tests.Tests
 
             // Note: default(WaitStrategy) is Linear, so we just verify it's a valid enum value
             Assert.That(Enum.IsDefined(typeof(WaitStrategy), capturedStrategy), Is.True);
+        }
+
+        [Test]
+        public void AtMost_TimeSpan_SetsTimeout()
+        {
+            var config = new WaitConfig();
+            var timeout = TimeSpan.FromSeconds(30);
+            var result = config.AtMost(timeout);
+
+            Assert.That(result, Is.SameAs(config));
+            Assert.That(config.ConfigTimeout, Is.EqualTo(timeout));
+        }
+
+        [Test]
+        public void AtMost_ValueAndUnit_SetsTimeout()
+        {
+            var config = new WaitConfig();
+            var result = config.AtMost(30, Seconds);
+
+            Assert.That(result, Is.SameAs(config));
+            Assert.That(config.ConfigTimeout, Is.EqualTo(TimeSpan.FromSeconds(30)));
+        }
+
+        [Test]
+        public void Prereq_WithAction_SetsPrerequisites()
+        {
+            var config = new WaitConfig();
+            var executed = false;
+            var prereq = new Action(() => executed = true);
+            var result = config.Prereq(prereq);
+
+            Assert.That(result, Is.SameAs(config));
+            Assert.That(config.ConfigPrereqs, Is.Not.Null);
+            Assert.That(config.ConfigPrereqs!.Count, Is.EqualTo(1));
+
+            // Execute the prerequisite to verify it's correct
+            config.ConfigPrereqs[0]();
+            Assert.That(executed, Is.True);
+        }
+
+        [Test]
+        public void Prereq_WithNull_SetsPrerequisitesToNull()
+        {
+            var config = new WaitConfig();
+            var result = config.Prereq(null);
+
+            Assert.That(result, Is.SameAs(config));
+            Assert.That(config.ConfigPrereqs, Is.Null);
+        }
+
+        [Test]
+        public void WithAndMethods_SupportFluentChaining()
+        {
+            var logger = new ConsoleLogger();
+            var config = new WaitConfig()
+                .Timeout(15, Seconds)
+                .With().PollDelay(50, Millis)
+                .And().PollInterval(150, Millis)
+                .With().IgnoreExceptions(false)
+                .And().FailSilently()
+                .With().Logger(logger)
+                .And().Metrics()
+                .With().Strategy(ExponentialBackoff)
+                .And().Alias("Syntactic Sugar Test");
+
+            Assert.That(config.ConfigTimeout, Is.EqualTo(TimeSpan.FromSeconds(15)));
+            Assert.That(config.ConfigPollDelay, Is.EqualTo(TimeSpan.FromMilliseconds(50)));
+            Assert.That(config.ConfigPollInterval, Is.EqualTo(TimeSpan.FromMilliseconds(150)));
+            Assert.That(config.ConfigIgnoreExceptions, Is.False);
+            Assert.That(config.ConfigFailSilently, Is.True);
+            Assert.That(config.ConfigLogger, Is.SameAs(logger));
+            Assert.That(config.ConfigMetrics, Is.True);
+            Assert.That(config.ConfigStrategy, Is.EqualTo(ExponentialBackoff));
+            Assert.That(config.ConfigAlias, Is.EqualTo("Syntactic Sugar Test"));
         }
     }
 }

@@ -113,7 +113,7 @@ namespace PleaseWait.Tests
             {
                 Wait()
                     .AtMost(10, Seconds)
-                    .With().Prereq(prereq)
+                    .Prereq(prereq)
                     .Until(() => true, cancellationToken: cts.Token);
             });
 
@@ -134,9 +134,9 @@ namespace PleaseWait.Tests
             {
                 Wait()
                     .AtMost(10, Seconds)
-                    .With().PollDelay(100, Millis)
-                    .And().With().PollInterval(100, Millis)
-                    .With().Prereq(prereq)
+                    .PollDelay(100, Millis)
+                    .PollInterval(100, Millis)
+                    .Prereq(prereq)
                     .Until(() => false, cancellationToken: cts.Token);
             });
 
@@ -168,8 +168,8 @@ namespace PleaseWait.Tests
             {
                 Wait()
                     .AtMost(10, Seconds)
-                    .With().IgnoreExceptions(false)
-                    .And().FailSilently()
+                    .IgnoreExceptions(false)
+                    .FailSilently()
                     .Until(() => true, cancellationToken: cts.Token);
             });
         }
@@ -184,8 +184,8 @@ namespace PleaseWait.Tests
             {
                 Wait()
                     .AtMost(1, Minutes)
-                    .With().PollDelay(1, Seconds)
-                    .And().With().PollInterval(1, Seconds)
+                    .PollDelay(1, Seconds)
+                    .PollInterval(1, Seconds)
                     .Until(() => true, cancellationToken: cts.Token);
             });
         }

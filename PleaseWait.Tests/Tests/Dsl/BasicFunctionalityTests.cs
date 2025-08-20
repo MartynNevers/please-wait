@@ -16,6 +16,7 @@
 
 namespace PleaseWait.Tests
 {
+    using System;
     using NUnit.Framework;
     using static PleaseWait.Dsl;
     using static PleaseWait.TimeUnit;
@@ -53,12 +54,28 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void Sleep_Invoked_PausesExecution()
+        public void Sleep_WithTimeUnit_PausesExecution()
         {
             var orange = new Orange();
             _ = orange.PeelAsync(5);
             Wait().Sleep(7, Seconds);
             Assert.That(orange.IsPeeled, Is.True);
+        }
+
+        [Test]
+        public void Polling_TimeSpan_SetsBothDelayAndInterval()
+        {
+            var delay = TimeSpan.FromMilliseconds(50);
+            var interval = TimeSpan.FromMilliseconds(100);
+            var result = Wait().Polling(delay, interval);
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        public void Polling_ValueAndUnit_SetsBothDelayAndInterval()
+        {
+            var result = Wait().Polling(150, Millis, 250, Millis);
+            Assert.That(result, Is.Not.Null);
         }
     }
 }

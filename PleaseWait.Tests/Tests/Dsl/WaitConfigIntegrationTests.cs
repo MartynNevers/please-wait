@@ -42,12 +42,12 @@ namespace PleaseWait.Tests.Tests.Dsl
         public void Wait_WithConfig_UsesConfigValues()
         {
             var config = Wait().Config()
-                .WithTimeout(5, Seconds)
-                .WithPolling(50, Millis, 100, Millis)
-                .WithAlias("Test Config")
-                .WithLogger(new ConsoleLogger())
-                .WithMetrics()
-                .WithStrategy(Conservative);
+                .Timeout(5, Seconds)
+                .Polling(50, Millis, 100, Millis)
+                .Alias("Test Config")
+                .Logger(new ConsoleLogger())
+                .Metrics()
+                .Strategy(Conservative);
 
             var orange = new Orange();
             _ = orange.PeelAsync(1);
@@ -63,18 +63,18 @@ namespace PleaseWait.Tests.Tests.Dsl
         public void Wait_WithPartialConfig_UsesGlobalDefaultsForUnsetValues()
         {
             // Set global defaults
-            Wait().Configure()
-                .DefaultTimeout(30, Seconds)
-                .DefaultPollDelay(200, Millis)
-                .DefaultPollInterval(500, Millis)
-                .DefaultStrategy(Linear)
-                .DefaultAlias("Global Alias");
+            Wait().Global().Configure()
+                .Timeout(30, Seconds)
+                .PollDelay(200, Millis)
+                .PollInterval(500, Millis)
+                .Strategy(Linear)
+                .Alias("Global Alias");
 
             // Only set timeout in config, leave others unset
             var config = Wait().Config()
-                .WithTimeout(5, Seconds);
+                .Timeout(5, Seconds);
 
-            // Note: no .WithPollDelay(), .WithPollInterval(), .WithStrategy(), .WithAlias() calls
+            // Note: no .PollDelay(), .PollInterval(), .Strategy(), .Alias() calls
             var orange = new Orange();
             _ = orange.PeelAsync(1);
 
@@ -90,24 +90,24 @@ namespace PleaseWait.Tests.Tests.Dsl
             Assert.That(metrics, Is.Null);
 
             // Reset global defaults
-            Wait().ResetToDefaults();
+            Wait().Global().ResetToDefaults();
         }
 
         [Test]
         public void Wait_WithConfig_OverridesGlobalDefaults()
         {
             // Set global defaults
-            Wait().Configure()
-                .DefaultTimeout(30, Seconds)
-                .DefaultPollDelay(200, Millis)
-                .DefaultPollInterval(500, Millis)
-                .DefaultStrategy(Linear);
+            Wait().Global().Configure()
+                .Timeout(30, Seconds)
+                .PollDelay(200, Millis)
+                .PollInterval(500, Millis)
+                .Strategy(Linear);
 
             // Create config with different values
             var config = Wait().Config()
-                .WithTimeout(5, Seconds)
-                .WithPolling(50, Millis, 100, Millis)
-                .WithStrategy(Conservative);
+                .Timeout(5, Seconds)
+                .Polling(50, Millis, 100, Millis)
+                .Strategy(Conservative);
 
             var orange = new Orange();
             _ = orange.PeelAsync(1);
@@ -121,16 +121,16 @@ namespace PleaseWait.Tests.Tests.Dsl
             Assert.That(orange.IsPeeled, Is.True);
 
             // Reset global defaults
-            Wait().ResetToDefaults();
+            Wait().Global().ResetToDefaults();
         }
 
         [Test]
         public void Wait_WithConfig_HandlesExceptionsCorrectly()
         {
             var config = Wait().Config()
-                .WithTimeout(2, Seconds)
-                .WithIgnoreExceptions(true)
-                .WithFailSilently(true);
+                .Timeout(2, Seconds)
+                .IgnoreExceptions(true)
+                .FailSilently(true);
 
             var result = Wait(config).Until(() => throw new InvalidOperationException("Test exception"));
 
@@ -145,8 +145,8 @@ namespace PleaseWait.Tests.Tests.Dsl
             var prereqAction = new Action(() => prereqExecuted = true);
 
             var config = Wait().Config()
-                .WithTimeout(5, Seconds)
-                .WithPrerequisites(new List<Action> { prereqAction });
+                .Timeout(5, Seconds)
+                .Prereqs(new List<Action> { prereqAction });
 
             var orange = new Orange();
             _ = orange.PeelAsync(1);
@@ -161,8 +161,8 @@ namespace PleaseWait.Tests.Tests.Dsl
         public void Wait_WithConfig_CollectsMetricsWhenEnabled()
         {
             var config = Wait().Config()
-                .WithTimeout(5, Seconds)
-                .WithMetrics(true);
+                .Timeout(5, Seconds)
+                .Metrics(true);
 
             var orange = new Orange();
             _ = orange.PeelAsync(1);
@@ -179,8 +179,8 @@ namespace PleaseWait.Tests.Tests.Dsl
         public void Wait_WithConfig_DoesNotCollectMetricsWhenDisabled()
         {
             var config = Wait().Config()
-                .WithTimeout(5, Seconds)
-                .WithMetrics(false);
+                .Timeout(5, Seconds)
+                .Metrics(false);
 
             var orange = new Orange();
             _ = orange.PeelAsync(1);
@@ -196,8 +196,8 @@ namespace PleaseWait.Tests.Tests.Dsl
         {
             var testLogger = new TestLogger();
             var config = Wait().Config()
-                .WithTimeout(5, Seconds)
-                .WithLogger(testLogger);
+                .Timeout(5, Seconds)
+                .Logger(testLogger);
 
             var orange = new Orange();
             _ = orange.PeelAsync(1);
@@ -212,8 +212,8 @@ namespace PleaseWait.Tests.Tests.Dsl
         public void Wait_WithConfig_UsesSpecifiedStrategy()
         {
             var config = Wait().Config()
-                .WithTimeout(5, Seconds)
-                .WithStrategy(Conservative);
+                .Timeout(5, Seconds)
+                .Strategy(Conservative);
 
             var orange = new Orange();
             _ = orange.PeelAsync(1);
@@ -237,9 +237,9 @@ namespace PleaseWait.Tests.Tests.Dsl
         {
             var testLogger = new TestLogger();
             var config = Wait().Config()
-                .WithTimeout(5, Seconds)
-                .WithLogger(testLogger)
-                .WithAlias("Custom Alias");
+                .Timeout(5, Seconds)
+                .Logger(testLogger)
+                .Alias("Custom Alias");
 
             var orange = new Orange();
             _ = orange.PeelAsync(1);
@@ -263,21 +263,21 @@ namespace PleaseWait.Tests.Tests.Dsl
         public void Wait_WithConfig_CapturesGlobalDefaultsAtCreationTime()
         {
             // Set global defaults
-            Wait().Configure()
-                .DefaultTimeout(30, Seconds)
-                .DefaultPollDelay(200, Millis)
-                .DefaultStrategy(Linear);
+            Wait().Global().Configure()
+                .Timeout(30, Seconds)
+                .PollDelay(200, Millis)
+                .Strategy(Linear);
 
             // Create config with only timeout override
             var config = Wait().Config()
-                .WithTimeout(5, Seconds);
+                .Timeout(5, Seconds);
 
             // PollDelay and Strategy are null = use captured global defaults
 
             // Update global defaults AFTER creating config
-            Wait().Configure()
-                .DefaultPollDelay(300, Millis)
-                .DefaultStrategy(Conservative);
+            Wait().Global().Configure()
+                .PollDelay(300, Millis)
+                .Strategy(Conservative);
 
             var orange = new Orange();
             _ = orange.PeelAsync(1);
@@ -295,7 +295,111 @@ namespace PleaseWait.Tests.Tests.Dsl
             Assert.That(metrics, Is.Null);
 
             // Reset global defaults
-            Wait().ResetToDefaults();
+            Wait().Global().ResetToDefaults();
+        }
+
+        [Test]
+        public void Wait_WithConfig_ConfigMetricsNullDefaultMetricsFalse_DoesNotCollectMetrics()
+        {
+            // Set global metrics to false
+            Wait().Global().Configure()
+                .Metrics(false);
+
+            // Create config without calling .Metrics() (so ConfigMetrics is null)
+            var config = Wait().Config()
+                .Timeout(5, Seconds);
+
+            var orange = new Orange();
+            _ = orange.PeelAsync(1);
+
+            var metrics = Wait(config).Until(() => orange.IsPeeled);
+
+            // Should not collect metrics: null ?? false = false
+            Assert.That(metrics, Is.Null);
+            Assert.That(orange.IsPeeled, Is.True);
+
+            // Reset global defaults
+            Wait().Global().ResetToDefaults();
+        }
+
+        [Test]
+        public void Wait_WithConfig_ConfigMetricsNullDefaultMetricsTrue_CollectsMetrics()
+        {
+            // Set global metrics to true
+            Wait().Global().Configure()
+                .Metrics(true);
+
+            // Create config without calling .Metrics() (so ConfigMetrics is null)
+            var config = Wait().Config()
+                .Timeout(5, Seconds);
+
+            var orange = new Orange();
+            _ = orange.PeelAsync(1);
+
+            var metrics = Wait(config).Until(() => orange.IsPeeled);
+
+            // Should collect metrics: null ?? true = true
+            Assert.That(metrics, Is.Not.Null);
+            Assert.That(metrics!.WasSuccessful, Is.True);
+            Assert.That(metrics.ConditionChecks, Is.GreaterThan(0));
+            Assert.That(metrics.TotalTime, Is.GreaterThan(TimeSpan.Zero));
+            Assert.That(orange.IsPeeled, Is.True);
+
+            // Reset global defaults
+            Wait().Global().ResetToDefaults();
+        }
+
+        [Test]
+        public void Wait_WithConfig_ConfigMetricsFalseDefaultMetricsTrue_DoesNotCollectMetrics()
+        {
+            // Set global metrics to true
+            Wait().Global().Configure()
+                .Metrics(true);
+
+            // Create config with explicit Metrics(false)
+            var config = Wait().Config()
+                .Timeout(5, Seconds)
+                .Metrics(false);
+
+            var orange = new Orange();
+            _ = orange.PeelAsync(1);
+
+            var metrics = Wait(config).Until(() => orange.IsPeeled);
+
+            // Should not collect metrics: false ?? true = false (explicit false overrides default)
+            Assert.That(metrics, Is.Null);
+            Assert.That(orange.IsPeeled, Is.True);
+
+            // Reset global defaults
+            Wait().Global().ResetToDefaults();
+        }
+
+        [Test]
+        public void Wait_WithConfig_ConfigMetricsTrueDefaultMetricsFalse_CollectsMetrics()
+        {
+            // Set global metrics to false
+            Wait().Global().Configure()
+                .Metrics(false);
+
+            // Create config with explicit Metrics(true)
+            var config = Wait().Config()
+                .Timeout(5, Seconds)
+                .Metrics(true);
+
+            var orange = new Orange();
+            _ = orange.PeelAsync(1);
+
+            var metrics = Wait(config).Until(() => orange.IsPeeled);
+
+            // Should collect metrics: true ?? false = true (explicit true overrides default)
+            Assert.That(metrics, Is.Not.Null);
+            Assert.That(metrics!.WasSuccessful, Is.True);
+            Assert.That(metrics.ConditionChecks, Is.GreaterThan(0));
+            Assert.That(metrics.TotalTime, Is.GreaterThan(TimeSpan.Zero));
+            Assert.That(orange.IsPeeled, Is.True);
+
+            // Reset global defaults
+            Wait().Global().ResetToDefaults();
         }
     }
 }

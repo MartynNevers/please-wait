@@ -34,7 +34,7 @@ namespace PleaseWait
         private IList<Action>? prereqs = GlobalDefaults.Prereqs;
         private string? alias = GlobalDefaults.Alias;
         private IWaitLogger logger = GlobalDefaults.Logger;
-        private WaitMetrics? metrics = GlobalDefaults.Metrics;
+        private WaitMetrics? metrics = GlobalDefaults.Metrics ? new WaitMetrics() : null;
         private WaitStrategy strategy = GlobalDefaults.Strategy;
 
         private Dsl()
@@ -44,16 +44,16 @@ namespace PleaseWait
         private Dsl(WaitConfig config)
         {
             // Use config values if set, otherwise use captured global defaults
-            this.timeout = config.Timeout ?? config.DefaultTimeout;
-            this.pollDelay = config.PollDelay ?? config.DefaultPollDelay;
-            this.pollInterval = config.PollInterval ?? config.DefaultPollInterval;
-            this.ignoreExceptions = config.IgnoreExceptions ?? config.DefaultIgnoreExceptions;
-            this.failSilently = config.FailSilently ?? config.DefaultFailSilently;
-            this.prereqs = config.Prereqs ?? config.DefaultPrereqs;
-            this.alias = config.Alias ?? config.DefaultAlias;
-            this.logger = config.Logger ?? config.DefaultLogger;
-            this.metrics = config.CollectMetrics == true ? new WaitMetrics() : config.DefaultMetrics;
-            this.strategy = config.Strategy ?? config.DefaultStrategy;
+            this.timeout = config.ConfigTimeout ?? config.DefaultTimeout;
+            this.pollDelay = config.ConfigPollDelay ?? config.DefaultPollDelay;
+            this.pollInterval = config.ConfigPollInterval ?? config.DefaultPollInterval;
+            this.ignoreExceptions = config.ConfigIgnoreExceptions ?? config.DefaultIgnoreExceptions;
+            this.failSilently = config.ConfigFailSilently ?? config.DefaultFailSilently;
+            this.prereqs = config.ConfigPrereqs ?? config.DefaultPrereqs;
+            this.alias = config.ConfigAlias ?? config.DefaultAlias;
+            this.logger = config.ConfigLogger ?? config.DefaultLogger;
+            this.metrics = (config.ConfigMetrics ?? config.DefaultMetrics) ? new WaitMetrics() : null;
+            this.strategy = config.ConfigStrategy ?? config.DefaultStrategy;
         }
 
         /// <summary>
@@ -76,20 +76,12 @@ namespace PleaseWait
         }
 
         /// <summary>
-        /// Configures global defaults for PleaseWait.
+        /// Provides access to global configuration operations.
         /// </summary>
-        /// <returns>A configuration builder for setting global defaults.</returns>
-        public ConfigurationBuilder Configure()
+        /// <returns>A global configuration object.</returns>
+        public GlobalConfiguration Global()
         {
-            return new ConfigurationBuilder();
-        }
-
-        /// <summary>
-        /// Resets all global configuration to default values.
-        /// </summary>
-        public void ResetToDefaults()
-        {
-            GlobalDefaults.ResetToDefaults();
+            return new GlobalConfiguration();
         }
 
         /// <summary>
@@ -188,6 +180,32 @@ namespace PleaseWait
             this.SetPollInterval(timeSpan);
 
         /// <summary>
+        /// Defines both polling delay and interval to be used in the waiting condition.
+        /// </summary>
+        /// <param name="pollDelay">The polling delay value.</param>
+        /// <param name="pollInterval">The polling interval value.</param>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
+        public Dsl Polling(TimeSpan pollDelay, TimeSpan pollInterval)
+        {
+            return this.PollDelay(pollDelay).PollInterval(pollInterval);
+        }
+
+        /// <summary>
+        /// Defines both polling delay and interval to be used in the waiting condition.
+        /// </summary>
+        /// <param name="pollDelayValue">The polling delay value.</param>
+        /// <param name="pollDelayUnit">The time unit for the polling delay value.</param>
+        /// <param name="pollIntervalValue">The polling interval value.</param>
+        /// <param name="pollIntervalUnit">The time unit for the polling interval value.</param>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
+        public Dsl Polling(double pollDelayValue, TimeUnit pollDelayUnit, double pollIntervalValue, TimeUnit pollIntervalUnit)
+        {
+            return this.Polling(
+                new TimeConstraint(pollDelayValue, pollDelayUnit).GetTimeSpan(),
+                new TimeConstraint(pollIntervalValue, pollIntervalUnit).GetTimeSpan());
+        }
+
+        /// <summary>
         /// Defines whether or not to ignore exceptions thrown by the code when checking for a condition.
         /// </summary>
         /// <param name="ignoreExceptions">Set to true to ignore exceptions, false otherwise.</param>
@@ -205,6 +223,19 @@ namespace PleaseWait
         /// <returns>The current <see cref="Dsl"/>.</returns>
         public Dsl FailSilently(bool failSilently = true)
         {
+            this.failSilently = failSilently;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets both exception handling options in a single call.
+        /// </summary>
+        /// <param name="ignoreExceptions">Whether to ignore exceptions during condition checks.</param>
+        /// <param name="failSilently">Whether to fail silently instead of throwing exceptions.</param>
+        /// <returns>The current <see cref="Dsl"/>.</returns>
+        public Dsl ExceptionHandling(bool ignoreExceptions, bool failSilently)
+        {
+            this.ignoreExceptions = ignoreExceptions;
             this.failSilently = failSilently;
             return this;
         }
@@ -259,7 +290,7 @@ namespace PleaseWait
         /// </summary>
         /// <param name="logger">The logger to use for wait operations.</param>
         /// <returns>The current <see cref="Dsl"/>.</returns>
-        public Dsl WithLogger(IWaitLogger logger)
+        public Dsl Logger(IWaitLogger logger)
         {
             this.logger = logger ?? NullLogger.Instance;
             return this;
@@ -268,16 +299,25 @@ namespace PleaseWait
         /// <summary>
         /// Enables performance metrics collection for the wait operation.
         /// </summary>
+        /// <param name="collectMetrics">Whether to collect metrics. Defaults to true.</param>
         /// <returns>The current <see cref="Dsl"/>.</returns>
-        public Dsl WithMetrics()
+        public Dsl Metrics(bool collectMetrics = true)
         {
-            this.metrics = new WaitMetrics
+            if (collectMetrics)
             {
-                ConditionAlias = this.alias,
-                ConfiguredTimeout = this.timeout,
-                ConfiguredPollDelay = this.pollDelay,
-                ConfiguredPollInterval = this.pollInterval,
-            };
+                this.metrics = new WaitMetrics
+                {
+                    ConditionAlias = this.alias,
+                    ConfiguredTimeout = this.timeout,
+                    ConfiguredPollDelay = this.pollDelay,
+                    ConfiguredPollInterval = this.pollInterval,
+                };
+            }
+            else
+            {
+                this.metrics = null;
+            }
+
             return this;
         }
 
@@ -286,7 +326,7 @@ namespace PleaseWait
         /// </summary>
         /// <param name="strategy">The wait strategy to use.</param>
         /// <returns>The current <see cref="Dsl"/>.</returns>
-        public Dsl WithStrategy(WaitStrategy strategy)
+        public Dsl Strategy(WaitStrategy strategy)
         {
             this.strategy = strategy;
             return this;

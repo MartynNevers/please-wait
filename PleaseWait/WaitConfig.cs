@@ -54,61 +54,61 @@ namespace PleaseWait
         /// Gets or sets the timeout for wait operations.
         /// Null indicates use global default.
         /// </summary>
-        public TimeSpan? Timeout { get; set; } = null;
+        public TimeSpan? ConfigTimeout { get; set; } = null;
 
         /// <summary>
         /// Gets or sets the poll delay for wait operations.
         /// Null indicates use global default.
         /// </summary>
-        public TimeSpan? PollDelay { get; set; } = null;
+        public TimeSpan? ConfigPollDelay { get; set; } = null;
 
         /// <summary>
         /// Gets or sets the poll interval for wait operations.
         /// Null indicates use global default.
         /// </summary>
-        public TimeSpan? PollInterval { get; set; } = null;
+        public TimeSpan? ConfigPollInterval { get; set; } = null;
 
         /// <summary>
         /// Gets or sets whether to ignore exceptions during condition checks.
         /// Null indicates use global default.
         /// </summary>
-        public bool? IgnoreExceptions { get; set; } = null;
+        public bool? ConfigIgnoreExceptions { get; set; } = null;
 
         /// <summary>
         /// Gets or sets whether to fail silently instead of throwing exceptions.
         /// Null indicates use global default.
         /// </summary>
-        public bool? FailSilently { get; set; } = null;
+        public bool? ConfigFailSilently { get; set; } = null;
 
         /// <summary>
         /// Gets or sets the prerequisite actions to execute before condition checks.
         /// Null indicates use global default.
         /// </summary>
-        public IList<Action>? Prereqs { get; set; } = null;
+        public IList<Action>? ConfigPrereqs { get; set; } = null;
 
         /// <summary>
         /// Gets or sets the alias for the condition.
         /// Null indicates use global default.
         /// </summary>
-        public string? Alias { get; set; } = null;
+        public string? ConfigAlias { get; set; } = null;
 
         /// <summary>
         /// Gets or sets the logger for wait operations.
         /// Null indicates use global default.
         /// </summary>
-        public IWaitLogger? Logger { get; set; } = null;
+        public IWaitLogger? ConfigLogger { get; set; } = null;
 
         /// <summary>
         /// Gets or sets whether to collect metrics during wait operations.
         /// Null indicates use global default.
         /// </summary>
-        public bool? CollectMetrics { get; set; } = null;
+        public bool? ConfigMetrics { get; set; } = null;
 
         /// <summary>
         /// Gets or sets the wait strategy to use.
         /// Null indicates use global default.
         /// </summary>
-        public WaitStrategy? Strategy { get; set; } = null;
+        public WaitStrategy? ConfigStrategy { get; set; } = null;
 
         // Captured global default values (set at construction time)
         internal TimeSpan DefaultTimeout { get; set; }
@@ -127,18 +127,36 @@ namespace PleaseWait
 
         internal IWaitLogger DefaultLogger { get; set; }
 
-        internal WaitMetrics? DefaultMetrics { get; set; }
+        internal bool DefaultMetrics { get; set; }
 
         internal WaitStrategy DefaultStrategy { get; set; }
+
+        /// <summary>
+        /// Syntactic sugar method that can be used to make the code easier to read.
+        /// </summary>
+        /// <returns>The current <see cref="WaitConfig"/>.</returns>
+        public WaitConfig With()
+        {
+            return this;
+        }
+
+        /// <summary>
+        /// Syntactic sugar method that can be used to make the code easier to read.
+        /// </summary>
+        /// <returns>The current <see cref="WaitConfig"/>.</returns>
+        public WaitConfig And()
+        {
+            return this;
+        }
 
         /// <summary>
         /// Sets the timeout for wait operations.
         /// </summary>
         /// <param name="timeout">The timeout value.</param>
         /// <returns>The current configuration.</returns>
-        public WaitConfig WithTimeout(TimeSpan timeout)
+        public WaitConfig Timeout(TimeSpan timeout)
         {
-            this.Timeout = timeout;
+            this.ConfigTimeout = timeout;
             return this;
         }
 
@@ -148,9 +166,30 @@ namespace PleaseWait
         /// <param name="value">The timeout value.</param>
         /// <param name="timeUnit">The time unit for the timeout value.</param>
         /// <returns>The current configuration.</returns>
-        public WaitConfig WithTimeout(double value, TimeUnit timeUnit)
+        public WaitConfig Timeout(double value, TimeUnit timeUnit)
         {
-            return this.WithTimeout(new TimeConstraint(value, timeUnit).GetTimeSpan());
+            return this.Timeout(new TimeConstraint(value, timeUnit).GetTimeSpan());
+        }
+
+        /// <summary>
+        /// Sets the timeout for wait operations (alias for Timeout).
+        /// </summary>
+        /// <param name="timeout">The timeout value.</param>
+        /// <returns>The current configuration.</returns>
+        public WaitConfig AtMost(TimeSpan timeout)
+        {
+            return this.Timeout(timeout);
+        }
+
+        /// <summary>
+        /// Sets the timeout for wait operations (alias for Timeout).
+        /// </summary>
+        /// <param name="value">The timeout value.</param>
+        /// <param name="timeUnit">The time unit for the timeout value.</param>
+        /// <returns>The current configuration.</returns>
+        public WaitConfig AtMost(double value, TimeUnit timeUnit)
+        {
+            return this.Timeout(value, timeUnit);
         }
 
         /// <summary>
@@ -158,9 +197,9 @@ namespace PleaseWait
         /// </summary>
         /// <param name="pollDelay">The poll delay value.</param>
         /// <returns>The current configuration.</returns>
-        public WaitConfig WithPollDelay(TimeSpan pollDelay)
+        public WaitConfig PollDelay(TimeSpan pollDelay)
         {
-            this.PollDelay = pollDelay;
+            this.ConfigPollDelay = pollDelay;
             return this;
         }
 
@@ -170,9 +209,9 @@ namespace PleaseWait
         /// <param name="value">The poll delay value.</param>
         /// <param name="timeUnit">The time unit for the poll delay value.</param>
         /// <returns>The current configuration.</returns>
-        public WaitConfig WithPollDelay(double value, TimeUnit timeUnit)
+        public WaitConfig PollDelay(double value, TimeUnit timeUnit)
         {
-            return this.WithPollDelay(new TimeConstraint(value, timeUnit).GetTimeSpan());
+            return this.PollDelay(new TimeConstraint(value, timeUnit).GetTimeSpan());
         }
 
         /// <summary>
@@ -180,9 +219,9 @@ namespace PleaseWait
         /// </summary>
         /// <param name="pollInterval">The poll interval value.</param>
         /// <returns>The current configuration.</returns>
-        public WaitConfig WithPollInterval(TimeSpan pollInterval)
+        public WaitConfig PollInterval(TimeSpan pollInterval)
         {
-            this.PollInterval = pollInterval;
+            this.ConfigPollInterval = pollInterval;
             return this;
         }
 
@@ -192,9 +231,9 @@ namespace PleaseWait
         /// <param name="value">The poll interval value.</param>
         /// <param name="timeUnit">The time unit for the poll interval value.</param>
         /// <returns>The current configuration.</returns>
-        public WaitConfig WithPollInterval(double value, TimeUnit timeUnit)
+        public WaitConfig PollInterval(double value, TimeUnit timeUnit)
         {
-            return this.WithPollInterval(new TimeConstraint(value, timeUnit).GetTimeSpan());
+            return this.PollInterval(new TimeConstraint(value, timeUnit).GetTimeSpan());
         }
 
         /// <summary>
@@ -203,10 +242,10 @@ namespace PleaseWait
         /// <param name="pollDelay">The poll delay value.</param>
         /// <param name="pollInterval">The poll interval value.</param>
         /// <returns>The current configuration.</returns>
-        public WaitConfig WithPolling(TimeSpan pollDelay, TimeSpan pollInterval)
+        public WaitConfig Polling(TimeSpan pollDelay, TimeSpan pollInterval)
         {
-            this.PollDelay = pollDelay;
-            this.PollInterval = pollInterval;
+            this.ConfigPollDelay = pollDelay;
+            this.ConfigPollInterval = pollInterval;
             return this;
         }
 
@@ -218,9 +257,9 @@ namespace PleaseWait
         /// <param name="pollIntervalValue">The poll interval value.</param>
         /// <param name="pollIntervalUnit">The time unit for the poll interval value.</param>
         /// <returns>The current configuration.</returns>
-        public WaitConfig WithPolling(double pollDelayValue, TimeUnit pollDelayUnit, double pollIntervalValue, TimeUnit pollIntervalUnit)
+        public WaitConfig Polling(double pollDelayValue, TimeUnit pollDelayUnit, double pollIntervalValue, TimeUnit pollIntervalUnit)
         {
-            return this.WithPolling(
+            return this.Polling(
                 new TimeConstraint(pollDelayValue, pollDelayUnit).GetTimeSpan(),
                 new TimeConstraint(pollIntervalValue, pollIntervalUnit).GetTimeSpan());
         }
@@ -230,9 +269,9 @@ namespace PleaseWait
         /// </summary>
         /// <param name="ignoreExceptions">Whether to ignore exceptions.</param>
         /// <returns>The current configuration.</returns>
-        public WaitConfig WithIgnoreExceptions(bool ignoreExceptions)
+        public WaitConfig IgnoreExceptions(bool ignoreExceptions = true)
         {
-            this.IgnoreExceptions = ignoreExceptions;
+            this.ConfigIgnoreExceptions = ignoreExceptions;
             return this;
         }
 
@@ -241,9 +280,9 @@ namespace PleaseWait
         /// </summary>
         /// <param name="failSilently">Whether to fail silently.</param>
         /// <returns>The current configuration.</returns>
-        public WaitConfig WithFailSilently(bool failSilently)
+        public WaitConfig FailSilently(bool failSilently = true)
         {
-            this.FailSilently = failSilently;
+            this.ConfigFailSilently = failSilently;
             return this;
         }
 
@@ -253,65 +292,10 @@ namespace PleaseWait
         /// <param name="ignoreExceptions">Whether to ignore exceptions during condition checks.</param>
         /// <param name="failSilently">Whether to fail silently instead of throwing exceptions.</param>
         /// <returns>The current configuration.</returns>
-        public WaitConfig WithExceptionHandling(bool ignoreExceptions, bool failSilently)
+        public WaitConfig ExceptionHandling(bool ignoreExceptions, bool failSilently)
         {
-            this.IgnoreExceptions = ignoreExceptions;
-            this.FailSilently = failSilently;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the logger for wait operations.
-        /// </summary>
-        /// <param name="logger">The logger to use.</param>
-        /// <returns>The current configuration.</returns>
-        public WaitConfig WithLogger(IWaitLogger logger)
-        {
-            this.Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            return this;
-        }
-
-        /// <summary>
-        /// Sets whether to collect metrics during wait operations.
-        /// </summary>
-        /// <param name="collectMetrics">Whether to collect metrics.</param>
-        /// <returns>The current configuration.</returns>
-        public WaitConfig WithMetrics(bool collectMetrics = true)
-        {
-            this.CollectMetrics = collectMetrics;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the wait strategy to use.
-        /// </summary>
-        /// <param name="strategy">The wait strategy to use.</param>
-        /// <returns>The current configuration.</returns>
-        public WaitConfig WithStrategy(WaitStrategy strategy)
-        {
-            this.Strategy = strategy;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the alias for the condition.
-        /// </summary>
-        /// <param name="alias">The alias to use.</param>
-        /// <returns>The current configuration.</returns>
-        public WaitConfig WithAlias(string alias)
-        {
-            this.Alias = alias;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the prerequisite actions to execute before condition checks.
-        /// </summary>
-        /// <param name="prereqs">The prerequisite actions to execute.</param>
-        /// <returns>The current configuration.</returns>
-        public WaitConfig WithPrerequisites(IList<Action> prereqs)
-        {
-            this.Prereqs = prereqs;
+            this.ConfigIgnoreExceptions = ignoreExceptions;
+            this.ConfigFailSilently = failSilently;
             return this;
         }
 
@@ -320,9 +304,89 @@ namespace PleaseWait
         /// </summary>
         /// <param name="prereq">The prerequisite action to execute.</param>
         /// <returns>The current configuration.</returns>
-        public WaitConfig WithPrerequisite(Action prereq)
+        public WaitConfig Prereq(Action? prereq)
         {
-            this.Prereqs = new List<Action> { prereq };
+            this.ConfigPrereqs = prereq != null ? new List<Action> { prereq } : null;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the prerequisite actions to execute before condition checks.
+        /// </summary>
+        /// <param name="prereqs">The prerequisite actions to execute.</param>
+        /// <returns>The current configuration.</returns>
+        public WaitConfig Prereqs(IList<Action>? prereqs)
+        {
+            this.ConfigPrereqs = prereqs;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the alias for the condition.
+        /// </summary>
+        /// <param name="alias">The alias to use.</param>
+        /// <returns>The current configuration.</returns>
+        public WaitConfig Alias(string? alias)
+        {
+            this.ConfigAlias = alias;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the logger for wait operations.
+        /// </summary>
+        /// <param name="logger">The logger to use.</param>
+        /// <returns>The current configuration.</returns>
+        public WaitConfig Logger(IWaitLogger logger)
+        {
+            this.ConfigLogger = logger ?? throw new ArgumentNullException(nameof(logger));
+            return this;
+        }
+
+        /// <summary>
+        /// Sets whether to collect metrics during wait operations.
+        /// </summary>
+        /// <param name="collectMetrics">Whether to collect metrics.</param>
+        /// <returns>The current configuration.</returns>
+        public WaitConfig Metrics(bool collectMetrics = true)
+        {
+            this.ConfigMetrics = collectMetrics;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the wait strategy to use.
+        /// </summary>
+        /// <param name="strategy">The wait strategy to use.</param>
+        /// <returns>The current configuration.</returns>
+        public WaitConfig Strategy(WaitStrategy strategy)
+        {
+            this.ConfigStrategy = strategy;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the sleep duration for wait operations.
+        /// </summary>
+        /// <param name="timeSpan">The sleep duration.</param>
+        /// <returns>The current configuration.</returns>
+        public WaitConfig Sleep(TimeSpan timeSpan)
+        {
+            // Sleep is not a configuration setting, so this method is provided for API consistency
+            // but doesn't modify any configuration properties
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the sleep duration for wait operations.
+        /// </summary>
+        /// <param name="value">The sleep duration value.</param>
+        /// <param name="timeUnit">The time unit for the sleep duration value.</param>
+        /// <returns>The current configuration.</returns>
+        public WaitConfig Sleep(double value, TimeUnit timeUnit)
+        {
+            // Sleep is not a configuration setting, so this method is provided for API consistency
+            // but doesn't modify any configuration properties
             return this;
         }
     }

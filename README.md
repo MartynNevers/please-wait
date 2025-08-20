@@ -4,7 +4,7 @@
 [![CodeQL](https://github.com/MartynNevers/please-wait/actions/workflows/codeql.yml/badge.svg)](https://github.com/MartynNevers/please-wait/actions/workflows/codeql.yml)
 [![NuGet](https://img.shields.io/nuget/v/PleaseWait?color=blue)](https://www.nuget.org/packages/PleaseWait)
 [![NuGet](https://img.shields.io/nuget/dt/PleaseWait)](https://www.nuget.org/packages/PleaseWait)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/MartynNevers/please-wait/blob/main/LICENSE)
 
 ## 📋 Table of Contents
 
@@ -12,6 +12,7 @@
 - [🚀 Features](#-features)
 - [📦 Installation](#-installation)
 - [🎯 Quick Start](#-quick-start)
+  - [Setup](#setup)
   - [Basic Usage](#basic-usage)
   - [Advanced Usage](#advanced-usage)
 - [📚 API Examples](#-api-examples)
@@ -23,6 +24,8 @@
   - [Cancellation Support](#cancellation-support)
   - [Diagnostic Logging](#diagnostic-logging)
   - [Performance Monitoring](#performance-monitoring)
+  - [Wait Options](#wait-options)
+  - [Syntactic Sugar: With() and And()](#syntactic-sugar-with-and)
   - [Wait Strategies](#wait-strategies)
   - [Global Configuration](#global-configuration)
   - [Instance Configuration](#instance-configuration)
@@ -72,12 +75,20 @@ Or add to your `.csproj`:
 
 ## 🎯 Quick Start
 
+### Setup
+
+Add these using statements to your file for the cleanest PleaseWait experience:
+
+```csharp
+using PleaseWait.Logging;
+using static PleaseWait.Dsl;
+using static PleaseWait.TimeUnit;
+using static PleaseWait.Strategy.WaitStrategy;
+```
+
 ### Basic Usage
 
 ```csharp
-using static PleaseWait.Dsl;
-using static PleaseWait.TimeUnit;
-
 [Test]
 public void WaitForCondition()
 {
@@ -97,14 +108,14 @@ public void WaitForCondition()
 [Test]
 public void AdvancedWaitingExample()
 {
-    var orange = new Orange();
+	var orange = new Orange();
     
     Wait()
         .AtMost(5, Seconds)
-        .WithPollDelay(100, Millis)
-        .WithPollInterval(200, Millis)
-        .IgnoreExceptions()
-        .WithPrereq(() => orange.Refresh())
+        .PollDelay(100, Millis)
+        .PollInterval(200, Millis)
+        .IgnoreExceptions(true)
+        .Prereq(() => orange.Refresh())
         .Until(() => orange.IsPeeled && orange.CountSegments() > 8);
 }
 ```
@@ -127,10 +138,17 @@ Wait().Timeout(30, Seconds).Until(condition);
 ### Polling Configuration
 
 ```csharp
+// Set both polling delay and interval in one call
 Wait()
     .AtMost(10, Seconds)
-    .WithPollDelay(100, Millis)    // Initial delay before first check
-    .WithPollInterval(500, Millis) // Interval between subsequent checks
+    .Polling(100, Millis, 500, Millis)  // delay, interval
+    .Until(condition);
+
+// Or set them separately
+Wait()
+    .AtMost(10, Seconds)
+    .PollDelay(100, Millis)    // Initial delay before first check
+    .PollInterval(500, Millis) // Interval between subsequent checks
     .Until(condition);
 ```
 
@@ -144,7 +162,13 @@ Wait().AtMost(5, Seconds).Until(() => RiskyOperation());
 Wait().AtMost(5, Seconds).IgnoreExceptions(false).Until(() => RiskyOperation());
 
 // Fail silently (don't throw timeout exceptions)
-Wait().AtMost(5, Seconds).FailSilently().Until(() => condition);
+Wait().AtMost(5, Seconds).FailSilently(true).Until(() => condition);
+
+// Set both exception handling options in one call
+Wait()
+    .AtMost(10, Seconds)
+    .ExceptionHandling(ignoreExceptions: true, failSilently: false)
+    .Until(() => RiskyOperation());
 ```
 
 ### Prerequisite Actions
@@ -153,7 +177,7 @@ Wait().AtMost(5, Seconds).FailSilently().Until(() => condition);
 // Single prerequisite action
 Wait()
     .AtMost(10, Seconds)
-    .WithPrereq(() => RefreshData())
+    .Prereq(() => RefreshData())
     .Until(() => DataIsReady());
 
 // Multiple prerequisite actions
@@ -166,7 +190,7 @@ var actions = new List<Action>
 
 Wait()
     .AtMost(10, Seconds)
-    .WithPrereqs(actions)
+    .Prereqs(actions)
     .Until(() => DataIsReady());
 ```
 
@@ -220,7 +244,7 @@ Wait().AtMost(10, Seconds)
 
 // Cancellation with prerequisites
 Wait().AtMost(10, Seconds)
-    .WithPrereq(() => RefreshData())
+    .Prereq(() => RefreshData())
     .Until(() => DataIsReady(), cancellationToken: cts.Token);
 ```
 
@@ -233,13 +257,13 @@ using PleaseWait.Logging;
 
 // Enable console logging
 Wait()
-    .WithLogger(new ConsoleLogger())
+    .Logger(new ConsoleLogger())
     .AtMost(10, Seconds)
     .Until(() => SomeCondition());
 
 // Enable debug logging (writes to System.Diagnostics.Debug)
 Wait()
-    .WithLogger(new DebugLogger())
+    .Logger(new DebugLogger())
     .AtMost(10, Seconds)
     .Until(() => SomeCondition());
 
@@ -254,7 +278,7 @@ public class CustomLogger : IWaitLogger
 }
 
 Wait()
-    .WithLogger(new CustomLogger())
+    .Logger(new CustomLogger())
     .AtMost(10, Seconds)
     .Until(() => SomeCondition());
 ```
@@ -272,7 +296,7 @@ Wait()
 ```csharp
 // Enable metrics collection
 var metrics = Wait()
-    .WithMetrics()
+    .Metrics()
     .AtMost(10, Seconds)
     .Until(() => SomeCondition());
 
@@ -284,8 +308,8 @@ Console.WriteLine($"Success: {metrics.WasSuccessful}");
 
 // Use with logging for comprehensive diagnostics
 Wait()
-    .WithLogger(new ConsoleLogger())
-    .WithMetrics()
+    .Logger(new ConsoleLogger())
+    .Metrics()
     .Alias("Database Ready")
     .AtMost(30, Seconds)
     .Until(() => database.IsConnected);
@@ -300,41 +324,132 @@ Wait()
 [PleaseWait] 📊 Metrics: 2 checks, 250ms total, avg: 125ms, min: 100ms, max: 150ms
 ```
 
+### Wait Options
+
+The primary `Wait()` API provides a comprehensive set of options for configuring individual wait operations. These options can be chained together for fluent, readable code.
+
+```csharp
+// Basic wait with timeout
+Wait().AtMost(10, Seconds).Until(() => condition);
+
+// Advanced wait with multiple options
+Wait()
+    .AtMost(30, Seconds)
+    .PollDelay(200, Millis)
+    .PollInterval(500, Millis)
+    .Strategy(ExponentialBackoff)
+    .Logger(new ConsoleLogger())
+    .Metrics(true)
+    .IgnoreExceptions(true)
+    .FailSilently(false)
+    .Alias("Database Connection")
+    .Prereq(() => RefreshConnection())
+    .Until(() => database.IsConnected);
+```
+
+**Wait Options:**
+
+| Method | Description |
+|--------|-------------|
+| `Timeout(double, TimeUnit)` | Set timeout for this wait operation |
+| `AtMost(double, TimeUnit)` | → Alias for Timeout - sets the same timeout value |
+| `PollDelay(double, TimeUnit)` | Set initial delay before first condition check |
+| `PollInterval(double, TimeUnit)` | Set delay between condition checks |
+| `Polling(double, TimeUnit, double, TimeUnit)` | → Combines PollDelay + PollInterval - sets both values in one call |
+| `Strategy(WaitStrategy)` | Set wait strategy for this operation |
+| `Logger(IWaitLogger)` | Set logger for this operation |
+| `Metrics(bool)` | Enable metrics collection for this operation |
+| `IgnoreExceptions(bool)` | Set exception handling behavior |
+| `FailSilently(bool)` | Set fail silently behavior |
+| `ExceptionHandling(bool, bool)` | → Combines IgnoreExceptions + FailSilently - sets both values in one call |
+| `Alias(string?)` | Set alias for this operation |
+| `Prereq(Action?)` | Set a single prerequisite action (nullable) |
+| `Prereqs(List<Action>?)` | Set multiple prerequisite actions |
+| `Sleep(double, TimeUnit)` | Explicit thread sleep with time unit support |
+| `With()` | Syntactic sugar for fluent chaining |
+| `And()` | Syntactic sugar for fluent chaining |
+
+**Note:** All time-based methods also have `TimeSpan` overloads (e.g., `AtMost(TimeSpan)`, `PollDelay(TimeSpan)`, `PollInterval(TimeSpan)`, `Polling(TimeSpan, TimeSpan)`, `Sleep(TimeSpan)`, `Timeout(TimeSpan)`).
+
+**Benefits:**
+- **Immediate**: Options take effect immediately for the current operation
+- **Flexible**: Override any global defaults on a per-operation basis
+- **Fluent**: Chain multiple options together for readable code
+- **Non-Destructive**: Don't affect global configuration or other operations
+
+### Syntactic Sugar: With() and And()
+
+PleaseWait provides `With()` and `And()` methods as syntactic sugar to make your code more readable and expressive. These methods don't change any behavior - they simply return the current instance, allowing for more natural language-like chaining.
+
+```csharp
+// Without syntactic sugar - still perfectly valid
+Wait()
+    .AtMost(30, Seconds)
+    .PollDelay(200, Millis)
+    .PollInterval(500, Millis)
+    .Strategy(ExponentialBackoff)
+    .Metrics(true)
+    .Alias("Database Connection")
+    .Until(() => database.IsConnected);
+
+// With syntactic sugar - more readable and expressive
+Wait()
+    .AtMost(30, Seconds)
+    .With().PollDelay(200, Millis)
+    .And().PollInterval(500, Millis)
+    .With().Strategy(ExponentialBackoff)
+    .And().Metrics(true)
+    .With().Alias("Database Connection")
+    .Until(() => database.IsConnected);
+```
+
+**Benefits of Using With() and And():**
+- **Readability**: Makes the code read more like natural language
+- **Grouping**: Helps visually group related configuration options
+- **Expressiveness**: Makes the intent clearer in complex configurations
+- **Consistency**: Available across all configuration contexts (Wait Options, Global Configuration, Instance Configuration)
+
+**When to Use:**
+- **Simple configurations**: Usually not needed for 2-3 options
+- **Complex configurations**: Very helpful for 5+ options
+- **Team preference**: Some teams prefer the more explicit style
+- **Documentation**: Useful in examples to show relationships between options
+
+**Note:** These methods are purely syntactic sugar and have no functional impact. Choose the style that makes your code most readable for your team.
+
 ### Wait Strategies
 
 Choose from different polling strategies to optimize for your specific use case:
 
 ```csharp
-using static PleaseWait.Strategy.WaitStrategy;
-
 // Linear (default) - consistent polling intervals
 Wait()
-    .WithStrategy(Linear)
+    .Strategy(Linear)
     .AtMost(10, Seconds)
     .Until(() => condition);
 
 // Exponential Backoff - increases delays over time
 Wait()
-    .WithStrategy(ExponentialBackoff)
+    .Strategy(ExponentialBackoff)
     .AtMost(30, Seconds)
     .Until(() => database.IsReady());
 
 // Aggressive - minimal delays for fast detection
 Wait()
-    .WithStrategy(Aggressive)
+    .Strategy(Aggressive)
     .AtMost(5, Seconds)
     .Until(() => button.IsEnabled);
 
 // Conservative - longer delays to minimize resource usage
 Wait()
-    .WithStrategy(Conservative)
+    .Strategy(Conservative)
     .AtMost(60, Seconds)
     .Until(() => heavyOperation.IsComplete());
 
 // Adaptive - adjusts based on condition check performance
 Wait()
-    .WithStrategy(Adaptive)
-    .WithMetrics()
+    .Strategy(Adaptive)
+    .Metrics(true)
     .AtMost(30, Seconds)
     .Until(() => condition);
 ```
@@ -347,26 +462,22 @@ Wait()
 | **Exponential Backoff** | As configured | Increases exponentially (1x, 2x, 4x, 8x...) | Resource-intensive conditions that improve over time (database startup, service initialization) | Interval increases after each check, max 25% of timeout |
 | **Aggressive** | 1/4 of configured | 1/4 of configured | UI testing, real-time monitoring, immediate response needed | Both delays reduced once at start, min 1ms interval |
 | **Conservative** | 2x configured | 2x configured | Expensive operations, resource-constrained environments, reduced CPU usage | Both delays doubled once at start |
-| **Adaptive** | As configured | Adjusts based on condition check performance | Conditions with varying performance characteristics that take multiple checks to resolve | Requires `WithMetrics()`, adjusts after each check: fast → 50% less, slow → 100% more |
+| **Adaptive** | As configured | Adjusts based on condition check performance | Conditions with varying performance characteristics that take multiple checks to resolve | Requires `Metrics()`, adjusts after each check: fast → 50% less, slow → 100% more |
 
 ### Global Configuration
 
 PleaseWait supports global configuration to set default values for all wait operations. This is useful for setting application-wide defaults that apply to all `Wait()` instances.
 
 ```csharp
-using static PleaseWait.TimeUnit;
-using static PleaseWait.Strategy.WaitStrategy;
-
 // Configure global defaults
-Wait().Configure()
-    .DefaultTimeout(30, Seconds)
-    .DefaultPollDelay(200, Millis)
-    .DefaultPollInterval(500, Millis)
-    .DefaultLogger(new ConsoleLogger())
-    .DefaultStrategy(Conservative)
-    .DefaultIgnoreExceptions(true)
-    .DefaultFailSilently(false)
-    .DefaultPrerequisites(new List<Action> { () => RefreshData() });
+Wait().Global().Configure()
+    .Timeout(30, Seconds)
+    .Polling(200, Millis, 500, Millis)  // Set both polling values
+    .Logger(new ConsoleLogger())
+    .Strategy(Conservative)
+    .IgnoreExceptions(true)
+    .FailSilently(false)
+    .Prereqs(new List<Action> { () => RefreshData() });
 
 // All subsequent Wait() calls will use these defaults
 Wait().Until(() => SomeCondition()); // Uses 30s timeout, 200ms poll delay, etc.
@@ -374,29 +485,40 @@ Wait().Until(() => SomeCondition()); // Uses 30s timeout, 200ms poll delay, etc.
 // Individual instances can still override defaults
 Wait()
     .AtMost(10, Seconds) // Override timeout
-    .WithStrategy(Aggressive) // Override strategy
+    .Strategy(Aggressive) // Override strategy
     .Until(() => SomeCondition());
 
 // Reset to original defaults
-Wait().ResetToDefaults();
+Wait().Global().ResetToDefaults();
 ```
 
 **Global Configuration Options:**
 
 | Method | Default Value | Description |
 |--------|---------------|-------------|
-| `DefaultTimeout(double, TimeUnit)` | 10 seconds | Default timeout for all wait operations |
-| `DefaultPollDelay(double, TimeUnit)` | 100 milliseconds | Default initial delay before first condition check |
-| `DefaultPollInterval(double, TimeUnit)` | 100 milliseconds | Default delay between condition checks |
-| `DefaultLogger(IWaitLogger)` | `NullLogger` | Default logger for all wait operations |
-| `DefaultStrategy(WaitStrategy)` | `Linear` | Default wait strategy for all operations |
-| `DefaultIgnoreExceptions(bool)` | `false` | Whether to ignore exceptions during condition checks |
-| `DefaultFailSilently(bool)` | `false` | Whether to return false instead of throwing on timeout |
-| `DefaultPrerequisites(List<Action>)` | Empty list | Default actions to execute before each condition check |
+| `Timeout(double, TimeUnit)` | 10 seconds | Default timeout for all wait operations |
+| `AtMost(double, TimeUnit)` | 10 seconds | → Alias for Timeout - sets the same timeout value |
+| `PollDelay(double, TimeUnit)` | 100 milliseconds | Default initial delay before first condition check |
+| `PollInterval(double, TimeUnit)` | 100 milliseconds | Default delay between condition checks |
+| `Polling(double, TimeUnit, double, TimeUnit)` | 100ms delay, 100ms interval | → Combines PollDelay + PollInterval - sets both values in one call |
+| `Strategy(WaitStrategy)` | `Linear` | Default wait strategy for all operations |
+| `Logger(IWaitLogger)` | `NullLogger` | Default logger for all wait operations |
+| `Metrics(bool)` | `false` | Whether to collect metrics by default |
+| `IgnoreExceptions(bool)` | `true` | Whether to ignore exceptions during condition checks |
+| `FailSilently(bool)` | `false` | Whether to return false instead of throwing on timeout |
+| `ExceptionHandling(bool, bool)` | `true, false` | → Combines IgnoreExceptions + FailSilently - sets both values in one call |
+| `Alias(string?)` | `null` | Default alias for wait operations |
+| `Prereq(Action?)` | `null` | Set a single default prerequisite action (nullable) |
+| `Prereqs(List<Action>?)` | `null` | Set multiple default prerequisite actions |
+| `Sleep(double, TimeUnit)` | N/A | API consistency method (no global effect) |
+| `With()` | N/A | Syntactic sugar for fluent chaining |
+| `And()` | N/A | Syntactic sugar for fluent chaining |
+
+**Note:** All time-based methods also have `TimeSpan` overloads (e.g., `AtMost(TimeSpan)`, `PollDelay(TimeSpan)`, `PollInterval(TimeSpan)`, `Polling(TimeSpan, TimeSpan)`, `Sleep(TimeSpan)`, `Timeout(TimeSpan)`).
 
 **Best Practices:**
 - Configure global defaults early in your application startup
-- Use `ResetToDefaults()` in test teardown to prevent test interference
+- Use `Wait().Global().ResetToDefaults()` in test teardown to prevent test interference
 - Override defaults on individual instances when specific behavior is needed
 - Consider using different configurations for different environments (dev, test, prod)
 
@@ -405,15 +527,12 @@ Wait().ResetToDefaults();
 For reusable configurations that don't affect global state, use `WaitConfig` objects. This allows you to create configuration templates that can be reused across multiple wait operations.
 
 ```csharp
-using static PleaseWait.TimeUnit;
-using static PleaseWait.Strategy.WaitStrategy;
-
 // Create a reusable configuration
 var fastConfig = Wait().Config()
-    .WithTimeout(5, Seconds)
-    .WithPolling(50, Millis, 100, Millis)
-    .WithStrategy(Aggressive)
-    .WithAlias("Fast Operations");
+    .Timeout(5, Seconds)
+    .Polling(50, Millis, 100, Millis)
+    .Strategy(Aggressive)
+    .Alias("Fast Operations");
 
 // Use the configuration for multiple operations
 Wait(fastConfig).Until(() => SomeCondition());
@@ -421,11 +540,11 @@ Wait(fastConfig).Until(() => AnotherCondition());
 
 // Create another configuration for different use case
 var safeConfig = Wait().Config()
-    .WithTimeout(30, Seconds)
-    .WithPolling(200, Millis, 500, Millis)
-    .WithStrategy(Conservative)
-    .WithIgnoreExceptions(true)
-    .WithAlias("Safe Operations");
+    .Timeout(30, Seconds)
+    .Polling(200, Millis, 500, Millis)
+    .Strategy(Conservative)
+    .IgnoreExceptions(true)
+    .Alias("Safe Operations");
 
 Wait(safeConfig).Until(() => CriticalOperation());
 ```
@@ -435,20 +554,20 @@ Only set the values you want to override - unset values will use captured global
 
 ```csharp
 // Set global defaults
-Wait().Configure()
-    .DefaultTimeout(30, Seconds)
-    .DefaultPollDelay(200, Millis)
-    .DefaultStrategy(Conservative);
+Wait().Global().Configure()
+    .Timeout(30, Seconds)
+    .PollDelay(200, Millis)
+    .Strategy(Conservative);
 
 // Create config with only timeout override
 var config = Wait().Config()
-    .WithTimeout(5, Seconds);
+    .Timeout(5, Seconds);
     // PollDelay and Strategy will use captured global defaults
 
 Wait(config).Until(() => condition); // Uses 5s timeout + captured poll delay + captured strategy
 
 // Update global defaults later
-Wait().Configure().DefaultPollDelay(100, Millis);
+Wait().Global().Configure().PollDelay(100, Millis);
 
 // Same config still uses CAPTURED global defaults (not updated ones)
 Wait(config).Until(() => condition); // Uses 5s timeout + 200ms poll delay + Conservative strategy
@@ -461,19 +580,25 @@ When you create a `WaitConfig`, it captures the current global default values at
 
 | Method | Description |
 |--------|-------------|
-| `WithTimeout(double, TimeUnit)` | Set timeout for this configuration |
-| `WithPollDelay(double, TimeUnit)` | Set poll delay for this configuration |
-| `WithPollInterval(double, TimeUnit)` | Set poll interval for this configuration |
-| `WithPolling(delay, delayUnit, interval, intervalUnit)` | Set both poll delay and interval |
-| `WithIgnoreExceptions(bool)` | Set exception handling behavior |
-| `WithFailSilently(bool)` | Set fail silently behavior |
-| `WithExceptionHandling(bool, bool)` | Set both exception handling options |
-| `WithLogger(IWaitLogger)` | Set logger for this configuration |
-| `WithMetrics(bool)` | Enable/disable metrics collection |
-| `WithStrategy(WaitStrategy)` | Set wait strategy for this configuration |
-| `WithAlias(string)` | Set alias for this configuration |
-| `WithPrerequisites(List<Action>)` | Set prerequisite actions |
-| `WithPrerequisite(Action)` | Set a single prerequisite action |
+| `Timeout(double, TimeUnit)` | Set timeout for this configuration |
+| `AtMost(double, TimeUnit)` | → Alias for Timeout - sets the same timeout value |
+| `PollDelay(double, TimeUnit)` | Set poll delay for this configuration |
+| `PollInterval(double, TimeUnit)` | Set poll interval for this configuration |
+| `Polling(double, TimeUnit, double, TimeUnit)` | → Combines PollDelay + PollInterval - sets both values for this configuration |
+| `Strategy(WaitStrategy)` | Set wait strategy for this configuration |
+| `Logger(IWaitLogger)` | Set logger for this configuration |
+| `Metrics(bool)` | Enable/disable metrics collection |
+| `IgnoreExceptions(bool)` | Set exception handling behavior |
+| `FailSilently(bool)` | Set fail silently behavior |
+| `ExceptionHandling(bool, bool)` | → Combines IgnoreExceptions + FailSilently - sets both values for this configuration |
+| `Alias(string?)` | Set alias for this configuration |
+| `Prereq(Action?)` | Set a single prerequisite action (nullable) |
+| `Prereqs(List<Action>?)` | Set multiple prerequisite actions |
+| `Sleep(double, TimeUnit)` | API consistency method (no configuration effect) |
+| `With()` | Syntactic sugar for fluent chaining |
+| `And()` | Syntactic sugar for fluent chaining |
+
+**Note:** All time-based methods also have `TimeSpan` overloads (e.g., `AtMost(TimeSpan)`, `PollDelay(TimeSpan)`, `PollInterval(TimeSpan)`, `Polling(TimeSpan, TimeSpan)`, `Sleep(TimeSpan)`, `Timeout(TimeSpan)`).
 
 **Benefits:**
 - **Reusable**: Create once, use many times

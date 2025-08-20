@@ -29,11 +29,11 @@ namespace PleaseWait.Tests
     public class WaitStrategyTests
     {
         [Test]
-        public void WithStrategy_Linear_DefaultBehavior()
+        public void Strategy_WithLinear_ExhibitsDefaultBehavior()
         {
             var startTime = DateTime.UtcNow;
             Wait()
-                .WithStrategy(Linear)
+                .Strategy(Linear)
                 .AtMost(100, Millis)
                 .PollDelay(10, Millis)
                 .PollInterval(20, Millis)
@@ -45,11 +45,11 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WithStrategy_ExponentialBackoff_IncreasesDelays()
+        public void Strategy_ExponentialBackoff_IncreasesDelays()
         {
             var startTime = DateTime.UtcNow;
             Wait()
-                .WithStrategy(ExponentialBackoff)
+                .Strategy(ExponentialBackoff)
                 .AtMost(200, Millis)
                 .PollDelay(10, Millis)
                 .PollInterval(20, Millis)
@@ -61,13 +61,13 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WithStrategy_Aggressive_FastDetection()
+        public void Strategy_Aggressive_FastDetection()
         {
             var startTime = DateTime.UtcNow;
             var checkCount = 0;
 
             Wait()
-                .WithStrategy(Aggressive)
+                .Strategy(Aggressive)
                 .AtMost(100, Millis)
                 .PollDelay(10, Millis)
                 .PollInterval(20, Millis)
@@ -79,11 +79,11 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WithStrategy_Conservative_LongerDelays()
+        public void Strategy_Conservative_LongerDelays()
         {
             var startTime = DateTime.UtcNow;
             Wait()
-                .WithStrategy(Conservative)
+                .Strategy(Conservative)
                 .AtMost(100, Millis)
                 .PollDelay(10, Millis)
                 .PollInterval(20, Millis)
@@ -95,14 +95,14 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WithStrategy_Adaptive_AdjustsBasedOnPerformance()
+        public void Strategy_Adaptive_AdjustsBasedOnPerformance()
         {
             var startTime = DateTime.UtcNow;
             var checkCount = 0;
 
             Wait()
-                .WithStrategy(Adaptive)
-                .WithMetrics()
+                .Strategy(Adaptive)
+                .Metrics()
                 .AtMost(200, Millis)
                 .PollDelay(10, Millis)
                 .PollInterval(20, Millis)
@@ -114,7 +114,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WithStrategy_DefaultIsLinear()
+        public void Strategy_DefaultIsLinear()
         {
             var startTime = DateTime.UtcNow;
             Wait()
@@ -129,11 +129,11 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WithStrategy_ExponentialBackoff_RespectsTimeout()
+        public void Strategy_ExponentialBackoff_RespectsTimeout()
         {
             var startTime = DateTime.UtcNow;
             Wait()
-                .WithStrategy(ExponentialBackoff)
+                .Strategy(ExponentialBackoff)
                 .AtMost(50, Millis)
                 .PollDelay(5, Millis)
                 .PollInterval(10, Millis)
@@ -146,13 +146,13 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WithStrategy_Aggressive_MinimalDelays()
+        public void Strategy_Aggressive_MinimalDelays()
         {
             var checkCount = 0;
             var startTime = DateTime.UtcNow;
 
             Wait()
-                .WithStrategy(Aggressive)
+                .Strategy(Aggressive)
                 .AtMost(50, Millis)
                 .PollDelay(1, Millis)
                 .PollInterval(5, Millis)
@@ -164,11 +164,11 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WithStrategy_Conservative_MaximizesDelays()
+        public void Strategy_Conservative_MaximizesDelays()
         {
             var startTime = DateTime.UtcNow;
             Wait()
-                .WithStrategy(Conservative)
+                .Strategy(Conservative)
                 .AtMost(100, Millis)
                 .PollDelay(10, Millis)
                 .PollInterval(20, Millis)
@@ -180,13 +180,13 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WithStrategy_Adaptive_WorksWithoutMetrics()
+        public void Strategy_Adaptive_WorksWithoutMetrics()
         {
             var startTime = DateTime.UtcNow;
             var checkCount = 0;
 
             Wait()
-                .WithStrategy(Adaptive)
+                .Strategy(Adaptive)
                 .AtMost(100, Millis)
                 .PollDelay(10, Millis)
                 .PollInterval(20, Millis)
@@ -198,11 +198,11 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WithStrategy_CombinedWithMetrics_WorksCorrectly()
+        public void Strategy_CombinedWithMetrics_WorksCorrectly()
         {
             var metrics = Wait()
-                .WithStrategy(ExponentialBackoff)
-                .WithMetrics()
+                .Strategy(ExponentialBackoff)
+                .Metrics()
                 .AtMost(100, Millis)
                 .PollDelay(10, Millis)
                 .PollInterval(20, Millis)
@@ -214,14 +214,14 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WithStrategy_CombinedWithLogger_WorksCorrectly()
+        public void Strategy_CombinedWithLogger_WorksCorrectly()
         {
             var logger = new TestLogger();
             var checkCount = 0;
 
             Wait()
-                .WithStrategy(Aggressive)
-                .WithLogger(logger)
+                .Strategy(Aggressive)
+                .Logger(logger)
                 .AtMost(100, Millis)
                 .PollDelay(10, Millis)
                 .PollInterval(20, Millis)
@@ -233,13 +233,13 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WithStrategy_Aggressive_ModifiesBothPollDelayAndInterval()
+        public void Strategy_Aggressive_ModifiesBothPollDelayAndInterval()
         {
             var startTime = DateTime.UtcNow;
             var checkCount = 0;
 
             Wait()
-                .WithStrategy(Aggressive)
+                .Strategy(Aggressive)
                 .AtMost(200, Millis)
                 .PollDelay(100, Millis) // Should become ~25ms
                 .PollInterval(80, Millis) // Should become ~20ms
@@ -251,11 +251,11 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WithStrategy_Conservative_ModifiesBothPollDelayAndInterval()
+        public void Strategy_Conservative_ModifiesBothPollDelayAndInterval()
         {
             var startTime = DateTime.UtcNow;
             Wait()
-                .WithStrategy(Conservative)
+                .Strategy(Conservative)
                 .AtMost(100, Millis)
                 .PollDelay(10, Millis) // Should become ~20ms
                 .PollInterval(20, Millis) // Should become ~40ms

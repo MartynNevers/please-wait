@@ -34,7 +34,7 @@ namespace PleaseWait.Tests
             _ = orange.PeelAsync(2);
             Wait()
                 .AtMost(5, Seconds)
-                .With().PollDelay(800, Millis)
+                .PollDelay(800, Millis)
                 .Until(() => orange.IsPeeled);
 
             Assert.That(orange.IsPeeled, Is.True);
@@ -47,7 +47,7 @@ namespace PleaseWait.Tests
             _ = orange.PeelAsync(2);
             Wait()
                 .AtMost(5, Seconds)
-                .With().PollInterval(400, Millis)
+                .PollInterval(400, Millis)
                 .Until(() => orange.IsPeeled);
 
             Assert.That(orange.IsPeeled, Is.True);
@@ -61,8 +61,8 @@ namespace PleaseWait.Tests
             _ = orange.PeelAsync(5);
             Wait()
                 .AtMost(2, Seconds)
-                .With().Prereq(() => toggle = true)
-                .And().FailSilently()
+                .Prereq(() => toggle = true)
+                .FailSilently()
                 .Until(() => orange.IsPeeled);
 
             Assert.That(toggle, Is.True);
@@ -83,7 +83,7 @@ namespace PleaseWait.Tests
             _ = orange.PeelAsync(2);
             Wait()
                 .AtMost(5, Seconds)
-                .With().Prereqs(prereqs)
+                .Prereqs(prereqs)
                 .Until(() => orange.IsPeeled);
 
             Assert.Multiple(() =>
@@ -100,11 +100,31 @@ namespace PleaseWait.Tests
             _ = orange.PeelAsync(2);
             Wait()
                 .AtMost(TimeSpan.FromSeconds(5))
-                .With().PollDelay(TimeSpan.FromMilliseconds(150))
-                .And().With().PollInterval(TimeSpan.FromMilliseconds(150))
+                .PollDelay(TimeSpan.FromMilliseconds(150))
+                .PollInterval(TimeSpan.FromMilliseconds(150))
                 .Until(() => orange.IsPeeled);
 
             Assert.That(orange.IsPeeled, Is.True);
+        }
+
+        [Test]
+        public void WithAndMethods_SupportFluentChaining()
+        {
+            var orange = new Orange();
+            _ = orange.PeelAsync(2);
+
+            var result = Wait()
+                .AtMost(5, Seconds)
+                .With().PollDelay(100, Millis)
+                .And().PollInterval(200, Millis)
+                .With().IgnoreExceptions()
+                .And().FailSilently()
+                .With().Metrics()
+                .And().Alias("WithAnd Test")
+                .Until(() => orange.IsPeeled);
+
+            Assert.That(orange.IsPeeled, Is.True);
+            Assert.That(result, Is.Not.Null);
         }
     }
 }

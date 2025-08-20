@@ -18,28 +18,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Impact**: This is a breaking change requiring a major version bump (v3.0.0)
 
 ### Added
-- CHANGELOG.md file to document version history and changes
 - **Cancellation Token Support**: Add `CancellationToken` parameter to all `Until()`, `UntilTrue()`, and `UntilFalse()` methods for graceful cancellation
-- **Enhanced Logging and Diagnostics**: Comprehensive logging system with `IWaitLogger` interface, `ConsoleLogger` implementation, and `NullLogger` for no-op logging
-- **Diagnostic Logging Support**: New `WithLogger()` method to enable detailed logging of wait operations including start, condition checks, success, timeout, and cancellation events
-- **ConsoleLogger**: New `PleaseWait.Logging.ConsoleLogger` writes diagnostics to console output
-- **DebugLogger**: New `PleaseWait.Logging.DebugLogger` writes diagnostics to `System.Diagnostics.Debug`
-- **Performance Monitoring**: New `WithMetrics()` method and `WaitMetrics` class for collecting performance data during wait operations including condition checks, timing, and success/failure status
-- **Wait Strategies**: New `WithStrategy()` method with 5 different strategies (Linear, ExponentialBackoff, Aggressive, Conservative, Adaptive) for optimized polling behavior
-- **Global Configuration System**: New `Wait().Configure()` and `Wait().ResetToDefaults()` methods for setting application-wide defaults for all wait operations
-- **Instance Configuration System**: New `WaitConfig` class and `Wait().Config()` method for creating reusable configuration objects that support partial overrides of global defaults. Configs capture global defaults at creation time for predictable behavior.
-- **ConfigurationBuilder**: Fluent API for configuring global defaults including timeout, polling delays, logger, strategy, exception handling, and prerequisites
-- **Code Quality Improvements**: Implement refactoring patterns (Extract Method, Template Method) for cleaner, more maintainable code
-- **Test Organization**: Organize 41 tests into 6 logical categories (Initialization, Basic Functionality, Timeout & Exceptions, Configuration, Cancellation, Logging)
-- **Enhanced .gitignore**: Comprehensive patterns for modern C# projects including code coverage and test results
+- **Enhanced Logging System**: `IWaitLogger` interface with `ConsoleLogger`, `DebugLogger`, and `NullLogger` implementations for comprehensive diagnostic logging
+- **Performance Monitoring**: `Metrics()` method and `WaitMetrics` class for collecting performance data during wait operations
+- **Wait Strategies**: `Strategy()` method with 5 strategies (Linear, ExponentialBackoff, Aggressive, Conservative, Adaptive) for optimized polling behavior
+- **Global Configuration System**: `Wait().Global().Configure()` and `Wait().Global().ResetToDefaults()` methods with `GlobalConfigurationBuilder` for application-wide defaults
+- **Instance Configuration System**: `WaitConfig` class and `Wait().Config()` method for reusable configuration objects with partial global default overrides
+- **API Consistency**: Complete method name consistency across `Dsl`, `GlobalConfigurationBuilder`, and `WaitConfig` classes
+- **Test Organization**: Organize 238 tests into logical categories (Initialization, Basic Functionality, Timeout & Exceptions, Configuration, Cancellation, Logging, WaitStrategy, Metrics, etc.)
 
 ### Changed
-- Rewrite README.md with comprehensive documentation, examples, and professional structure
-- Remove .NET 6.0 from CI workflow and test project build targets (maintains .NET Standard 2.0 targeting for .NET 6.0+ compatibility)
-- Add Mono installation to CI workflow for .NET Framework 4.8 test support
+- **Documentation**: Rewrite README.md with comprehensive documentation, examples, and professional structure
+- **CI/CD**: Remove .NET 6.0 from CI workflow and test project build targets (maintains .NET Standard 2.0 targeting for .NET 6.0+ compatibility)
 - **Code Quality**: Resolve all StyleCop warnings and achieve clean build with 0 warnings, 0 errors
-- **Global Configuration**: `Wait()` instances read from global defaults, which can be configured via `Wait().Configure()` and reset via `Wait().ResetToDefaults()`
-- **Instance Configuration**: `Wait(WaitConfig config)` instances use captured global defaults from when the config was created, ensuring predictable behavior regardless of subsequent global changes
 
 ## [2.7.0] - 2024-07-12
 

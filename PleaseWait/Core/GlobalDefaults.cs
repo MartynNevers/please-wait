@@ -26,9 +26,10 @@ namespace PleaseWait.Core
     /// </summary>
     internal static class GlobalDefaults
     {
-        // Default values (same as original Defaults class)
+        // Default values
         private const bool DefaultFailSilently = false;
         private const bool DefaultIgnoreExceptions = true;
+        private const bool DefaultMetrics = false;
         private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(10);
         private static readonly TimeSpan DefaultPollDelay = TimeSpan.FromMilliseconds(100);
         private static readonly TimeSpan DefaultPollInterval = TimeSpan.FromMilliseconds(100);
@@ -41,11 +42,12 @@ namespace PleaseWait.Core
         private static TimeSpan pollInterval = DefaultPollInterval;
         private static bool failSilently = DefaultFailSilently;
         private static bool ignoreExceptions = DefaultIgnoreExceptions;
+        private static bool metrics = DefaultMetrics;
         private static IWaitLogger logger = DefaultLogger;
         private static WaitStrategy strategy = DefaultStrategy;
         private static IList<Action>? prereqs = null;
         private static string? alias = null;
-        private static WaitMetrics? metrics = null;
+        private static WaitMetrics? metricsInstance = null;
 
         /// <summary>
         /// Gets or sets the default timeout for wait operations.
@@ -131,10 +133,19 @@ namespace PleaseWait.Core
         /// <summary>
         /// Gets or sets the default metrics collection.
         /// </summary>
-        public static WaitMetrics? Metrics
+        public static bool Metrics
         {
             get => metrics;
             set => metrics = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the default metrics instance.
+        /// </summary>
+        public static WaitMetrics? MetricsInstance
+        {
+            get => metricsInstance;
+            set => metricsInstance = value;
         }
 
         /// <summary>
@@ -147,11 +158,12 @@ namespace PleaseWait.Core
             pollInterval = DefaultPollInterval;
             failSilently = DefaultFailSilently;
             ignoreExceptions = DefaultIgnoreExceptions;
+            metrics = DefaultMetrics;
             logger = DefaultLogger;
             strategy = DefaultStrategy;
             prereqs = null;
             alias = null;
-            metrics = null;
+            metricsInstance = null;
         }
     }
 }

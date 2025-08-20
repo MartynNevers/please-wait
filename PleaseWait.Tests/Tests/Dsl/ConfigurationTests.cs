@@ -35,119 +35,119 @@ namespace PleaseWait.Tests
         [TearDown]
         public void TearDown()
         {
-            Wait().ResetToDefaults();
+            Wait().Global().ResetToDefaults();
         }
 
         [Test]
-        public void Configure_ReturnsConfigurationBuilder()
+        public void Global_Configure_ReturnsGlobalConfigurationBuilder()
         {
-            var builder = Wait().Configure();
+            var builder = Wait().Global().Configure();
             Assert.That(builder, Is.Not.Null);
-            Assert.That(builder, Is.InstanceOf<ConfigurationBuilder>());
+            Assert.That(builder, Is.InstanceOf<GlobalConfigurationBuilder>());
         }
 
         [Test]
-        public void DefaultTimeout_WithTimeSpan_SetsGlobalDefault()
+        public void Timeout_WithTimeSpan_SetsGlobalDefault()
         {
             var expectedTimeout = TimeSpan.FromSeconds(30);
 
-            Wait().Configure()
-                .DefaultTimeout(expectedTimeout);
+            Wait().Global().Configure()
+                .Timeout(expectedTimeout);
 
             // Use metrics to verify the configuration was applied
-            var metrics = Wait().WithMetrics().Until(() => true);
+            var metrics = Wait().Metrics().Until(() => true);
 
             Assert.That(metrics, Is.Not.Null);
             Assert.That(metrics.ConfiguredTimeout, Is.EqualTo(expectedTimeout));
         }
 
         [Test]
-        public void DefaultTimeout_WithValueAndTimeUnit_SetsGlobalDefault()
+        public void Timeout_WithValueAndTimeUnit_SetsGlobalDefault()
         {
             var expectedTimeout = TimeSpan.FromMinutes(5);
 
-            Wait().Configure()
-                .DefaultTimeout(5, Minutes);
+            Wait().Global().Configure()
+                .Timeout(5, Minutes);
 
             // Use metrics to verify the configuration was applied
-            var metrics = Wait().WithMetrics().Until(() => true);
+            var metrics = Wait().Metrics().Until(() => true);
 
             Assert.That(metrics, Is.Not.Null);
             Assert.That(metrics.ConfiguredTimeout, Is.EqualTo(expectedTimeout));
         }
 
         [Test]
-        public void DefaultPollDelay_WithTimeSpan_SetsGlobalDefault()
+        public void PollDelay_WithTimeSpan_SetsGlobalDefault()
         {
             var expectedDelay = TimeSpan.FromMilliseconds(50);
 
-            Wait().Configure()
-                .DefaultPollDelay(expectedDelay);
+            Wait().Global().Configure()
+                .PollDelay(expectedDelay);
 
             // Use metrics to verify the configuration was applied
-            var metrics = Wait().WithMetrics().Until(() => true);
+            var metrics = Wait().Metrics().Until(() => true);
 
             Assert.That(metrics, Is.Not.Null);
             Assert.That(metrics.ConfiguredPollDelay, Is.EqualTo(expectedDelay));
         }
 
         [Test]
-        public void DefaultPollDelay_WithValueAndTimeUnit_SetsGlobalDefault()
+        public void PollDelay_WithValueAndTimeUnit_SetsGlobalDefault()
         {
             var expectedDelay = TimeSpan.FromMilliseconds(200);
 
-            Wait().Configure()
-                .DefaultPollDelay(200, Millis);
+            Wait().Global().Configure()
+                .PollDelay(200, Millis);
 
             // Use metrics to verify the configuration was applied
-            var metrics = Wait().WithMetrics().Until(() => true);
+            var metrics = Wait().Metrics().Until(() => true);
 
             Assert.That(metrics, Is.Not.Null);
             Assert.That(metrics.ConfiguredPollDelay, Is.EqualTo(expectedDelay));
         }
 
         [Test]
-        public void DefaultPollInterval_WithTimeSpan_SetsGlobalDefault()
+        public void PollInterval_WithTimeSpan_SetsGlobalDefault()
         {
             var expectedInterval = TimeSpan.FromMilliseconds(100);
 
-            Wait().Configure()
-                .DefaultPollInterval(expectedInterval);
+            Wait().Global().Configure()
+                .PollInterval(expectedInterval);
 
             // Use metrics to verify the configuration was applied
-            var metrics = Wait().WithMetrics().Until(() => true);
+            var metrics = Wait().Metrics().Until(() => true);
 
             Assert.That(metrics, Is.Not.Null);
             Assert.That(metrics.ConfiguredPollInterval, Is.EqualTo(expectedInterval));
         }
 
         [Test]
-        public void DefaultPollInterval_WithValueAndTimeUnit_SetsGlobalDefault()
+        public void PollInterval_WithValueAndTimeUnit_SetsGlobalDefault()
         {
             var expectedInterval = TimeSpan.FromMilliseconds(300);
 
-            Wait().Configure()
-                .DefaultPollInterval(300, Millis);
+            Wait().Global().Configure()
+                .PollInterval(300, Millis);
 
             // Use metrics to verify the configuration was applied
-            var metrics = Wait().WithMetrics().Until(() => true);
+            var metrics = Wait().Metrics().Until(() => true);
 
             Assert.That(metrics, Is.Not.Null);
             Assert.That(metrics.ConfiguredPollInterval, Is.EqualTo(expectedInterval));
         }
 
         [Test]
-        public void DefaultIgnoreExceptions_SetsGlobalDefault()
+        public void IgnoreExceptions_SetsGlobalDefault()
         {
-            Wait().Configure()
-                .DefaultIgnoreExceptions(true);
+            Wait().Global().Configure()
+                .IgnoreExceptions(true);
 
             // Test that the configuration was applied by checking behavior
             // This should not throw an exception since we're ignoring them
             var counter = 0;
             Assert.DoesNotThrow(() =>
             {
-                Wait().AtMost(500, Millis).With().PollDelay(10, Millis).With().PollInterval(10, Millis).Until(() =>
+                Wait().AtMost(500, Millis).PollDelay(10, Millis).PollInterval(10, Millis).Until(() =>
                 {
                     counter++;
                     if (counter < 5)
@@ -163,10 +163,10 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void DefaultFailSilently_SetsGlobalDefault()
+        public void FailSilently_SetsGlobalDefault()
         {
-            Wait().Configure()
-                .DefaultFailSilently(true);
+            Wait().Global().Configure()
+                .FailSilently(true);
 
             // Test that the configuration was applied by checking behavior
             // This should not throw an exception since we're failing silently
@@ -175,12 +175,12 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void DefaultLogger_SetsGlobalDefault()
+        public void Logger_SetsGlobalDefault()
         {
             var testLogger = new TestLogger();
 
-            Wait().Configure()
-                .DefaultLogger(testLogger);
+            Wait().Global().Configure()
+                .Logger(testLogger);
 
             // Test that the configuration was applied by checking logging behavior
             Wait().AtMost(10, Millis).Until(() => true);
@@ -190,24 +190,24 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void DefaultLogger_WithNull_ThrowsArgumentNullException()
+        public void Logger_WithNull_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() =>
-                Wait().Configure().DefaultLogger(null!));
+                Wait().Global().Configure().Logger(null!));
         }
 
         [Test]
-        public void DefaultStrategy_SetsGlobalDefault()
+        public void Strategy_SetsGlobalDefault()
         {
             // Test that different strategies produce different behavior
-            var aggressiveMetrics = Wait().WithMetrics().Until(() => true);
+            var aggressiveMetrics = Wait().Metrics().Until(() => true);
             Assert.That(aggressiveMetrics, Is.Not.Null);
-            Wait().ResetToDefaults();
+            Wait().Global().ResetToDefaults();
 
-            Wait().Configure()
-                .DefaultStrategy(Conservative);
+            Wait().Global().Configure()
+                .Strategy(Conservative);
 
-            var conservativeMetrics = Wait().WithMetrics().Until(() => true);
+            var conservativeMetrics = Wait().Metrics().Until(() => true);
             Assert.That(conservativeMetrics, Is.Not.Null);
 
             // Verify that the strategy was applied by comparing behavior
@@ -215,13 +215,13 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void DefaultPrerequisites_SetsGlobalDefault()
+        public void Prerequisites_SetsGlobalDefault()
         {
             var executed = false;
             var prereqs = new List<Action> { () => executed = true };
 
-            Wait().Configure()
-                .DefaultPrerequisites(prereqs);
+            Wait().Global().Configure()
+                .Prereqs(prereqs);
 
             // Test that the configuration was applied by checking behavior
             Wait().AtMost(10, Millis).Until(() => true);
@@ -230,50 +230,50 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void DefaultAlias_SetsGlobalDefault()
+        public void Alias_SetsGlobalDefault()
         {
             var expectedAlias = "Test Alias";
 
-            Wait().Configure()
-                .DefaultAlias(expectedAlias);
+            Wait().Global().Configure()
+                .Alias(expectedAlias);
 
             // Use metrics to verify the configuration was applied
-            var metrics = Wait().WithMetrics().Until(() => true);
+            var metrics = Wait().Metrics().Until(() => true);
 
             Assert.That(metrics, Is.Not.Null);
             Assert.That(metrics.ConditionAlias, Is.EqualTo(expectedAlias));
         }
 
         [Test]
-        public void ConfigurationBuilder_SupportsMethodChaining()
+        public void GlobalConfigurationBuilder_SupportsMethodChaining()
         {
-            var result = Wait().Configure()
-                .DefaultTimeout(TimeSpan.FromSeconds(30))
-                .DefaultPollDelay(TimeSpan.FromMilliseconds(100))
-                .DefaultPollInterval(TimeSpan.FromMilliseconds(200))
-                .DefaultIgnoreExceptions(true)
-                .DefaultFailSilently(true)
-                .DefaultLogger(new ConsoleLogger())
-                .DefaultStrategy(Linear)
-                .DefaultPrerequisites(new List<Action>())
-                .DefaultAlias("test");
+            var result = Wait().Global().Configure()
+                .Timeout(TimeSpan.FromSeconds(30))
+                .PollDelay(TimeSpan.FromMilliseconds(100))
+                .PollInterval(TimeSpan.FromMilliseconds(200))
+                .IgnoreExceptions(true)
+                .FailSilently(true)
+                .Logger(new ConsoleLogger())
+                .Strategy(Linear)
+                .Prereqs(new List<Action>())
+                .Alias("test");
 
-            Assert.That(result, Is.InstanceOf<ConfigurationBuilder>());
+            Assert.That(result, Is.InstanceOf<GlobalConfigurationBuilder>());
         }
 
         [Test]
         public void ResetToDefaults_ResetsAllConfiguration()
         {
             // Set some custom defaults
-            Wait().Configure()
-                .DefaultTimeout(TimeSpan.FromSeconds(60))
-                .DefaultAlias("Custom Alias");
+            Wait().Global().Configure()
+                .Timeout(TimeSpan.FromSeconds(60))
+                .Alias("Custom Alias");
 
             // Reset to defaults
-            Wait().ResetToDefaults();
+            Wait().Global().ResetToDefaults();
 
             // Verify reset by checking metrics
-            var metrics = Wait().WithMetrics().Until(() => true);
+            var metrics = Wait().Metrics().Until(() => true);
 
             Assert.That(metrics, Is.Not.Null);
             Assert.That(metrics.ConfiguredTimeout, Is.EqualTo(TimeSpan.FromSeconds(10))); // Default value

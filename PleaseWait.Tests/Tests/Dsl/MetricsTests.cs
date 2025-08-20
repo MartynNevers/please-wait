@@ -28,10 +28,10 @@ namespace PleaseWait.Tests
     public class MetricsTests
     {
         [Test]
-        public void WithMetrics_Enabled_ReturnsMetricsObject()
+        public void Metrics_WithDefaultParameter_ReturnsMetricsObject()
         {
             var metrics = Wait()
-                .WithMetrics()
+                .Metrics()
                 .AtMost(100, Millis)
                 .Until(() => true);
 
@@ -42,7 +42,7 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WithMetrics_NotEnabled_ReturnsNull()
+        public void Metrics_WhenNotCalled_ReturnsNull()
         {
             var metrics = Wait()
                 .AtMost(100, Millis)
@@ -52,11 +52,11 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WithMetrics_RecordsConditionChecks()
+        public void Metrics_RecordsConditionChecks()
         {
             var checkCount = 0;
             var metrics = Wait()
-                .WithMetrics()
+                .Metrics()
                 .AtMost(500, Millis)
                 .PollDelay(10, Millis)
                 .PollInterval(10, Millis)
@@ -67,10 +67,10 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WithMetrics_RecordsTotalTime()
+        public void Metrics_RecordsTotalTime()
         {
             var metrics = Wait()
-                .WithMetrics()
+                .Metrics()
                 .AtMost(100, Millis)
                 .Until(() => true);
 
@@ -79,10 +79,10 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WithMetrics_RecordsAverageCheckTime()
+        public void Metrics_RecordsAverageCheckTime()
         {
             var metrics = Wait()
-                .WithMetrics()
+                .Metrics()
                 .AtMost(100, Millis)
                 .Until(() => true);
 
@@ -91,11 +91,11 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WithMetrics_RecordsMinAndMaxCheckTimes()
+        public void Metrics_RecordsMinAndMaxCheckTimes()
         {
             var checkCount = 0;
             var metrics = Wait()
-                .WithMetrics()
+                .Metrics()
                 .AtMost(500, Millis)
                 .PollDelay(10, Millis)
                 .PollInterval(10, Millis)
@@ -107,10 +107,10 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WithMetrics_RecordsPollDelayTime()
+        public void Metrics_RecordsPollDelayTime()
         {
             var metrics = Wait()
-                .WithMetrics()
+                .Metrics()
                 .AtMost(200, Millis)
                 .PollDelay(50, Millis)
                 .PollInterval(10, Millis)
@@ -120,10 +120,10 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WithMetrics_RecordsPollIntervalTime()
+        public void Metrics_RecordsPollIntervalTime()
         {
             var metrics = Wait()
-                .WithMetrics()
+                .Metrics()
                 .AtMost(200, Millis)
                 .PollDelay(10, Millis)
                 .PollInterval(50, Millis)
@@ -133,10 +133,10 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WithMetrics_RecordsConfiguredValues()
+        public void Metrics_RecordsConfiguredValues()
         {
             var metrics = Wait()
-                .WithMetrics()
+                .Metrics()
                 .AtMost(500, Millis)
                 .PollDelay(100, Millis)
                 .PollInterval(200, Millis)
@@ -148,10 +148,10 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WithMetrics_RecordsConditionAlias()
+        public void Metrics_RecordsConditionAlias()
         {
             var metrics = Wait()
-                .WithMetrics()
+                .Metrics()
                 .Alias("Test Condition")
                 .AtMost(100, Millis)
                 .Until(() => true);
@@ -160,26 +160,26 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WithMetrics_TimeoutScenario_RecordsFailure()
+        public void Metrics_TimeoutScenario_RecordsFailure()
         {
             Assert.Throws<TimeoutException>(() =>
             {
                 Wait()
-                    .WithMetrics()
+                    .Metrics()
                     .AtMost(50, Millis)
                     .Until(() => false);
             });
         }
 
         [Test]
-        public void WithMetrics_CancellationScenario_RecordsPartialMetrics()
+        public void Metrics_CancellationScenario_RecordsPartialMetrics()
         {
             var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(5));
 
             Assert.Throws<OperationCanceledException>(() =>
             {
                 Wait()
-                    .WithMetrics()
+                    .Metrics()
                     .AtMost(1000, Millis)
                     .PollDelay(100, Millis)
                     .Until(() => false, cancellationToken: cts.Token);
@@ -187,10 +187,10 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WithMetrics_ToString_ReturnsFormattedString()
+        public void Metrics_ToString_ReturnsFormattedString()
         {
             var metrics = Wait()
-                .WithMetrics()
+                .Metrics()
                 .AtMost(100, Millis)
                 .Until(() => true);
 
@@ -205,10 +205,10 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WithMetrics_UntilTrue_ReturnsMetrics()
+        public void Metrics_UntilTrue_ReturnsMetrics()
         {
             var metrics = Wait()
-                .WithMetrics()
+                .Metrics()
                 .AtMost(100, Millis)
                 .Until(() => true);
 
@@ -217,10 +217,10 @@ namespace PleaseWait.Tests
         }
 
         [Test]
-        public void WithMetrics_UntilFalse_ReturnsMetrics()
+        public void Metrics_UntilFalse_ReturnsMetrics()
         {
             var metrics = Wait()
-                .WithMetrics()
+                .Metrics()
                 .AtMost(100, Millis)
                 .Until(() => false, expected: false);
 

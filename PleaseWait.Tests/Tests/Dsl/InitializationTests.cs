@@ -55,8 +55,8 @@ namespace PleaseWait.Tests
         {
             var wait = Wait()
                 .AtMost(1, Days)
-                .With().PollDelay(2, Hours)
-                .And().With().PollInterval(3, Minutes);
+                .PollDelay(2, Hours)
+                .PollInterval(3, Minutes);
 
             var timeout = wait.GetFieldValue<TimeSpan>("timeout");
             var pollDelay = wait.GetFieldValue<TimeSpan>("pollDelay");
