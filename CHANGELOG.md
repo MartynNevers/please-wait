@@ -7,30 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0] - 2025-08-20
+
 ### Breaking Changes
-- **Enum Naming Convention**: Update `TimeUnit` enum values from uppercase to PascalCase to follow C# conventions
-  - `MILLIS` → `Millis`
-  - `SECONDS` → `Seconds` 
-  - `MINUTES` → `Minutes`
-  - `HOURS` → `Hours`
-  - `DAYS` → `Days`
-  - **Migration Required**: Update all enum references in existing code to use new PascalCase values
-  - **Impact**: This is a breaking change requiring a major version bump (v3.0.0)
+- **TimeUnit Enum**: Update enum values from uppercase to PascalCase (MILLIS → Millis, SECONDS → Seconds, etc.)
 
 ### Added
-- **Cancellation Token Support**: Add `CancellationToken` parameter to all `Until()`, `UntilTrue()`, and `UntilFalse()` methods for graceful cancellation
-- **Enhanced Logging System**: `IWaitLogger` interface with `ConsoleLogger`, `DebugLogger`, and `NullLogger` implementations for comprehensive diagnostic logging
-- **Performance Monitoring**: `Metrics()` method and `WaitMetrics` class for collecting performance data during wait operations
-- **Wait Strategies**: `Strategy()` method with 5 strategies (Linear, ExponentialBackoff, Aggressive, Conservative, Adaptive) for optimized polling behavior
-- **Global Configuration System**: `Wait().Global().Configure()` and `Wait().Global().ResetToDefaults()` methods with `GlobalConfigurationBuilder` for application-wide defaults
-- **Instance Configuration System**: `WaitConfig` class and `Wait().Config()` method for reusable configuration objects with partial global default overrides
-- **API Consistency**: Complete method name consistency across `Dsl`, `GlobalConfigurationBuilder`, and `WaitConfig` classes
-- **Test Organization**: Organize 238 tests into logical categories (Initialization, Basic Functionality, Timeout & Exceptions, Configuration, Cancellation, Logging, WaitStrategy, Metrics, etc.)
+- **Cancellation Support**: Add CancellationToken parameter to Until() methods
+- **Logging System**: IWaitLogger interface with ConsoleLogger, DebugLogger, and NullLogger
+- **Performance Monitoring**: Metrics() method and WaitMetrics class
+- **Wait Strategies**: 5 polling strategies (Linear, ExponentialBackoff, Aggressive, Conservative, Adaptive)
+- **Global Configuration**: Wait().Global().Configure() and Wait().Global().ResetToDefaults()
+- **Instance Configuration**: WaitConfig class and Wait().Config() method
+- **API Consistency**: Complete method name consistency across Dsl, GlobalConfigurationBuilder, and WaitConfig
 
 ### Changed
-- **Documentation**: Rewrite README.md with comprehensive documentation, examples, and professional structure
-- **CI/CD**: Remove .NET 6.0 from CI workflow and test project build targets (maintains .NET Standard 2.0 targeting for .NET 6.0+ compatibility)
-- **Code Quality**: Resolve all StyleCop warnings and achieve clean build with 0 warnings, 0 errors
+- **Documentation**: Comprehensive README.md rewrite with examples
 
 ## [2.7.0] - 2024-07-12
 

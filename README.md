@@ -35,6 +35,7 @@
   - [API Testing](#api-testing)
   - [Database Testing](#database-testing)
 - [📋 Requirements](#-requirements)
+- [💝 Support](#-support)
 - [🤝 Contributing](#-contributing)
 - [📄 License](#-license)
 - [📖 Documentation](#-documentation)
@@ -253,8 +254,6 @@ Wait().AtMost(10, Seconds)
 PleaseWait supports diagnostic logging to help debug wait operations. By default, no logging occurs (using `NullLogger`). To enable logging, use one of the following approaches:
 
 ```csharp
-using PleaseWait.Logging;
-
 // Enable console logging
 Wait()
     .Logger(new ConsoleLogger())
@@ -662,6 +661,18 @@ public void WaitForDatabaseUpdate()
 
 - **.NET Standard 2.0** or higher
 - **C# 8.0** or higher
+
+## 💝 Support
+
+PleaseWait has been downloaded thousands of times and is used by developers worldwide. If you find it helpful, consider supporting its continued development:
+
+### 🐙 GitHub Sponsors
+[![GitHub Sponsors](https://img.shields.io/badge/GitHub%20Sponsors-EA4AAA?style=for-the-badge&logo=githubsponsors&logoColor=white)](https://github.com/sponsors/MartynNevers)
+
+### PayPal
+[![PayPal](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/martynnevers)
+
+---
 
 ## 🤝 Contributing
 
