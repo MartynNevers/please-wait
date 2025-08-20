@@ -183,6 +183,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Quick Summary by Major Version
 
+### Version 3.x - Configuration System Overhaul (2025)
+**Key Improvements:**
+- **3.0.0**: Global configuration, instance configuration, logging system, wait strategies, cancellation support, and API consistency
+
+**Breaking Changes:**
+- 3.0.0: TimeUnit enum values changed to PascalCase
+
 ### Version 2.x - Enhanced DSL (2023-2024)
 **Key Improvements:**
 - **2.0.0**: Complete API redesign with new architecture and enhanced DSL

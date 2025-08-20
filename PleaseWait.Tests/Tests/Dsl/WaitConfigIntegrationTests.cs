@@ -14,7 +14,7 @@
 // limitations under the License.
 // </copyright>
 
-namespace PleaseWait.Tests.Tests.Dsl
+namespace PleaseWait.Tests
 {
     using System;
     using System.Collections.Generic;
