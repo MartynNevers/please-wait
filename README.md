@@ -71,7 +71,7 @@ dotnet add package PleaseWait
 Or add to your `.csproj`:
 
 ```xml
-<PackageReference Include="PleaseWait" Version="2.7.0" />
+<PackageReference Include="PleaseWait" Version="*" />
 ```
 
 ## 🎯 Quick Start
@@ -357,9 +357,9 @@ Wait()
 | `Polling(double, TimeUnit, double, TimeUnit)` | → Combines PollDelay + PollInterval - sets both values in one call |
 | `Strategy(WaitStrategy)` | Set wait strategy for this operation |
 | `Logger(IWaitLogger)` | Set logger for this operation |
-| `Metrics(bool)` | Enable metrics collection for this operation |
-| `IgnoreExceptions(bool)` | Set exception handling behavior |
-| `FailSilently(bool)` | Set fail silently behavior |
+| `Metrics(bool)` | Enable metrics collection for this operation (default: true) |
+| `IgnoreExceptions(bool)` | Set exception handling behavior (default: true) |
+| `FailSilently(bool)` | Set fail silently behavior (default: true) |
 | `ExceptionHandling(bool, bool)` | → Combines IgnoreExceptions + FailSilently - sets both values in one call |
 | `Alias(string?)` | Set alias for this operation |
 | `Prereq(Action?)` | Set a single prerequisite action (nullable) |
@@ -369,6 +369,16 @@ Wait()
 | `And()` | Syntactic sugar for fluent chaining |
 
 **Note:** All time-based methods also have `TimeSpan` overloads (e.g., `AtMost(TimeSpan)`, `PollDelay(TimeSpan)`, `PollInterval(TimeSpan)`, `Polling(TimeSpan, TimeSpan)`, `Sleep(TimeSpan)`, `Timeout(TimeSpan)`).
+
+**Wait Execution:**
+
+| Method | Return Type | Description |
+|--------|-------------|-------------|
+| `Until(Func<bool>, bool, CancellationToken)` | `WaitMetrics?` | Wait for condition to return the expected boolean value (default: true) |
+| `UntilTrue(Func<bool>, CancellationToken)` | `void` | Wait for condition to return true (convenience method) |
+| `UntilFalse(Func<bool>, CancellationToken)` | `void` | Wait for condition to return false (convenience method) |
+
+**Note:** The `CancellationToken` parameter defaults to `default` (no cancellation). You can call `Until(condition)` without the `expected` and `cancellationToken` parameters (defaults to `true` and `default` respectively).
 
 **Benefits:**
 - **Immediate**: Options take effect immediately for the current operation
@@ -501,19 +511,18 @@ Wait().Global().ResetToDefaults();
 | `PollInterval(double, TimeUnit)` | 100 milliseconds | Default delay between condition checks |
 | `Polling(double, TimeUnit, double, TimeUnit)` | 100ms delay, 100ms interval | → Combines PollDelay + PollInterval - sets both values in one call |
 | `Strategy(WaitStrategy)` | `Linear` | Default wait strategy for all operations |
-| `Logger(IWaitLogger)` | `NullLogger` | Default logger for all wait operations |
+| `Logger(IWaitLogger)` | `NullLogger` | Default logger for all wait operations (no logging by default) |
 | `Metrics(bool)` | `false` | Whether to collect metrics by default |
 | `IgnoreExceptions(bool)` | `true` | Whether to ignore exceptions during condition checks |
-| `FailSilently(bool)` | `false` | Whether to return false instead of throwing on timeout |
+| `FailSilently(bool)` | `false` | Whether to suppress TimeoutException and return normally on timeout |
 | `ExceptionHandling(bool, bool)` | `true, false` | → Combines IgnoreExceptions + FailSilently - sets both values in one call |
-| `Alias(string?)` | `null` | Default alias for wait operations |
-| `Prereq(Action?)` | `null` | Set a single default prerequisite action (nullable) |
-| `Prereqs(List<Action>?)` | `null` | Set multiple default prerequisite actions |
-| `Sleep(double, TimeUnit)` | N/A | API consistency method (no global effect) |
+| `Alias(string?)` | `null` | Default alias for wait operations (uses "condition" when null) |
+| `Prereq(Action?)` | `null` | Set a single default prerequisite action (no action when null) |
+| `Prereqs(List<Action>?)` | `null` | Set multiple default prerequisite actions (no actions when null) |
 | `With()` | N/A | Syntactic sugar for fluent chaining |
 | `And()` | N/A | Syntactic sugar for fluent chaining |
 
-**Note:** All time-based methods also have `TimeSpan` overloads (e.g., `AtMost(TimeSpan)`, `PollDelay(TimeSpan)`, `PollInterval(TimeSpan)`, `Polling(TimeSpan, TimeSpan)`, `Sleep(TimeSpan)`, `Timeout(TimeSpan)`).
+**Note:** All time-based methods also have `TimeSpan` overloads (e.g., `AtMost(TimeSpan)`, `PollDelay(TimeSpan)`, `PollInterval(TimeSpan)`, `Polling(TimeSpan, TimeSpan)`, `Timeout(TimeSpan)`).
 
 **Best Practices:**
 - Configure global defaults early in your application startup
@@ -572,7 +581,7 @@ Wait().Global().Configure().PollDelay(100, Millis);
 Wait(config).Until(() => condition); // Uses 5s timeout + 200ms poll delay + Conservative strategy
 ```
 
-**Important: Captured Global Defaults**
+⚠️ **IMPORTANT**: Configs capture global defaults when created.
 When you create a `WaitConfig`, it captures the current global default values at creation time. This ensures predictable behavior - the config will always use the same defaults regardless of subsequent global configuration changes.
 
 **Instance Configuration Options:**
@@ -591,13 +600,12 @@ When you create a `WaitConfig`, it captures the current global default values at
 | `FailSilently(bool)` | Set fail silently behavior |
 | `ExceptionHandling(bool, bool)` | → Combines IgnoreExceptions + FailSilently - sets both values for this configuration |
 | `Alias(string?)` | Set alias for this configuration |
-| `Prereq(Action?)` | Set a single prerequisite action (nullable) |
+| `Prereq(Action?)` | Set a single prerequisite action |
 | `Prereqs(List<Action>?)` | Set multiple prerequisite actions |
-| `Sleep(double, TimeUnit)` | API consistency method (no configuration effect) |
 | `With()` | Syntactic sugar for fluent chaining |
 | `And()` | Syntactic sugar for fluent chaining |
 
-**Note:** All time-based methods also have `TimeSpan` overloads (e.g., `AtMost(TimeSpan)`, `PollDelay(TimeSpan)`, `PollInterval(TimeSpan)`, `Polling(TimeSpan, TimeSpan)`, `Sleep(TimeSpan)`, `Timeout(TimeSpan)`).
+**Note:** All time-based methods also have `TimeSpan` overloads (e.g., `AtMost(TimeSpan)`, `PollDelay(TimeSpan)`, `PollInterval(TimeSpan)`, `Polling(TimeSpan, TimeSpan)`, `Timeout(TimeSpan)`).
 
 **Benefits:**
 - **Reusable**: Create once, use many times
@@ -691,7 +699,7 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 ## 📖 Documentation
 
-- [Changelog](CHANGELOG.md) - Complete version history and changes
+- [Changelog](https://github.com/MartynNevers/please-wait/blob/main/CHANGELOG.md) - Complete version history and changes
 - [NuGet Package](https://www.nuget.org/packages/PleaseWait) - Package information and downloads
 
 ## 🙏 Acknowledgments

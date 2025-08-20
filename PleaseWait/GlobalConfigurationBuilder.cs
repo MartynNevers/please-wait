@@ -258,30 +258,5 @@ namespace PleaseWait
             GlobalDefaults.Strategy = strategy;
             return this;
         }
-
-        /// <summary>
-        /// Sets the default sleep duration for wait operations.
-        /// </summary>
-        /// <param name="timeSpan">The sleep duration.</param>
-        /// <returns>The current configuration builder.</returns>
-        public GlobalConfigurationBuilder Sleep(TimeSpan timeSpan)
-        {
-            // Sleep is not a global setting, so this method is provided for API consistency
-            // but doesn't modify any global defaults
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the default sleep duration for wait operations.
-        /// </summary>
-        /// <param name="value">The sleep duration value.</param>
-        /// <param name="timeUnit">The time unit for the sleep duration value.</param>
-        /// <returns>The current configuration builder.</returns>
-        public GlobalConfigurationBuilder Sleep(double value, TimeUnit timeUnit)
-        {
-            // Sleep is not a global setting, so this method is provided for API consistency
-            // but doesn't modify any global defaults
-            return this;
-        }
     }
 }

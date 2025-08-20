@@ -364,30 +364,5 @@ namespace PleaseWait
             this.ConfigStrategy = strategy;
             return this;
         }
-
-        /// <summary>
-        /// Sets the sleep duration for wait operations.
-        /// </summary>
-        /// <param name="timeSpan">The sleep duration.</param>
-        /// <returns>The current configuration.</returns>
-        public WaitConfig Sleep(TimeSpan timeSpan)
-        {
-            // Sleep is not a configuration setting, so this method is provided for API consistency
-            // but doesn't modify any configuration properties
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the sleep duration for wait operations.
-        /// </summary>
-        /// <param name="value">The sleep duration value.</param>
-        /// <param name="timeUnit">The time unit for the sleep duration value.</param>
-        /// <returns>The current configuration.</returns>
-        public WaitConfig Sleep(double value, TimeUnit timeUnit)
-        {
-            // Sleep is not a configuration setting, so this method is provided for API consistency
-            // but doesn't modify any configuration properties
-            return this;
-        }
     }
 }
