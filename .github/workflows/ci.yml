@@ -54,7 +54,7 @@ jobs:
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
 
-      - name: Install Mono (for .NET Framework 4.8 tests)
+      - name: Install Mono (if net48 build, for .NET Framework 4.8 tests)
         if: matrix.framework == 'net48'
         run: |
           sudo apt-get update
@@ -74,6 +74,12 @@ jobs:
 
       - name: Run tests (${{ matrix.framework }})
         run: dotnet test /p:Configuration=$BUILD_CONFIG --framework ${{ matrix.framework }} --no-restore --no-build --verbosity normal
+
+      - name: Install Mono (if release branch and net8.0 build)
+        if: startsWith(github.ref, 'refs/heads/release') && matrix.framework == 'net8.0'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mono-complete
 
       - name: Ensure NuGet package is generated (if release branch and net8.0 build)
         if: startsWith(github.ref, 'refs/heads/release') && contains(matrix.framework, 'net8.0')
