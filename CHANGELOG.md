@@ -7,10 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.1] - 2025-08-20
+
 ### Removed
 - **Configuration Sleep Methods**: Remove no-op Sleep() methods from GlobalConfigurationBuilder and WaitConfig classes
-  - These methods were API consistency placeholders that didn't actually modify any configuration
-  - The actual `Wait().Sleep()` functionality remains intact and working
 
 ### Changed
 - **Documentation**: Remove Sleep() references from configuration options tables in README

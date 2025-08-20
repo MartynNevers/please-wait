@@ -667,8 +667,8 @@ public void WaitForDatabaseUpdate()
 
 ## 📋 Requirements
 
-- **.NET Standard 2.0** or higher
-- **C# 8.0** or higher
+- **.NET Standard 2.0**
+- **C# 8.0**
 
 ## 💝 Support
 
@@ -710,4 +710,4 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 ---
 
-**Made with ❤️ for the .NET community**
+**Good things come to those who wait...** ⏳
